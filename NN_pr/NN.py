@@ -1,3 +1,9 @@
+# 1 hidden --> file 3, dim dataset=512: max error=3.0 -- % error=0.5859375 -- time of train=39s
+# 2 hidden --> file 3, dim dataset=512: max error=1.0 -- % error=0.1953125 -- time of train=32s
+# 1 hidden --> file 7, dim dataset=8192: max error=45.0 -- % error=0.54931640625 -- time of train=29s
+# 2 hidden --> file 7, dim dataset=8192: max error=36.0 -- % error=0.439453125 -- time of train=413s
+
+
 import numpy as np
 import math
 from sklearn.metrics import r2_score
@@ -6,6 +12,7 @@ from NN_pr import activation_function as af
 
 N_FEATURES = 64
 N_CLASSES = 1
+np.random.RandomState(42)
 
 class NN:
     def __init__(self, training, testing, lr, mu, minibatch, lambd=0, dropout=None, disableLog=None, weights=None):
@@ -46,10 +53,15 @@ class NN:
         if weights == None:
             weights_hidden_shapes = list(zip([N_FEATURES]+neurons[:-1], neurons))   
             weights_hidden = [np.random.randn(row, col) * math.sqrt(2.0 / self.numEx) for row, col in weights_hidden_shapes] 
-            bias_hidden = [np.random.randn(1, n) * math.sqrt(2.0 / self.numEx) for n in neurons]
+            #bias_hidden = [np.random.randn(1, n) * math.sqrt(2.0 / self.numEx) for n in neurons]
+            #weights_hidden = [np.random.normal(scale=0.05, size=(row, col)) for row, col in weights_hidden_shapes] 
+            #bias_hidden = [np.random.normal(scale=0.05, size=(1, n)) for n in neurons]
+            bias_hidden = [np.ones((1, n))*0.0001 for n in neurons]
             self.layers = [[w,b] for w, b in list(zip(weights_hidden, bias_hidden))]
             Wo = np.random.randn(neurons[-1], N_CLASSES) * math.sqrt(2.0 / self.numEx)
-            bWo = np.random.randn(1, N_CLASSES) * math.sqrt(2.0 / self.numEx)
+            #Wo = np.random.normal(scale=0.05,size=(neurons[-1], N_CLASSES))
+            # bWo = np.random.randn(1, N_CLASSES) * math.sqrt(2.0 / self.numEx)
+            bWo = np.ones((1, N_CLASSES))*0.0001
             self.layers += [[Wo,bWo]]
         else:
             self.layers=weights
@@ -121,7 +133,7 @@ class NN:
             else:
                 return False
         elif t==1:
-            if abs(loss_epoch-self.best_loss) <= 1.e-7:
+            if abs(loss_epoch-self.best_loss) <= 1e-7:
                 self.real_patience -= 1
                 if self.real_patience == 0:
                     return False
@@ -138,13 +150,16 @@ class NN:
                     return False 
         elif t == 2:
             r2=r2_score(self.target_train, self.predict(self.train_set))
-            if abs(r2-self.last_r2) < 1e-7: 
-                return False
+            if abs(r2-self.last_r2) < 1e-8: 
+                self.real_patience -= 1
+                if self.real_patience==0:
+                    return False
             else:
                 if self.epoch < num_epochs:
                     self.last_r2 = r2
+                    self.real_patience = self.patience
                     return True
-                else: 
+                else:
                     return False
 
 
