@@ -32,11 +32,11 @@ for i in [3,7]:
         
     now = time.time()
 
-    nn = NN.NN(training=[bin_data_perm, labels_perm], testing=[[0],[0]], lr=0.005, mu=0.9, lambd=1e-6, minibatch=64, disableLog=True)
+    nn = NN.NN(training=[bin_data_perm, labels_perm], testing=[[0],[0]], lr=.001, mu=0.9, lambd=0, minibatch=64, disableLog=False)
     #file3, lr=0.005 --> 4 48s
     #file7, lr=0.005 --> 40 28s
     nn.addLayers([256], ['leakyrelu','leakyrelu'])
-    nn.train(stop_function=2, num_epochs=20000)
+    nn.train(stop_function=3, num_epochs=20000)
     
     later = time.time()
     difference = int(later - now)
@@ -55,10 +55,10 @@ for i in [3,7]:
     
 
     now = time.time()
-    nn = NN.NN(training=[bin_data_perm, labels_perm], testing=[[0],[0]], lr=.001, mu=0.9, lambd=1e-6, minibatch=64, disableLog=True)
+    nn = NN.NN(training=[bin_data_perm, labels_perm], testing=[[0],[0]], lr=.001, mu=0.9, lambd=0, minibatch=64, disableLog=False)
 
     nn.addLayers([256,256], ['leakyrelu','leakyrelu','leakyrelu'])
-    nn.train(stop_function=2, num_epochs=20000)
+    nn.train(stop_function=3, num_epochs=20000)
     
     later = time.time()
     difference = int(later - now)

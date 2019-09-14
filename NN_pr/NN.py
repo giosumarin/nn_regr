@@ -34,7 +34,7 @@ class NN:
   
         
         self.lambd = lambd
-        self.patience = 5         
+        self.patience = 5     
             
     def addLayers(self, neurons, activation_fun, weights=None):
         self.epoch = 0
@@ -56,12 +56,12 @@ class NN:
             #bias_hidden = [np.random.randn(1, n) * math.sqrt(2.0 / self.numEx) for n in neurons]
             #weights_hidden = [np.random.normal(scale=0.05, size=(row, col)) for row, col in weights_hidden_shapes] 
             #bias_hidden = [np.random.normal(scale=0.05, size=(1, n)) for n in neurons]
-            bias_hidden = [np.ones((1, n))*0.0001 for n in neurons]
+            bias_hidden = [np.ones((1, n))*0.001 for n in neurons]
             self.layers = [[w,b] for w, b in list(zip(weights_hidden, bias_hidden))]
             Wo = np.random.randn(neurons[-1], N_CLASSES) * math.sqrt(2.0 / self.numEx)
             #Wo = np.random.normal(scale=0.05,size=(neurons[-1], N_CLASSES))
             # bWo = np.random.randn(1, N_CLASSES) * math.sqrt(2.0 / self.numEx)
-            bWo = np.ones((1, N_CLASSES))*0.0001
+            bWo = np.ones((1, N_CLASSES))*0.001
             self.layers += [[Wo,bWo]]
         else:
             self.layers=weights
@@ -84,8 +84,12 @@ class NN:
 
 
     def loss(self, X, t):
+        #predictions = self.predict(X)
+        #loss = np.mean((predictions-t)**2, axis=0)
+        #return loss
         predictions = self.predict(X)
-        loss= np.mean((predictions-t)**2, axis=0)
+        loss = np.mean(np.abs(predictions-t))
+        #print(loss)
         return loss
 
 
@@ -97,6 +101,7 @@ class NN:
             indexHigh = (nb + 1) * self.minibatch
 
             outputs = self.feedforward(X[indexLow:indexHigh])
+            
             if self.p != None:
                 for i in range(self.nHidden):
                     mask = (np.random.rand(*outputs[i].shape) < self.p) / self.p
@@ -161,23 +166,38 @@ class NN:
                     return True
                 else:
                     return False
+        elif t==3:
+            if self.best_loss - loss_epoch <= 0 :
+                self.real_patience += 1
+                if self.real_patience == self.patience:
+                    return False
+                else:
+                    return True
+            else:
+                if self.best_loss > loss_epoch:
+                    self.best_loss=loss_epoch
+                if self.epoch < num_epochs:
+                    self.real_patience = 0
+                    return True
+                else:
+                    return False 
 
 
     def train(self, stop_function, num_epochs):
         
         self.best_loss = 100.
-        last_loss = 100.
+        last_loss = 99.
         self.last_r2= -100
             
         self.best_ep=0    
-        self.real_patience = self.patience
+        self.real_patience = 0
 
         log.logNN.info("learning rate=" + str(self.lr) + " momentum update=" + str(self.mu) + " minibatch=" + str(self.minibatch))
         while self.stop_fun(stop_function, num_epochs, last_loss):
             self.updateMomentum(self.train_set, self.target_train)
             last_loss = self.loss(self.train_set, self.target_train)
 
-            if self.epoch % 5 == 0:
+            if self.epoch % 1 == 0:
                 log.logNN.debug("Train - epoch {0} - MSE {1}".format(self.epoch, last_loss)) 
                 
             
