@@ -34,7 +34,7 @@ class NN:
   
         
         self.lambd = lambd
-        self.patience = 5     
+        self.patience = 3     
             
     def addLayers(self, neurons, activation_fun, weights=None):
         self.epoch = 0
@@ -52,14 +52,14 @@ class NN:
         
         if weights == None:
             weights_hidden_shapes = list(zip([N_FEATURES]+neurons[:-1], neurons))   
-            weights_hidden = [np.random.randn(row, col) * math.sqrt(2.0 / self.numEx) for row, col in weights_hidden_shapes] 
+            #weights_hidden = [np.random.randn(row, col) * math.sqrt(2.0 / self.numEx) for row, col in weights_hidden_shapes] 
             #bias_hidden = [np.random.randn(1, n) * math.sqrt(2.0 / self.numEx) for n in neurons]
-            #weights_hidden = [np.random.normal(scale=0.05, size=(row, col)) for row, col in weights_hidden_shapes] 
+            weights_hidden = [np.random.normal(scale=0.05, size=(row, col)) for row, col in weights_hidden_shapes] 
             #bias_hidden = [np.random.normal(scale=0.05, size=(1, n)) for n in neurons]
             bias_hidden = [np.ones((1, n))*0.001 for n in neurons]
             self.layers = [[w,b] for w, b in list(zip(weights_hidden, bias_hidden))]
-            Wo = np.random.randn(neurons[-1], N_CLASSES) * math.sqrt(2.0 / self.numEx)
-            #Wo = np.random.normal(scale=0.05,size=(neurons[-1], N_CLASSES))
+            #Wo = np.random.randn(neurons[-1], N_CLASSES) * math.sqrt(2.0 / self.numEx)
+            Wo = np.random.normal(scale=0.05,size=(neurons[-1], N_CLASSES))
             # bWo = np.random.randn(1, N_CLASSES) * math.sqrt(2.0 / self.numEx)
             bWo = np.ones((1, N_CLASSES))*0.001
             self.layers += [[Wo,bWo]]
