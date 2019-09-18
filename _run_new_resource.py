@@ -13,7 +13,7 @@ from NN_pr import WS_module as ws
 from sklearn.metrics import r2_score
 
 
-for i in [3,7]:
+for i in [7,10]:
     with h5py.File('Resource2/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
         data = f.get('Sb') 
         bin_data = np.array(data, dtype=np.bool)
@@ -32,11 +32,11 @@ for i in [3,7]:
         
     now = time.time()
 
-    nn = NN.NN(training=[bin_data_perm, labels_perm], testing=[[0],[0]], lr=.001, mu=0.9, lambd=0, minibatch=64, disableLog=False)
+    nn = NN.NN(training=[bin_data_perm, labels_perm], testing=[[0],[0]], lr=.3, mu=0.9, lambd=0, minibatch=64, disableLog=False)
     #file3, lr=0.005 --> 4 48s
     #file7, lr=0.005 --> 40 28s
     nn.addLayers([256], ['leakyrelu','leakyrelu'])
-    nn.train(stop_function=3, num_epochs=20000)
+    nn.train(stop_function=3, num_epochs=5000)
     
     later = time.time()
     difference = int(later - now)
@@ -53,12 +53,13 @@ for i in [3,7]:
 
     print("1 hidden --> file {2}, dim dataset={4}: max error={0} -- % error={1} -- time of train={3}s".format(max_err[0], max_err[0]/dim_set*100, i, difference, dim_set))
     
-
+    
+    
     now = time.time()
-    nn = NN.NN(training=[bin_data_perm, labels_perm], testing=[[0],[0]], lr=.001, mu=0.9, lambd=0, minibatch=64, disableLog=False)
+    nn = NN.NN(training=[bin_data_perm, labels_perm], testing=[[0],[0]], lr=.3, mu=0.9, lambd=0, minibatch=64, disableLog=False)
 
     nn.addLayers([256,256], ['leakyrelu','leakyrelu','leakyrelu'])
-    nn.train(stop_function=3, num_epochs=20000)
+    nn.train(stop_function=3, num_epochs=5000)
     
     later = time.time()
     difference = int(later - now)
@@ -74,7 +75,7 @@ for i in [3,7]:
         mean_err += val
 
     print("2 hidden --> file {2}, dim dataset={4}: max error={0} -- % error={1} -- time of train={3}s".format(max_err[0], max_err[0]/dim_set*100, i, difference, dim_set))
-        
+    
     
     '''
     w = (nn.getWeight())

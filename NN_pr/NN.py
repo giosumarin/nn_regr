@@ -1,9 +1,3 @@
-# 1 hidden --> file 3, dim dataset=512: max error=3.0 -- % error=0.5859375 -- time of train=39s
-# 2 hidden --> file 3, dim dataset=512: max error=1.0 -- % error=0.1953125 -- time of train=32s
-# 1 hidden --> file 7, dim dataset=8192: max error=45.0 -- % error=0.54931640625 -- time of train=29s
-# 2 hidden --> file 7, dim dataset=8192: max error=36.0 -- % error=0.439453125 -- time of train=413s
-
-
 import numpy as np
 import math
 from sklearn.metrics import r2_score
@@ -34,7 +28,7 @@ class NN:
   
         
         self.lambd = lambd
-        self.patience = 3     
+        self.patience = 5     
             
     def addLayers(self, neurons, activation_fun, weights=None):
         self.epoch = 0
@@ -54,14 +48,14 @@ class NN:
             weights_hidden_shapes = list(zip([N_FEATURES]+neurons[:-1], neurons))   
             #weights_hidden = [np.random.randn(row, col) * math.sqrt(2.0 / self.numEx) for row, col in weights_hidden_shapes] 
             #bias_hidden = [np.random.randn(1, n) * math.sqrt(2.0 / self.numEx) for n in neurons]
-            weights_hidden = [np.random.normal(scale=0.05, size=(row, col)) for row, col in weights_hidden_shapes] 
+            weights_hidden = [np.random.normal(scale=0.05, size=(row, col)).astype(np.float32) for row, col in weights_hidden_shapes] 
             #bias_hidden = [np.random.normal(scale=0.05, size=(1, n)) for n in neurons]
-            bias_hidden = [np.ones((1, n))*0.001 for n in neurons]
+            bias_hidden = [np.ones((1, n)).astype(np.float32)*0.001 for n in neurons]
             self.layers = [[w,b] for w, b in list(zip(weights_hidden, bias_hidden))]
             #Wo = np.random.randn(neurons[-1], N_CLASSES) * math.sqrt(2.0 / self.numEx)
-            Wo = np.random.normal(scale=0.05,size=(neurons[-1], N_CLASSES))
+            Wo = np.random.normal(scale=0.05,size=(neurons[-1], N_CLASSES)).astype(np.float32)
             # bWo = np.random.randn(1, N_CLASSES) * math.sqrt(2.0 / self.numEx)
-            bWo = np.ones((1, N_CLASSES))*0.001
+            bWo = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
             self.layers += [[Wo,bWo]]
         else:
             self.layers=weights
@@ -89,8 +83,7 @@ class NN:
         #return loss
         predictions = self.predict(X)
         loss = np.mean(np.abs(predictions-t))
-        #print(loss)
-        return loss
+        return np.round(loss, 7)
 
 
     def updateMomentum(self, X, t):
@@ -109,7 +102,7 @@ class NN:
 
             y = outputs[-1]
             
-            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh])]
+            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh])*1/self.numEx]
             for i in range(self.nHidden):
                 deltas.append(np.dot(deltas[i], self.layers[self.nHidden - i][0].T) * self.act_fun[self.nHidden - i - 1](outputs[self.nHidden - i - 1], True))
             deltas.reverse()
@@ -198,12 +191,12 @@ class NN:
             last_loss = self.loss(self.train_set, self.target_train)
 
             if self.epoch % 1 == 0:
-                log.logNN.debug("Train - epoch {0} - MSE {1}".format(self.epoch, last_loss)) 
+                log.logNN.debug("Train - epoch {0} - MAE {1}".format(self.epoch, last_loss)) 
                 
             
             self.epoch += 1
 
-        log.logNN.info("Train - epoch {0} - MSE {1}".format(self.epoch, last_loss))
+        log.logNN.info("Train - epoch {0} - MAE {1}".format(self.epoch, last_loss))
         log.logNN.debug("-------------------------------------------------------------------------------")
         return last_loss
 

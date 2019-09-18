@@ -30,10 +30,15 @@ def tanh(z, derivate=False):
 def LReLU(x, derivate=False):
     alpha=0.05
     if not derivate:
-        pos = x * (x > 0)
-        neg = x * alpha * (x < 0)
-        return pos + neg
+        #pos = x * (x > 0)
+        #neg = x * alpha * (x < 0)
+        #return pos + neg
+        output=np.copy(x)
+        output[output<0] *= alpha
+        return output
     else:
-        pos = 1. * (x > 0)
-        neg = alpha * (x < 0)
-        return pos + neg
+        #pos = 1. * (x > 0)
+        #neg = alpha * (x < 0)
+        #return pos + neg
+        output = np.clip(x>0,alpha,1.)
+        return output
