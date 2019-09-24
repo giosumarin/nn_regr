@@ -9,15 +9,19 @@ N_CLASSES = 1
 np.random.RandomState(42)
 
 class NN:
-    def __init__(self, training, testing, lr, mu, minibatch, lambd=0, dropout=None, disableLog=None, weights=None):
+    def __init__(self, training, testing, lr, mu, lambd=0, minibatch=None, dropout=None, disableLog=None, weights=None):
         self.train_set = training[0]
         self.test = testing[0]
         self.numEx = len(self.train_set)
         self.numTest = len(self.test)
         self.lr = lr
         self.mu = mu
-        self.minibatch = minibatch
+        if not minibatch:
+            self.minibatch = self.numEx
+        else:
+            self.minibatch = minibatch
         self.p = dropout
+        self.disableLog=disableLog
         if disableLog:
             log.logNN.disabled=True
         self.layers = weights
@@ -28,7 +32,7 @@ class NN:
   
         
         self.lambd = lambd
-        self.patience = 5     
+        self.patience = 4     
             
     def addLayers(self, neurons, activation_fun, weights=None):
         self.epoch = 0
@@ -46,14 +50,14 @@ class NN:
         
         if weights == None:
             weights_hidden_shapes = list(zip([N_FEATURES]+neurons[:-1], neurons))   
-            #weights_hidden = [np.random.randn(row, col) * math.sqrt(2.0 / self.numEx) for row, col in weights_hidden_shapes] 
+            weights_hidden = [np.random.randn(row, col).astype(np.float32) * math.sqrt(1.0 / self.numEx) for row, col in weights_hidden_shapes] 
             #bias_hidden = [np.random.randn(1, n) * math.sqrt(2.0 / self.numEx) for n in neurons]
-            weights_hidden = [np.random.normal(scale=0.05, size=(row, col)).astype(np.float32) for row, col in weights_hidden_shapes] 
+            #weights_hidden = [np.random.normal(scale=0.01, size=(row, col)).astype(np.float32) for row, col in weights_hidden_shapes] 
             #bias_hidden = [np.random.normal(scale=0.05, size=(1, n)) for n in neurons]
             bias_hidden = [np.ones((1, n)).astype(np.float32)*0.001 for n in neurons]
             self.layers = [[w,b] for w, b in list(zip(weights_hidden, bias_hidden))]
-            #Wo = np.random.randn(neurons[-1], N_CLASSES) * math.sqrt(2.0 / self.numEx)
-            Wo = np.random.normal(scale=0.05,size=(neurons[-1], N_CLASSES)).astype(np.float32)
+            Wo = np.random.randn(neurons[-1], N_CLASSES).astype(np.float32) * math.sqrt(1.0 / self.numEx)
+            #Wo = np.random.normal(scale=0.01,size=(neurons[-1], N_CLASSES)).astype(np.float32)
             # bWo = np.random.randn(1, N_CLASSES) * math.sqrt(2.0 / self.numEx)
             bWo = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
             self.layers += [[Wo,bWo]]
@@ -81,8 +85,22 @@ class NN:
         #predictions = self.predict(X)
         #loss = np.mean((predictions-t)**2, axis=0)
         #return loss
-        predictions = self.predict(X)
-        loss = np.mean(np.abs(predictions-t))
+
+        #scegliere soglia e fare media pesat
+        tr = 2 ** 5 
+        if X.shape[0] > 2**10:
+            loss = 0
+            batch=self.numEx // tr
+            for n in range(batch):
+                indexLow = n * tr
+                indexHigh =(n+1) * tr 
+                predictions = self.predict(X[indexLow:indexHigh])
+                loss += np.mean(np.abs(predictions - t[indexLow:indexHigh]))
+                
+            loss/=batch
+        else:
+            predictions = self.predict(X)
+            loss = np.mean(np.abs(predictions-t))
         return np.round(loss, 7)
 
 
@@ -102,7 +120,7 @@ class NN:
 
             y = outputs[-1]
             
-            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh])*1/self.numEx]
+            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh])]
             for i in range(self.nHidden):
                 deltas.append(np.dot(deltas[i], self.layers[self.nHidden - i][0].T) * self.act_fun[self.nHidden - i - 1](outputs[self.nHidden - i - 1], True))
             deltas.reverse()
@@ -117,12 +135,19 @@ class NN:
 
             
     def update_layers(self, deltasUpd):
+        lr = self.exp_decay()
         for i in range(self.nHidden + 1):
-            self.v[i][0] = self.mu * self.v[i][0] - self.lr * deltasUpd[i][0]
-            self.v[i][1] = self.mu * self.v[i][1] - self.lr * deltasUpd[i][1]
+            self.v[i][0] = self.mu * self.v[i][0] + lr * deltasUpd[i][0]
+            self.v[i][1] = self.mu * self.v[i][1] + lr * deltasUpd[i][1]
         for i in range(self.nHidden + 1):
-            self.layers[i][0] += self.v[i][0] 
-            self.layers[i][1] += self.v[i][1] 
+            self.layers[i][0] -= self.v[i][0] 
+            self.layers[i][1] -= self.v[i][1] 
+
+
+    def exp_decay(self):
+        k = .001
+        return self.lr*math.exp(-k * self.epoch)
+
 
     def stop_fun(self, t=0, num_epochs=None, loss_epoch=None):
         if t==0:
@@ -160,7 +185,7 @@ class NN:
                 else:
                     return False
         elif t==3:
-            if self.best_loss - loss_epoch <= 0 :
+            if (self.best_loss - loss_epoch <= 0):
                 self.real_patience += 1
                 if self.real_patience == self.patience:
                     return False
@@ -190,13 +215,21 @@ class NN:
             self.updateMomentum(self.train_set, self.target_train)
             last_loss = self.loss(self.train_set, self.target_train)
 
-            if self.epoch % 1 == 0:
-                log.logNN.debug("Train - epoch {0} - MAE {1}".format(self.epoch, last_loss)) 
-                
+            if self.epoch % 1 == 0 and self.disableLog==False:
+                log.logNN.debug("Train - epoch {0} - MAE {1} - MeanErr {2}".format(self.epoch, last_loss, last_loss*self.numEx)) 
             
+            #if self.epoch % 10 == 0:
+            #    pred = np.floor(self.predict(self.train_set)*self.numEx)           
+            #    dif=np.abs(pred-self.target_train*self.numEx)              
+            #    m = max(dif)               
+            #    print("epoch: {1} -- DELTA MAX: {0} -- MAE: {2}".format(m, self.epoch, last_loss))            
+		
+            #if self.epoch % 10 == 0:
+            #    log.logNN.debug("Train - epoch {} - MAE {} - Delta max {}".format(self.epoch, last_loss, m))
             self.epoch += 1
 
-        log.logNN.info("Train - epoch {0} - MAE {1}".format(self.epoch, last_loss))
+        log.logNN.info("Train - epoch {0} - MAE {1} - MeanErr {2}".format(self.epoch, last_loss, last_loss*self.numEx))
+        #print("epoch: {1} -- DELTA MAX: {0} -- MAE: {2}".format(m, self.epoch, last_loss))
         log.logNN.debug("-------------------------------------------------------------------------------")
         return last_loss
 
