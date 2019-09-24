@@ -88,7 +88,7 @@ class NN:
 
         #scegliere soglia e fare media pesat
         tr = 2 ** 5 
-        if X.shape[0] > 2**10:
+        if X.shape[0] > 2**1000:
             loss = 0
             batch=self.numEx // tr
             for n in range(batch):

@@ -1,0 +1,20 @@
+0 hidden --> file 3, dim=512: maxerr=10.0 -- %err=1.953 -- meanErr=[2.93554688] -- time=0s
+0 hidden, 10% pr --> file 3, dim=512: maxerr=8.0 -- %err=1.562 -- meanErr=0.0046131 -- time=0s
+0 hidden, 20% pr --> file 3, dim=512: maxerr=8.0 -- %err=1.562 -- meanErr=0.0045801 -- time=0s
+0 hidden, 30% pr --> file 3, dim=512: maxerr=8.0 -- %err=1.562 -- meanErr=0.004599 -- time=0s
+0 hidden, 40% pr --> file 3, dim=512: maxerr=14.0 -- %err=2.734 -- meanErr=0.0089087 -- time=0s
+0 hidden, 50% pr --> file 3, dim=512: maxerr=21.0 -- %err=4.102 -- meanErr=0.0160037 -- time=0s
+0 hidden, 60% pr --> file 3, dim=512: maxerr=36.0 -- %err=7.031 -- meanErr=0.0313852 -- time=0s
+0 hidden, 70% pr --> file 3, dim=512: maxerr=66.0 -- %err=12.891 -- meanErr=0.0625466 -- time=0s
+0 hidden, 80% pr --> file 3, dim=512: maxerr=65.0 -- %err=12.695 -- meanErr=0.0625108 -- time=0s
+0 hidden, 90% pr --> file 3, dim=512: maxerr=65.0 -- %err=12.695 -- meanErr=0.0625114 -- time=0s
+0 hidden --> file 7, dim=8192: maxerr=51.0 -- %err=0.623 -- meanErr=[13.74609375] -- time=0s
+0 hidden, 10% pr --> file 7, dim=8192: maxerr=44.0 -- %err=0.537 -- meanErr=0.0015494 -- time=0s
+0 hidden, 20% pr --> file 7, dim=8192: maxerr=41.0 -- %err=0.5 -- meanErr=0.0015251 -- time=0s
+0 hidden, 30% pr --> file 7, dim=8192: maxerr=44.0 -- %err=0.537 -- meanErr=0.0015368 -- time=0s
+0 hidden, 40% pr --> file 7, dim=8192: maxerr=55.0 -- %err=0.671 -- meanErr=0.0017711 -- time=0s
+0 hidden, 50% pr --> file 7, dim=8192: maxerr=107.0 -- %err=1.306 -- meanErr=0.0041772 -- time=0s
+0 hidden, 60% pr --> file 7, dim=8192: maxerr=107.0 -- %err=1.306 -- meanErr=0.0041772 -- time=0s
+0 hidden, 70% pr --> file 7, dim=8192: maxerr=165.0 -- %err=2.014 -- meanErr=0.0079765 -- time=0s
+0 hidden, 80% pr --> file 7, dim=8192: maxerr=165.0 -- %err=2.014 -- meanErr=0.0079765 -- time=0s
+0 hidden, 90% pr --> file 7, dim=8192: maxerr=165.0 -- %err=2.014 -- meanErr=0.0079765 -- time=0s
