@@ -16,7 +16,7 @@ from NN_pr import WS_module as ws
 with open('weights_palermo', 'rb') as f:
     d = pickle.load(f) 
 
-for i in [3,7]:
+for i in [3,7,10]:
     with h5py.File('Resource2/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
         data = f.get('Sb') 
         bin_data = np.array(data, dtype=np.bool)
