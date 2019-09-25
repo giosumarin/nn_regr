@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from math import floor
 from sklearn.cluster import KMeans,MiniBatchKMeans
 import scipy.ndimage
 from NN_no_hidden import NN
@@ -14,10 +15,13 @@ def nearest_centroid_index(centers,value):
 def build_clusters(cluster,weights):
     kmeans = MiniBatchKMeans(n_clusters=cluster,init_size=3*cluster)
     kmeans.fit(np.hstack(weights).reshape(-1,1))
-    return kmeans.cluster_centers_
+    return kmeans.cluster_centers_#.astype('float64')
 
 def redefine_weights(weights,centers):
-    arr_ret = np.empty_like(weights).astype(np.int16)
+    if weights.shape[0] * weights.shape[1] > 256:
+        arr_ret = np.empty_like(weights).astype(np.int16)
+    else:
+        arr_ret = np.empty_like(weights).astype(np.int8)
     for i, row in enumerate(weights):
         for j, _ in enumerate(row):
             arr_ret[i,j] = nearest_centroid_index(centers,weights[i,j])
@@ -30,70 +34,56 @@ def centroid_gradient_matrix(idx_matrix,gradient,cluster):
     return scipy.ndimage.sum(gradient,idx_matrix,index=range(cluster))
     #provare mean
     
-def set_ws(nn, cluster, weights):
-    layers_shape = []
-    centers = []
-    idx_layers = []
-    v = []
-    
-    cluster = [cluster]
+def num_cluster_from_perc(layers, tax_compression):
+    weights_dimension = [w.shape[0] * w.shape[1] for [w, b] in layers]
+    dim = [16 if wd>256 else 8 for wd in weights_dimension]
+    n_cluster = [floor((tax_compression*n*32-n*b)/32) for n, b in zip(weights_dimension, dim)]
+    return n_cluster        
 
-    layers_shape.append(weights[0][0].shape)
-    centers.append(build_clusters(cluster[0], weights[0][0]))
-    idx_layers.append([redefine_weights(weights[0][0],centers[0]), weights[0][1]])  
-    v.append([0,0])
-    NN.NN.update_layers = ws_update_layers
-    NN.NN.updateMomentum = ws_updateMomentum    
-    layers_shape.append(weights[0][0].shape)
-    centers.append(build_clusters(cluster[0], weights[0][0]))
-    idx_layers.append([redefine_weights(weights[0][0],centers[0]), weights[0][1]])  
-    v.append([0,0])
-    
-    nn.layers_shape = layers_shape
-    nn.centers = centers
-    nn.idx_layers = idx_layers
-    nn.v = v
-    nn.epoch = 0
-    nn.cluster = cluster 
-
-    
-def ws_update_layers(self, deltasUpd, momentumUpdate):
-    cg = centroid_gradient_matrix(self.idx_layers[0][0],deltasUpd[0][0],self.cluster[0])
-    self.v[0][0] = momentumUpdate*self.v[0][0] - np.array(cg).reshape(self.cluster[0],1) 
-    self.v[0][1] = momentumUpdate*self.v[0][1] - deltasUpd[0][1]
-    
-    self.centers[0] += self.v[0][0] 
-    bias_temp= self.idx_layers[0][1] + self.v[0][1]
-    self.idx_layers[0][1] = bias_temp
-
-    
-def ws_updateMomentum(self, X, t, nEpochs, learningRate, momentumUpdate):
-    numBatch = (int)(self.numEx / self.minibatch)
-    lr=learningRate
-
-    for nb in range(numBatch):
-        indexLow = nb * self.minibatch
-        indexHigh = (nb + 1) * self.minibatch
-        self.layers = []
-
-        self.layers.append([idx_matrix_to_matrix(self.idx_layers[0][0], self.centers[0], self.layers_shape[0]), self.idx_layers[0][1]])    
-                  
-        outputs = self.feedforward(X[indexLow:indexHigh])
-        if self.p != None:
-            for i in range(len(outputs) - 1):
-                mask = (np.random.rand(*outputs[i].shape) < self.p) / self.p
-                outputs[i] *= mask
-
-        y = outputs[-1]
-        deltas = []
-        deltas.append(self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh]))
+class NN_WS(NN.NN):
+    def set_ws(self, cluster, weights):
+        self.v = [[0,0]]
+        self.layers_shape = [weights[0][0].shape]
+        self.centers = [build_clusters(cluster[0], weights[0][0])]
+        self.idx_layers=[[redefine_weights(weights[0][0],self.centers[0]), weights[0][1]]]
+        self.epoch = 0
+        self.cluster = cluster 
 
         
-        deltasUpd = []
-        deltasUpd.append([lr * (np.dot(X[indexLow:indexHigh].T, deltas[0]) + (self.layers[0][0] * self.lambd)), lr * np.sum(deltas[0], axis=0, keepdims=True)])
+    def update_layers(self, deltasUpd):
+        cg = centroid_gradient_matrix(self.idx_layers[0][0],deltasUpd[0][0],self.cluster[0])
+        self.v[0][0] = self.mu*self.v[0][0] + self.lr * np.array(cg).reshape(self.cluster[0],1) 
+        self.v[0][1] = self.mu*self.v[0][1] + self.lr * deltasUpd[0][1]
+        
+        self.centers[0] -= self.v[0][0] 
+        bias_temp= self.idx_layers[0][1] - self.v[0][1]
+        self.idx_layers[0][1] = bias_temp
 
-        self.update_layers(deltasUpd, momentumUpdate)
-    
+        
+    def updateMomentum(self, X, t):
+        numBatch = self.numEx // self.minibatch
 
-    
+        for nb in range(numBatch):
+            indexLow = nb * self.minibatch
+            indexHigh = (nb + 1) * self.minibatch
+
+            self.layers = [[idx_matrix_to_matrix(self.idx_layers[0][0], self.centers[0], self.layers_shape[0]), self.idx_layers[0][1]]]   
+                      
+            outputs = self.feedforward(X[indexLow:indexHigh])
+            if self.p != None:
+                for i in range(len(outputs) - 1):
+                    mask = (np.random.rand(*outputs[i].shape) < self.p) / self.p
+                    outputs[i] *= mask
+
+            y = outputs[-1]
+            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh])]
+
+            
+            deltasUpd = []
+            deltasUpd.append([ (np.dot(X[indexLow:indexHigh].T, deltas[0]) + (self.layers[0][0] * self.lambd)), np.sum(deltas[0], axis=0, keepdims=True)])
+
+            self.update_layers(deltasUpd)
+        
+
+        
 

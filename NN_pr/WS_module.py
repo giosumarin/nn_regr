@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from math import floor
 from sklearn.cluster import KMeans,MiniBatchKMeans
 import scipy.ndimage
 from NN_pr import NN 
@@ -17,7 +18,10 @@ def build_clusters(cluster,weights):
     return kmeans.cluster_centers_
 
 def redefine_weights(weights,centers):
-    arr_ret = np.empty_like(weights).astype(np.int16)
+    if weights.shape[0] * weights.shape[1] > 256:
+        arr_ret = np.empty_like(weights).astype(np.int16)
+    else:
+        arr_ret = np.empty_like(weights).astype(np.int8)
     for i, row in enumerate(weights):
         for j, _ in enumerate(row):
             arr_ret[i,j] = nearest_centroid_index(centers,weights[i,j])
@@ -29,6 +33,12 @@ def idx_matrix_to_matrix(idx_matrix,centers,shape):
 def centroid_gradient_matrix(idx_matrix,gradient,cluster):
     return scipy.ndimage.sum(gradient,idx_matrix,index=range(cluster))
     #provare mean
+    
+def num_cluster_from_perc(layers, tax_compression):
+    weights_dimension = [w.shape[0] * w.shape[1] for [w, b] in layers]
+    dim = [16 if wd>256 else 8 for wd in weights_dimension]
+    n_cluster = [floor((tax_compression*n*32-n*b)/32) for n, b in zip(weights_dimension, dim)]
+    return n_cluster
 
 class NN_WS(NN.NN):    
     def set_ws(self, cluster, weights):
@@ -52,12 +62,12 @@ class NN_WS(NN.NN):
     def update_layers(self, deltasUpd):
         for i in range(self.nHidden + 1):
             cg = centroid_gradient_matrix(self.idx_layers[i][0],deltasUpd[i][0],self.cluster[i])
-            self.v[i][0] = self.mu*self.v[i][0] - self.lr*np.array(cg).reshape(self.cluster[i],1)
-            self.v[i][1] = self.mu*self.v[i][1] - self.lr*deltasUpd[i][1]
+            self.v[i][0] = self.mu*self.v[i][0] + self.lr*np.array(cg).reshape(self.cluster[i],1)
+            self.v[i][1] = self.mu*self.v[i][1] + self.lr*deltasUpd[i][1]
 
         for i in range(self.nHidden + 1):
-            self.centers[i] += self.v[i][0] 
-            bias_temp = self.idx_layers[i][1] + self.v[i][1]
+            self.centers[i] -= self.v[i][0] 
+            bias_temp = self.idx_layers[i][1] - self.v[i][1]
             self.idx_layers[i][1] = bias_temp
         
         
