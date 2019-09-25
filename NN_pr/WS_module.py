@@ -93,8 +93,3 @@ class NN_WS(NN.NN):
             deltasUpd = [[w,b] for w, b in list(zip(deltas_weights, deltas_bias))]
 
             self.update_layers(deltasUpd)
-
-    
-
-    
-

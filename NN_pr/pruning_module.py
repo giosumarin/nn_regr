@@ -28,9 +28,9 @@ class NN_pruned(NN.NN):
     def update_layers(self, deltasUpd):
 
         for i in range(self.nHidden + 1):
-            self.v[i][0] = self.mu * self.v[i][0] - self.lr * deltasUpd[i][0]
+            self.v[i][0] = self.mu * self.v[i][0] - self.lr * deltasUpd[i][0] * self.mask[i]
             self.v[i][1] = self.mu * self.v[i][1] - self.lr * deltasUpd[i][1]
 
         for i in range(self.nHidden + 1):
-            self.layers[i][0] += self.v[i][0] * self.mask[i]
+            self.layers[i][0] += self.v[i][0] 
             self.layers[i][1] += self.v[i][1]

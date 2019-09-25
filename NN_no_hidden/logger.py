@@ -4,7 +4,7 @@ logNN = logging.getLogger('NN')
 logNN.propagate = False
 logNN.setLevel(logging.DEBUG)
 
-fh1 = logging.FileHandler('log/train_20-9.log')
+fh1 = logging.FileHandler('log/train3.log')
 fh1.setLevel(logging.DEBUG)
 
 ch1 = logging.StreamHandler()

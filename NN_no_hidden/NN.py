@@ -34,13 +34,9 @@ class NN:
         self.lambd = lambd
         self.patience = 4     
             
-    def addLayers(self, neurons, activation_fun, weights=None):
+    def addLayers(self, activation_fun, weights=None):
         self.epoch = 0
-        log.logNN.info("neurons= "+str(neurons))
-        self.nHidden = len(neurons)
-        self.layers = []
-        self.v = [[0,0] for _ in range(self.nHidden+1)]
-
+        self.v = [[0,0]]
         act_fun_factory = {"relu": lambda x, der: af.ReLU(x, der),
                            "sigmoid": lambda x, der: af.sigmoid(x, der),
                            "linear": lambda x, der: af.linear(x, der),
@@ -49,18 +45,11 @@ class NN:
         self.act_fun = [act_fun_factory[f] for f in activation_fun]
         
         if weights == None:
-            weights_hidden_shapes = list(zip([N_FEATURES]+neurons[:-1], neurons))   
-            weights_hidden = [np.random.randn(row, col).astype(np.float32) * math.sqrt(1.0 / self.numEx) for row, col in weights_hidden_shapes] 
-            #bias_hidden = [np.random.randn(1, n) * math.sqrt(2.0 / self.numEx) for n in neurons]
-            #weights_hidden = [np.random.normal(scale=0.01, size=(row, col)).astype(np.float32) for row, col in weights_hidden_shapes] 
-            #bias_hidden = [np.random.normal(scale=0.05, size=(1, n)) for n in neurons]
-            bias_hidden = [np.ones((1, n)).astype(np.float32)*0.001 for n in neurons]
-            self.layers = [[w,b] for w, b in list(zip(weights_hidden, bias_hidden))]
-            Wo = np.random.randn(neurons[-1], N_CLASSES).astype(np.float32) * math.sqrt(1.0 / self.numEx)
-            #Wo = np.random.normal(scale=0.01,size=(neurons[-1], N_CLASSES)).astype(np.float32)
-            # bWo = np.random.randn(1, N_CLASSES) * math.sqrt(2.0 / self.numEx)
+            #np.random.normal(scale=0.01, size=(row, col)).astype(np.float32)
+            #np.random.randn(N_FEATURES, N_CLASSES).astype(np.float32)
+            Wo = np.random.normal(scale=0.01, size=(N_FEATURES, N_CLASSES)).astype(np.float32) 
             bWo = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
-            self.layers += [[Wo,bWo]]
+            self.layers = [[Wo,bWo]]
         else:
             self.layers=weights
         
@@ -69,12 +58,8 @@ class NN:
 
     def feedforward(self, X):
         outputs = []
-        inputLayer = X
-        for i in range(self.nHidden + 1):             
-            H = self.act_fun[i](np.dot(inputLayer, self.layers[i][0]) + self.layers[i][1], False)
-            outputs.append(H)
-            inputLayer = H
-        return outputs
+        inputLayer = X            
+        return [self.act_fun[0](np.dot(inputLayer, self.layers[0][0]) + self.layers[0][1], False)]
 
 
     def predict(self, X):
@@ -121,27 +106,19 @@ class NN:
             y = outputs[-1]
             
             deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh])]
-            for i in range(self.nHidden):
-                deltas.append(np.dot(deltas[i], self.layers[self.nHidden - i][0].T) * self.act_fun[self.nHidden - i - 1](outputs[self.nHidden - i - 1], True))
-            deltas.reverse()
-            
-            outputs_for_deltas = [X[indexLow:indexHigh]]+outputs[:-1] 
 
-            deltas_weights = [np.dot(outputs_for_deltas[i].T, deltas[i]) + (self.layers[i][0] * self.lambd) for i in range(self.nHidden + 1)]
-            deltas_bias = [np.sum(deltas[i], axis=0, keepdims=True) for i in range(self.nHidden + 1)]
-            deltasUpd = [[w,b] for w, b in list(zip(deltas_weights, deltas_bias))]
+            deltasUpd= [([(np.dot(X[indexLow:indexHigh].T, deltas[0]) + (self.layers[0][0] * self.lambd)), np.sum(deltas[0], axis=0, keepdims=True)])]
 
             self.update_layers(deltasUpd)
 
             
     def update_layers(self, deltasUpd):
         lr = self.exp_decay()
-        for i in range(self.nHidden + 1):
-            self.v[i][0] = self.mu * self.v[i][0] + lr * deltasUpd[i][0]
-            self.v[i][1] = self.mu * self.v[i][1] + lr * deltasUpd[i][1]
-        for i in range(self.nHidden + 1):
-            self.layers[i][0] -= self.v[i][0] 
-            self.layers[i][1] -= self.v[i][1] 
+        self.v[0][0] = self.mu * self.v[0][0] + lr * deltasUpd[0][0]
+        self.v[0][1] = self.mu * self.v[0][1] + lr * deltasUpd[0][1]
+        
+        self.layers[0][0] -= self.v[0][0] 
+        self.layers[0][1] -= self.v[0][1] 
 
 
     def exp_decay(self):
