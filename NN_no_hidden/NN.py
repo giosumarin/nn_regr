@@ -212,7 +212,7 @@ class NN:
 
     def getWeight(self):
         return self.layers
-    
+
     def get_memory_usage(self):
         matrices = sum([len(w) * len(w[0]) + len(b) * len(b[0]) for [w, b] in self.layers])
         # momentum = sum([len(w) * len(w[0]) + len(b) * len(b[0]) for [w, b] in self.v]) if self.epoch > 0 else sum([len(v) for v in self.v])
@@ -228,6 +228,4 @@ class NN:
         
         kbytes = np.round(tot_weights * floats_bytes / 1024, 4)
         return kbytes * 100 / self.numEx
-
-
 
