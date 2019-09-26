@@ -30,4 +30,19 @@ class NN_pruned(NN.NN):
         self.layers[0][1] += self.v[0][1]
         
     def make_compression(self):
-        self.csc_layers = [[csc_matrix(w, dtype='float32'), b] for [w,b] in self.layers]]
+        self.csc_layers = [[csc_matrix(w, dtype='float32'), b] for [w,b] in self.layers]
+        
+    def get_memory_usage(self):
+        try:
+            num = sum([
+                csc.data.nbytes + 
+                csc.indptr.nbytes + 
+                csc.indices.nbytes + 
+                (bias.shape[0] * bias.shape[1]) * 4 for [csc, bias] in self.csc_layers
+            ])
+
+            kbytes = np.round(num / 1024, 4)
+            return kbytes * 100 / self.numEx
+        except AttributeError:
+            print('Error in get_memory_usage method, pruning_module.py source')
+            return -1

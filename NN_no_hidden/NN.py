@@ -43,8 +43,6 @@ class NN:
                            "tanh": lambda x, der: af.tanh(x, der),
                            "leakyrelu": lambda x, der: af.LReLU(x, der)}      
         self.act_fun = [act_fun_factory[f] for f in activation_fun]
-        self.v[0][0] = self.mu * self.v[0][0] - self.lr * deltasUpd[0][0] * self.mask[0]
-        self.v[0][1] = self.mu * self.v[0][1] - self.lr * deltasUpd[0][1]
         if weights == None:
             #np.random.normal(scale=0.01, size=(row, col)).astype(np.float32)
             #np.random.randn(N_FEATURES, N_CLASSES).astype(np.float32)
@@ -214,7 +212,22 @@ class NN:
 
     def getWeight(self):
         return self.layers
+    
+    def get_memory_usage(self):
+        matrices = sum([len(w) * len(w[0]) + len(b) * len(b[0]) for [w, b] in self.layers])
+        # momentum = sum([len(w) * len(w[0]) + len(b) * len(b[0]) for [w, b] in self.v]) if self.epoch > 0 else sum([len(v) for v in self.v])
 
+        floats_bytes = 4
+        if type(self.layers[0][0][0][0]) == 'float16':
+            number_size = 2.0
+        if type(self.layers[0][0][0][0]) == 'float64':
+            number_size = 8.0
+        
+        # tot_weights = matrices + momentum
+        tot_weights = matrices
+        
+        kbytes = np.round(tot_weights * floats_bytes / 1024, 4)
+        return kbytes * 100 / self.numEx
 
 
 
