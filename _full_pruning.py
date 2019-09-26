@@ -78,7 +78,7 @@ for i in [3]:
             mean_err += val
         
         nn_pr.make_compression()
-        with open("NN1/nn1_file{}_pr{}".format(i, p)) as f:
+        with open("NN1/nn1_file{}_pr{}".format(i, p), "wb") as f:
             pickle.dump(nn_pr.csc_layers, f)
         with open("res_nn1.txt", "a+") as mf:
             mf.write("0 hidden, {6}% pr --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s --spaceOVH={7}\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, p, nn_pr.get_memory_usage()))
@@ -133,7 +133,7 @@ for i in [3]:
             mean_err += val
             
         nn_pr.make_compression()
-        with open("NN2/nn2_file{}_pr{}".format(i, p)) as f:
+        with open("NN2/nn2_file{}_pr{}".format(i, p),"wb") as f:
             pickle.dump(nn_pr.csc_layers, f)
         with open("res_nn2.txt", "a+") as mf:
             mf.write("1 hidden, {6}% pr --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s -- spaceOVH={7}KB\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, p, nn_pr.get_memory_usage()))
@@ -188,7 +188,7 @@ for i in [3]:
             mean_err += val
         
         nn_pr.make_compression()
-        with open("NN3/nn3_file{}_pr{}".format(i, p)) as f:
+        with open("NN3/nn3_file{}_pr{}".format(i, p), "wb") as f:
             pickle.dump(nn_pr.csc_layers, f)
         
         with open("res_nn3.txt", "a+") as mf:
