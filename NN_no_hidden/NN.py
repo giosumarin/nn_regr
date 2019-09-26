@@ -43,7 +43,8 @@ class NN:
                            "tanh": lambda x, der: af.tanh(x, der),
                            "leakyrelu": lambda x, der: af.LReLU(x, der)}      
         self.act_fun = [act_fun_factory[f] for f in activation_fun]
-        
+        self.v[0][0] = self.mu * self.v[0][0] - self.lr * deltasUpd[0][0] * self.mask[0]
+        self.v[0][1] = self.mu * self.v[0][1] - self.lr * deltasUpd[0][1]
         if weights == None:
             #np.random.normal(scale=0.01, size=(row, col)).astype(np.float32)
             #np.random.randn(N_FEATURES, N_CLASSES).astype(np.float32)

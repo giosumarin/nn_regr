@@ -11,18 +11,15 @@ class NN_pruned(NN.NN):
         layers = weights
         num_layers = len(layers)
         mask = []
-        v = []
-	        
+        self.v = [[0,0] for _ in range(self.nHidden+1)]
         for i in range(num_layers):
             W=layers[i][0]
             m = np.abs(W) > np.percentile(np.abs(W), pruning)
             mask.append(m)	  
             W_pruned = W * m
             layers[i][0] = W_pruned
-            v.append([0, 0])
         self.layers = layers
         self.mask = mask
-        self.v = v
         self.epoch = 0
 
     def update_layers(self, deltasUpd):
@@ -34,3 +31,7 @@ class NN_pruned(NN.NN):
         for i in range(self.nHidden + 1):
             self.layers[i][0] += self.v[i][0] 
             self.layers[i][1] += self.v[i][1]
+            
+    def make_compression(self):
+        self.csc_layers = [[csc_matrix(w, dtype='float32'), b] for [w,b] in self.layers]
+        
