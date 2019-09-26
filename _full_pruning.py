@@ -13,10 +13,10 @@ from NN_pr import NN
 from NN_pr import pruning_module as pruning
 from NN_pr import WS_module as ws
 
-with open('weights_palermo', 'rb') as f:
+with open('weights_palermo_full', 'rb') as f:
     d = pickle.load(f) 
 
-for i in [3,7,10]:
+for i in [3]:
     with h5py.File('Resource2/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
         data = f.get('Sb') 
         bin_data = np.array(data, dtype=np.bool)
@@ -39,10 +39,10 @@ for i in [3,7,10]:
     nn = NN1.NN(training=[bin_data, labels], testing=[[0],[0]], lr=0.001, mu=0.9, lambd=0, minibatch=64, disableLog=True)
     nn.addLayers(['leakyrelu'], w)
     #loss=nn.train(stop_function=3, num_epochs=20000)
-    
+    loss=nn.loss(bin_data, labels)
     later = time.time()
     difference = int(later - now)
-
+    
     max_err=0
     mean_err=0
     for j in range(dim_set):
@@ -53,8 +53,7 @@ for i in [3,7,10]:
         mean_err += val
     mean_err/=dim_set
     with open("res_nn1.txt", "a+") as mf:
-        mf.write("0 hidden --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, mean_err))
-    
+        mf.write("0 hidden --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s -- spaceOVH={6}\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, nn.get_memory_usage()))
        
     
     
@@ -62,8 +61,8 @@ for i in [3,7,10]:
     for p in range(10,96,10):
         w=np.copy(d['f{}_1'.format(i)])
         nn_pr.addLayers(['leakyrelu'], w)
-        nn_pr.set_pruned_layers(p, w)
         now = time.time() 
+        nn_pr.set_pruned_layers(p, w)
         loss = nn_pr.train(stop_function=3, num_epochs=20000)
         
         later = time.time()
@@ -78,9 +77,12 @@ for i in [3,7,10]:
                 max_err = val
             mean_err += val
         
+        nn_pr.make_compression()
+        with open("NN1/nn1_file{}_pr{}".format(i, p), "wb") as f:
+            pickle.dump(nn_pr.csc_layers, f)
         with open("res_nn1.txt", "a+") as mf:
-            mf.write("0 hidden, {6}% pr --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, p))
-            
+            mf.write("0 hidden, {6}% pr --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s --spaceOVH={7}\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, p, nn_pr.get_memory_usage()))
+        
             
             
 
@@ -91,7 +93,7 @@ for i in [3,7,10]:
     nn = NN.NN(training=[bin_data, labels], testing=[[0],[0]], lr=0.001, mu=0.9, lambd=0, minibatch=64, disableLog=True)
     nn.addLayers([256],['leakyrelu','leakyrelu'], w)
     #loss=nn.train(stop_function=3, num_epochs=20000)
-    
+    loss=nn.loss(bin_data, labels)
     later = time.time()
     difference = int(later - now)
 
@@ -105,7 +107,7 @@ for i in [3,7,10]:
         mean_err += val
     mean_err/=dim_set
     with open("res_nn2.txt", "a+") as mf:
-        mf.write("1 hidden --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, mean_err))
+        mf.write("1 hidden --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s -- spaceOVH={6}\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, nn.get_memory_usage()))
     
        
     
@@ -114,8 +116,8 @@ for i in [3,7,10]:
     for p in range(10,96,10):
         w=np.copy(d['f{}_2'.format(i)])
         nn_pr.addLayers([256],['leakyrelu','leakyrelu'], w)
-        nn_pr.set_pruned_layers(p, w)
-        now = time.time() 
+        now = time.time()
+        nn_pr.set_pruned_layers(p, w) 
         loss = nn_pr.train(stop_function=3, num_epochs=20000)
         
         later = time.time()
@@ -129,9 +131,13 @@ for i in [3,7,10]:
             if val>max_err:
                 max_err = val
             mean_err += val
-        
+            
+        nn_pr.make_compression()
+        with open("NN2/nn2_file{}_pr{}".format(i, p),"wb") as f:
+            pickle.dump(nn_pr.csc_layers, f)
         with open("res_nn2.txt", "a+") as mf:
-            mf.write("1 hidden, {6}% pr --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, p))
+            mf.write("1 hidden, {6}% pr --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s -- spaceOVH={7}KB\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, p, nn_pr.get_memory_usage()))
+
             
             
             
@@ -141,7 +147,7 @@ for i in [3,7,10]:
     nn = NN.NN(training=[bin_data, labels], testing=[[0],[0]], lr=0.001, mu=0.9, lambd=0, minibatch=64, disableLog=True)
     nn.addLayers([256, 256],['leakyrelu','leakyrelu','leakyrelu'], w)
     #loss=nn.train(stop_function=3, num_epochs=20000)
-    
+    loss=nn.loss(bin_data, labels)
     later = time.time()
     difference = int(later - now)
 
@@ -155,7 +161,8 @@ for i in [3,7,10]:
         mean_err += val
     mean_err/=dim_set
     with open("res_nn3.txt", "a+") as mf:
-        mf.write("2 hidden --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, mean_err))
+        mf.write("2 hidden --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s -- spaceOVH={6}\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, nn.get_memory_usage()))
+    
     
        
     
@@ -180,8 +187,13 @@ for i in [3,7,10]:
                 max_err = val
             mean_err += val
         
+        nn_pr.make_compression()
+        with open("NN3/nn3_file{}_pr{}".format(i, p), "wb") as f:
+            pickle.dump(nn_pr.csc_layers, f)
+        
         with open("res_nn3.txt", "a+") as mf:
-            mf.write("2 hidden, {6}% pr --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, p))
+            mf.write("2 hidden, {6}% pr --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s -- spaceOVH={7}KB\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, p, nn_pr.get_memory_usage()))
+        
             
     
     

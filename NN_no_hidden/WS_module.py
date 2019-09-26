@@ -42,7 +42,7 @@ def num_cluster_from_perc(layers, tax_compression):
 
 class NN_WS(NN.NN):
     def set_ws(self, cluster, weights):
-        self.v = [[0,0]]
+        self.v=[[0, 0]]
         self.layers_shape = [weights[0][0].shape]
         self.centers = [build_clusters(cluster[0], weights[0][0])]
         self.idx_layers=[[redefine_weights(weights[0][0],self.centers[0]), weights[0][1]]]

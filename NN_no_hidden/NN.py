@@ -43,7 +43,6 @@ class NN:
                            "tanh": lambda x, der: af.tanh(x, der),
                            "leakyrelu": lambda x, der: af.LReLU(x, der)}      
         self.act_fun = [act_fun_factory[f] for f in activation_fun]
-        
         if weights == None:
             #np.random.normal(scale=0.01, size=(row, col)).astype(np.float32)
             #np.random.randn(N_FEATURES, N_CLASSES).astype(np.float32)
@@ -229,5 +228,4 @@ class NN:
         
         kbytes = np.round(tot_weights * floats_bytes / 1024, 4)
         return kbytes * 100 / self.numEx
-
 
