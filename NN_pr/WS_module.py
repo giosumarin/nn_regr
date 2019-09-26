@@ -19,9 +19,9 @@ def build_clusters(cluster,weights):
 
 def redefine_weights(weights,centers):
     if weights.shape[0] * weights.shape[1] > 256:
-        arr_ret = np.empty_like(weights).astype(np.int16)
+        arr_ret = np.empty_like(weights).astype(np.uint16)
     else:
-        arr_ret = np.empty_like(weights).astype(np.int8)
+        arr_ret = np.empty_like(weights).astype(np.uint8)
     for i, row in enumerate(weights):
         for j, _ in enumerate(row):
             arr_ret[i,j] = nearest_centroid_index(centers,weights[i,j])
@@ -103,3 +103,29 @@ class NN_WS(NN.NN):
             deltasUpd = [[w,b] for w, b in list(zip(deltas_weights, deltas_bias))]
 
             self.update_layers(deltasUpd)
+
+    def get_memory_usage(self):
+        floats_bytes_layers = 4
+        if type(self.idx_layers[0][1][0][0]) == 'float16':
+            floats_bytes_layers = 2.0
+        if type(self.idx_layers[0][1][0][0]) == 'float64':
+            floats_bytes_layers = 8.0
+
+        floats_bytes_center = 4
+        if type(self.centers[0][0]) == 'float16':
+            floats_bytes_center = 2.0
+        if type(self.centers[0][0]) == 'float64':
+            floats_bytes_center = 8.0
+
+        centers = sum([len(w) for w in self.centers]) * floats_bytes_center
+        idx_layers = sum(
+            [
+                len(w) * len(w[0]) * 1 if type(w[0][0]) == 'np.uint8' else 2 + 
+                len(b) * len(b[0]) * floats_bytes_layers
+                for [w, b] in self.idx_layers
+            ])
+                
+        tot_weights = centers + idx_layers
+
+        kbytes = np.round(tot_weights / 1024, 4)
+        return kbytes * 100 / self.numEx

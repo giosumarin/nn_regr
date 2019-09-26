@@ -17,8 +17,8 @@ from NN_pr import WS_module as ws
 with open('weights_palermo_full', 'rb') as f:
     d = pickle.load(f) 
 
-for i in [3,7,10]:
-    with h5py.File('Resource2/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
+for i in [3]:
+    with h5py.File('Resource/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
         data = f.get('Sb') 
         bin_data = np.array(data, dtype=np.bool)
         bin_data = np.transpose(bin_data)
@@ -54,8 +54,7 @@ for i in [3,7,10]:
         mean_err += val
     mean_err/=dim_set
     with open("res_nn1_ws.txt", "a+") as mf:
-        mf.write("0 hidden --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss))
-    
+        mf.write("0 hidden --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s -- spaceOVH={6}KB\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, nn.get_memory_usage()))
        
     
     
@@ -83,7 +82,8 @@ for i in [3,7,10]:
                 mean_err += val
             
             with open("res_nn1_ws.txt", "a+") as mf:
-                mf.write("0 hidden, {6}% space ({7}) --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, p, c))
+                mf.write("0 hidden, {6}% space ({7}) --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s -- spaceOVH={8}KB\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, p, c, nn_ws.get_memory_usage()))
+
 
     w=np.copy(d['f{}_2'.format(i)])
     now = time.time()
@@ -105,8 +105,7 @@ for i in [3,7,10]:
         mean_err += val
     mean_err/=dim_set
     with open("res_nn2_ws.txt", "a+") as mf:
-        mf.write("1 hidden --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss))
-    
+        mf.write("1 hidden --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s -- spaceOVH={6}KB\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, nn.get_memory_usage()))
        
     
     
@@ -133,8 +132,7 @@ for i in [3,7,10]:
                 mean_err += val
             
             with open("res_nn2_ws.txt", "a+") as mf:
-                mf.write("1 hidden, {6}% space ({7}) --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, p, c))
-            
+                mf.write("1 hidden, {6}% space ({7}) --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s -- spaceOVH={8}KB\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, p, c, nn_ws.get_memory_usage()))
             
             
 
@@ -160,8 +158,8 @@ for i in [3,7,10]:
         mean_err += val
     mean_err/=dim_set
     with open("res_nn3_ws.txt", "a+") as mf:
-        mf.write("2 hidden --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss))
-    
+        mf.write("2 hidden --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s -- spaceOVH={6}KB\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, nn.get_memory_usage()))
+
     nn_ws=ws.NN_WS(training=[bin_data, labels], testing=[[0],[0]], lr=0.001, mu=0.9, lambd=0 ,minibatch=64, disableLog=True)   
     for p in range(10,91,10):
         w=np.copy(d['f{}_3'.format(i)])
@@ -184,5 +182,4 @@ for i in [3,7,10]:
                     max_err = val
                 mean_err += val
             with open("res_nn3_ws.txt", "a+") as mf:
-                mf.write("2 hidden, {6}% space ({7}) --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, p, c))
-
+                mf.write("2 hidden, {6}% space ({7}) --> file {2}, dim={4}: maxerr={0} -- %err={1} -- meanErr={5} -- time={3}s -- spaceOVH={8}KB\n".format(max_err[0], round(max_err[0]/dim_set*100,3), i, difference, dim_set, loss, p, c, nn_ws.get_memory_usage()))
