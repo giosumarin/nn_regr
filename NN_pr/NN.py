@@ -238,5 +238,19 @@ class NN:
         return self.layers
 
 
+    def get_memory_usage(self):
+        matrices = sum([len(w) * len(w[0]) + len(b) * len(b[0]) for [w, b] in self.layers])
+        # momentum = sum([len(w) * len(w[0]) + len(b) * len(b[0]) for [w, b] in self.v]) if self.epoch > 0 else sum([len(v) for v in self.v])
 
+        floats_bytes = 4
+        if type(self.layers[0][0][0][0]) == 'float16':
+            number_size = 2.0
+        if type(self.layers[0][0][0][0]) == 'float64':
+            number_size = 8.0
+        
+        # tot_weights = matrices + momentum
+        tot_weights = matrices
+        
+        kbytes = np.round(tot_weights * floats_bytes / 1024, 4)
+        return kbytes * 100 / self.numEx
 

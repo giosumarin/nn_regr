@@ -12,8 +12,8 @@ from NN_no_hidden import NN
 #from NN_pr import WS_module as ws
 from sklearn.metrics import r2_score
 
-for i in [3,7,10]:
-    with h5py.File('Resource2/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
+for i in [3]:
+    with h5py.File('Resource/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
         data = f.get('Sb') 
         bin_data = np.array(data, dtype=np.bool)
         bin_data = np.transpose(bin_data)
@@ -34,7 +34,8 @@ for i in [3,7,10]:
 
     nn = NN.NN(training=[bin_data, labels], testing=[[0],[0]], lr=0.001, mu=0.9, lambd=0, minibatch=64, disableLog=True)
     nn.addLayers(['leakyrelu'])
-    loss=nn.train(stop_function=3, num_epochs=20000)
+    loss=nn.train(stop_function=3, num_epochs=2)
+    print(nn.get_memory_usage())
 
     later = time.time()
     difference = int(later - now)
