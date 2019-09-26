@@ -4,6 +4,7 @@ from scipy.sparse import csc_matrix, issparse
 from NN_pr import NN 
 from NN_pr import logger as log
 from NN_pr import activation_function as af
+from scipy import sparse
 
 class NN_pruned(NN.NN):
    
@@ -13,7 +14,7 @@ class NN_pruned(NN.NN):
         mask = []
         self.v = [[0,0] for _ in range(self.nHidden+1)]
         for i in range(num_layers):
-            W=layers[i][0]
+            W = layers[i][0]
             m = np.abs(W) > np.percentile(np.abs(W), pruning)
             mask.append(m)	  
             W_pruned = W * m
@@ -31,11 +32,6 @@ class NN_pruned(NN.NN):
         for i in range(self.nHidden + 1):
             self.layers[i][0] += self.v[i][0] 
             self.layers[i][1] += self.v[i][1]
-            
-    def make_compression(self):
-        self.csc_layers = [[csc_matrix(w, dtype='float32'), b] for [w,b] in self.layers]
-        
-        
     def get_memory_usage(self):
         try:
             num = sum([
@@ -50,4 +46,3 @@ class NN_pruned(NN.NN):
         except AttributeError:
             print('Error in get_memory_usage method, pruning_module.py source')
             return -1
-        
