@@ -161,7 +161,7 @@ class NN:
                 else:
                     return False
         elif t==3:
-            if (self.best_loss - loss_epoch <= 0):
+            if (self.best_loss - loss_epoch <= 1e-6):
                 self.real_patience += 1
                 if self.real_patience == self.patience:
                     return False
