@@ -42,7 +42,7 @@ for i in [3,7]:
     for p in range(10,96,10):
         with open('NN1/nn1_file{}_pr{}'.format(i, p), 'rb') as f:
             w_csc1 = pickle.load(f)
-        with open('NN3/nn3_file{}_pr{}'.format(i, p), 'rb') as f:
+        with open('NN2/nn2_file{}_pr{}'.format(i, p), 'rb') as f:
             w_csc2 = pickle.load(f)
         with open('NN3/nn3_file{}_pr{}'.format(i, p), 'rb') as f:
             w_csc3 = pickle.load(f)
