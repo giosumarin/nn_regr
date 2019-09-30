@@ -16,22 +16,22 @@ from NN_pr import activation_function as af
 
 def predict_with_csc1(csc_layers, data):
     now = time.time()
-    y=af.LReLU((data * csc_layers[0][0]) + csc_layers[0][1])
+    y=af.LReLU((csc_layers[0][0].T.dot(data.T)) + csc_layers[0][1]).T
     end_time=time.time()-now
     return y, end_time
     
 def predict_with_csc2(csc_layers, data):
     now = time.time()
-    h1 = af.LReLU((data * csc_layers[0][0]) + csc_layers[0][1]) 
-    y = af.LReLU((h1 * csc_layers[1][0]) + csc_layers[1][1]) 
+    h1 = af.LReLU((csc_layers[0][0].T.dot(data.T)) + csc_layers[0][1]).T
+    y = af.LReLU((csc_layers[1][0].T.dot(h1.T)) + csc_layers[1][1]) .T
     end_time=time.time()-now
     return y, end_time
     
 def predict_with_csc3(csc_layers, data):
     now = time.time()
-    h1 = af.LReLU((data * csc_layers[0][0]) + csc_layers[0][1]) 
-    h2 = af.LReLU((h1 * csc_layers[1][0]) + csc_layers[1][1]) 
-    y = af.LReLU((h2 * csc_layers[2][0]) + csc_layers[2][1]) 
+    h1 = af.LReLU((csc_layers[0][0].T.dot(data.T)) + csc_layers[0][1]).T
+    h2 = af.LReLU((csc_layers[1][0].T.dot(h1.T)) + csc_layers[1][1]).T
+    y = af.LReLU((csc_layers[2][0].T.dot(h1.T)) + csc_layers[2][1]).T
     end_time=time.time()-now
     return y, end_time
 
@@ -42,7 +42,7 @@ for i in [3,7]:
     for p in range(10,96,10):
         with open('NN1/nn1_file{}_pr{}'.format(i, p), 'rb') as f:
             w_csc1 = pickle.load(f)
-        with open('NN3/nn3_file{}_pr{}'.format(i, p), 'rb') as f:
+        with open('NN2/nn2_file{}_pr{}'.format(i, p), 'rb') as f:
             w_csc2 = pickle.load(f)
         with open('NN3/nn3_file{}_pr{}'.format(i, p), 'rb') as f:
             w_csc3 = pickle.load(f)
