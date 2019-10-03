@@ -15,7 +15,7 @@ def nearest_centroid_index(centers,value):
 def build_clusters(cluster,weights):
     kmeans = MiniBatchKMeans(n_clusters=cluster,init_size=3*cluster)
     kmeans.fit(np.hstack(weights).reshape(-1,1))
-    return kmeans.cluster_centers_
+    return kmeans.cluster_centers_.astype('float32')
 
 def redefine_weights(weights,centers):
     if weights.shape[0] * weights.shape[1] > 256:
@@ -106,21 +106,21 @@ class NN_WS(NN.NN):
 
     def get_memory_usage(self):
         floats_bytes_layers = 4
-        if type(self.idx_layers[0][1][0][0]) == 'float16':
+        if isinstance(self.idx_layers[0][1][0][0], np.float16):
             floats_bytes_layers = 2.0
-        if type(self.idx_layers[0][1][0][0]) == 'float64':
+        if isinstance(self.idx_layers[0][1][0][0], np.float64):
             floats_bytes_layers = 8.0
 
         floats_bytes_center = 4
-        if type(self.centers[0][0]) == 'float16':
+        if isinstance(self.centers[0][0][0], np.float16):
             floats_bytes_center = 2.0
-        if type(self.centers[0][0]) == 'float64':
+        if isinstance(self.centers[0][0][0], np.float64):
             floats_bytes_center = 8.0
 
-        centers = sum([len(w) for w in self.centers]) * floats_bytes_center
+        centers = sum([len(w)*len(w[0]) for w in self.centers]) * floats_bytes_center
         idx_layers = sum(
             [
-                len(w) * len(w[0]) * 1 if type(w[0][0]) == 'np.uint8' else 2 + 
+                len(w) * len(w[0]) * (1 if isinstance(w[0][0], np.uint8) else 2) + 
                 len(b) * len(b[0]) * floats_bytes_layers
                 for [w, b] in self.idx_layers
             ])
