@@ -32,7 +32,7 @@ class NN:
   
         
         self.lambd = lambd
-        self.patience = 5     
+        self.patience = 15    
             
     def addLayers(self, activation_fun, weights=None):
         self.epoch = 0
@@ -111,14 +111,21 @@ class NN:
             self.update_layers(deltasUpd)
 
             
-    def update_layers(self, deltasUpd):
-        lr = self.exp_decay()
-        self.v[0][0] = self.mu * self.v[0][0] + lr * deltasUpd[0][0]
-        self.v[0][1] = self.mu * self.v[0][1] + lr * deltasUpd[0][1]
+    # def update_layers(self, deltasUpd):
+    #     lr = self.lr
+    #     self.v[0][0] = self.mu * self.v[0][0] + lr * deltasUpd[0][0]
+    #     self.v[0][1] = self.mu * self.v[0][1] + lr * deltasUpd[0][1]
         
-        self.layers[0][0] -= self.v[0][0] 
-        self.layers[0][1] -= self.v[0][1] 
+    #     self.layers[0][0] -= self.v[0][0] 
+    #     self.layers[0][1] -= self.v[0][1] 
 
+    def update_layers(self, deltaUpd):
+        v_prev = self.v.copy()
+        self.v[0][0] = self.mu * self.v[0][0] - self.lr * deltaUpd[0][0]
+        self.v[0][1] = self.mu * self.v[0][1] - self.lr * deltaUpd[0][1]
+        
+        self.layers[0][0] += -self.mu * v_prev[0][0] + (1+self.mu) * self.v[0][0] 
+        self.layers[0][1] += -self.mu * v_prev[0][1] + (1+self.mu) * self.v[0][1]
 
     def exp_decay(self):
         k = .001
@@ -161,7 +168,7 @@ class NN:
                 else:
                     return False
         elif t==3:
-            if (self.best_loss - loss_epoch <= 1e-6):
+            if (self.best_loss - loss_epoch <= 1e-7):
                 self.real_patience += 1
                 if self.real_patience == self.patience:
                     return False

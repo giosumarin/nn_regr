@@ -50,13 +50,13 @@ class NN:
         
         if weights == None:
             weights_hidden_shapes = list(zip([N_FEATURES]+neurons[:-1], neurons))   
-            weights_hidden = [np.random.randn(row, col).astype(np.float32) * math.sqrt(1.0 / row) for row, col in weights_hidden_shapes] 
+            weights_hidden = [np.random.randn(row, col).astype(np.float32) * math.sqrt(2.0 / row) for row, col in weights_hidden_shapes] 
             #bias_hidden = [np.random.randn(1, n) * math.sqrt(2.0 / self.numEx) for n in neurons]
             #weights_hidden = [np.random.normal(scale=0.0001, size=(row, col)).astype(np.float32) for row, col in weights_hidden_shapes] 
             #bias_hidden = [np.random.normal(scale=0.05, size=(1, n)) for n in neurons]
             bias_hidden = [np.ones((1, n)).astype(np.float32)*0.001 for n in neurons]
             self.layers = [[w,b] for w, b in list(zip(weights_hidden, bias_hidden))]
-            Wo = np.random.randn(neurons[-1], N_CLASSES).astype(np.float32) * math.sqrt(1.0 / neurons[-1])
+            Wo = np.random.randn(neurons[-1], N_CLASSES).astype(np.float32) * math.sqrt(2.0 / neurons[-1])
             #Wo = np.random.normal(scale=0.01,size=(neurons[-1], N_CLASSES)).astype(np.float32)
             # bWo = np.random.randn(1, N_CLASSES) * math.sqrt(2.0 / self.numEx)
             bWo = np.ones((1, N_CLASSES)).astype(np.float32)*0.0001
