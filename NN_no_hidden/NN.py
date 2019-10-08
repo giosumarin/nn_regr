@@ -32,7 +32,7 @@ class NN:
   
         
         self.lambd = lambd
-        self.patience = 4     
+        self.patience = 5     
             
     def addLayers(self, activation_fun, weights=None):
         self.epoch = 0
@@ -44,9 +44,10 @@ class NN:
                            "leakyrelu": lambda x, der: af.LReLU(x, der)}      
         self.act_fun = [act_fun_factory[f] for f in activation_fun]
         if weights == None:
-            #np.random.normal(scale=0.01, size=(row, col)).astype(np.float32)
-            #np.random.randn(N_FEATURES, N_CLASSES).astype(np.float32)
-            Wo = np.random.normal(scale=0.01, size=(N_FEATURES, N_CLASSES)).astype(np.float32) 
+            Wo = np.random.randn(N_FEATURES, N_CLASSES).astype(np.float32) * math.sqrt(1/N_FEATURES)
+            #Wo = (np.zeros((N_FEATURES, N_CLASSES))).astype(np.float32) 
+            #Wo = np.random.normal(scale=0.01, size=(N_FEATURES, N_CLASSES)).astype(np.float32) 
+            #Wo = np.random.normal(scale=0.001, size=(N_FEATURES, N_CLASSES)).astype(np.float32)
             bWo = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
             self.layers = [[Wo,bWo]]
         else:
@@ -56,7 +57,6 @@ class NN:
         self.lambd=lambd
 
     def feedforward(self, X):
-        outputs = []
         inputLayer = X            
         return [self.act_fun[0](np.dot(inputLayer, self.layers[0][0]) + self.layers[0][1], False)]
 
@@ -98,15 +98,15 @@ class NN:
             outputs = self.feedforward(X[indexLow:indexHigh])
             
             if self.p != None:
-                for i in range(self.nHidden):
-                    mask = (np.random.rand(*outputs[i].shape) < self.p) / self.p
-                    outputs[i] *= mask
+                
+                mask = (np.random.rand(*outputs[0].shape) < self.p) / self.p
+                outputs[0] *= mask
 
             y = outputs[-1]
             
-            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh])]
+            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh]) * 1/self.minibatch]
 
-            deltasUpd= [([(np.dot(X[indexLow:indexHigh].T, deltas[0]) + (self.layers[0][0] * self.lambd)), np.sum(deltas[0], axis=0, keepdims=True)])]
+            deltasUpd= [([(np.dot(X[indexLow:indexHigh].T, deltas[0]) + (1/self.minibatch * self.layers[0][0] * self.lambd)), np.sum(deltas[0], axis=0, keepdims=True)])]
 
             self.update_layers(deltasUpd)
 

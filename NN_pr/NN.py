@@ -50,16 +50,16 @@ class NN:
         
         if weights == None:
             weights_hidden_shapes = list(zip([N_FEATURES]+neurons[:-1], neurons))   
-            weights_hidden = [np.random.randn(row, col).astype(np.float32) * math.sqrt(1.0 / self.numEx) for row, col in weights_hidden_shapes] 
+            weights_hidden = [np.random.randn(row, col).astype(np.float32) * math.sqrt(1.0 / row) for row, col in weights_hidden_shapes] 
             #bias_hidden = [np.random.randn(1, n) * math.sqrt(2.0 / self.numEx) for n in neurons]
-            #weights_hidden = [np.random.normal(scale=0.01, size=(row, col)).astype(np.float32) for row, col in weights_hidden_shapes] 
+            #weights_hidden = [np.random.normal(scale=0.0001, size=(row, col)).astype(np.float32) for row, col in weights_hidden_shapes] 
             #bias_hidden = [np.random.normal(scale=0.05, size=(1, n)) for n in neurons]
             bias_hidden = [np.ones((1, n)).astype(np.float32)*0.001 for n in neurons]
             self.layers = [[w,b] for w, b in list(zip(weights_hidden, bias_hidden))]
-            Wo = np.random.randn(neurons[-1], N_CLASSES).astype(np.float32) * math.sqrt(1.0 / self.numEx)
+            Wo = np.random.randn(neurons[-1], N_CLASSES).astype(np.float32) * math.sqrt(1.0 / neurons[-1])
             #Wo = np.random.normal(scale=0.01,size=(neurons[-1], N_CLASSES)).astype(np.float32)
             # bWo = np.random.randn(1, N_CLASSES) * math.sqrt(2.0 / self.numEx)
-            bWo = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
+            bWo = np.ones((1, N_CLASSES)).astype(np.float32)*0.0001
             self.layers += [[Wo,bWo]]
         else:
             self.layers=weights
@@ -120,7 +120,7 @@ class NN:
 
             y = outputs[-1]
             
-            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh])]
+            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh]) * 1/self.minibatch]
             for i in range(self.nHidden):
                 deltas.append(np.dot(deltas[i], self.layers[self.nHidden - i][0].T) * self.act_fun[self.nHidden - i - 1](outputs[self.nHidden - i - 1], True))
             deltas.reverse()
@@ -185,7 +185,7 @@ class NN:
                 else:
                     return False
         elif t==3:
-            if (self.best_loss - loss_epoch) <= 1.e-6: #1e-7
+            if (self.best_loss - loss_epoch) <= 1.e-7: #1e-7
                 self.real_patience += 1
                 if self.real_patience == self.patience:
                     return False

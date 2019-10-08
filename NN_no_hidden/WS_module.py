@@ -100,7 +100,7 @@ class NN_WS(NN.NN):
         centers = sum([len(w)*len(w[0]) for w in self.centers]) * floats_bytes_center
         idx_layers = sum(
             [
-                len(w) * len(w[0]) * (1 if isinstance(w[0][0], np.uint8)) else 2 + 
+                len(w) * len(w[0]) * (1 if isinstance(w[0][0], np.uint8) else 2) + 
                 len(b) * len(b[0]) * floats_bytes_layers
                 for [w, b] in self.idx_layers
             ])
