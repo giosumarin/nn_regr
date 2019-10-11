@@ -1,0 +1,7 @@
+epoch = 1002 - loss on sel_brancher = 0.023850169947991162 - sum error = 0.0 - time = 1.06831s
+0 hidden --> file 3, split=2, dim=256.0: epoch: 162 -- maxerr=6.0 -- %err=2.344 -- meanErr=0.00528 -- time=0.16109s -- spaceOVH=0.09918
+0 hidden --> file 3, split=2, dim=256.0: epoch: 1286 -- maxerr=7.0 -- %err=2.734 -- meanErr=0.00971 -- time=1.25165s -- spaceOVH=0.09918
+-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+epoch = 12194 - loss on sel_brancher = 0.0025241950711974294 - sum error = 0.0 - time = 185.29642s
+0 hidden --> file 7, split=2, dim=4096.0: epoch: 48 -- maxerr=37.0 -- %err=0.903 -- meanErr=0.00307 -- time=0.65368s -- spaceOVH=0.0062
+0 hidden --> file 7, split=2, dim=4096.0: epoch: 231 -- maxerr=24.0 -- %err=0.586 -- meanErr=0.00148 -- time=3.2926s -- spaceOVH=0.0062

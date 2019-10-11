@@ -32,7 +32,7 @@ class NN:
   
         
         self.lambd = lambd
-        self.patience = 15    
+        self.patience = 20    
             
     def addLayers(self, activation_fun, weights=None):
         self.epoch = 0
@@ -85,11 +85,16 @@ class NN:
         else:
             predictions = self.predict(X)
             loss = np.mean(np.abs(predictions-t))
-        return np.round(loss, 7)
+        return loss #np.round(loss, 7)
 
 
     def updateMomentum(self, X, t):
         numBatch = self.numEx // self.minibatch
+
+        #p = np.random.RandomState(seed=42).permutation(self.numEx)
+        #self.train_set = self.train_set[p]
+        #self.target_train =  self.target_train[p]
+
 
         for nb in range(numBatch):
             indexLow = nb * self.minibatch
@@ -156,7 +161,7 @@ class NN:
                     return False 
         elif t == 2:
             r2=r2_score(self.target_train, self.predict(self.train_set))
-            if abs(r2-self.last_r2) < 1e-8: 
+            if abs(r2-self.last_r2) < 1e-10: 
                 self.real_patience -= 1
                 if self.real_patience==0:
                     return False
@@ -168,7 +173,7 @@ class NN:
                 else:
                     return False
         elif t==3:
-            if (self.best_loss - loss_epoch <= 1e-7):
+            if (self.best_loss - loss_epoch <= 0):
                 self.real_patience += 1
                 if self.real_patience == self.patience:
                     return False
@@ -181,7 +186,20 @@ class NN:
                     self.real_patience = 0
                     return True
                 else:
-                    return False 
+                    return False
+        elif t==4:
+            if self.epoch > num_epochs:
+                return False
+            res=self.predict(self.train_set)
+            res[res <= 0.5]=0
+            res[res > 0.5]=1
+            sum = np.sum(np.abs(res-self.target_train))
+            
+            print("epoch {} --> somma er {}, loss {}".format(self.epoch, sum, loss_epoch))
+            if sum > 0:
+                return True
+            else:
+                return False
 
 
     def train(self, stop_function, num_epochs):
