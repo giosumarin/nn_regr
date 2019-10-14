@@ -34,7 +34,11 @@ class NN:
   
         
         self.lambd = lambd
+<<<<<<< HEAD
         self.patience = 5   
+=======
+        self.patience = 5     
+>>>>>>> a21deda10038bb886f490824490fa2da9c48352a
             
     def addLayers(self, neurons, activation_fun, weights=None):
         self.epoch = 0
@@ -104,7 +108,7 @@ class NN:
         else:
             predictions = self.predict(X)
             loss = np.mean(np.abs(predictions-t))
-        return np.round(loss, 7)
+        return loss#np.round(loss, 7)
 
 
     def updateMomentum(self, X, t):
@@ -138,7 +142,8 @@ class NN:
 
             
     def update_layers(self, deltasUpd):
-        lr = self.exp_decay()
+        #lr = self.exp_decay()
+        lr = self.lr
         for i in range(self.nHidden + 1):
             self.v[i][0] = self.mu * self.v[i][0] + lr * deltasUpd[i][0]
             self.v[i][1] = self.mu * self.v[i][1] + lr * deltasUpd[i][1]
@@ -188,7 +193,7 @@ class NN:
                 else:
                     return False
         elif t==3:
-            if (self.best_loss - loss_epoch) <= 1.e-7: #1e-7
+            if (self.best_loss - loss_epoch) <= 0: #1e-7
                 self.real_patience += 1
                 if self.real_patience == self.patience:
                     return False
@@ -257,14 +262,14 @@ class NN:
 
 
     def get_memory_usage(self):
-        matrices = sum([len(w) * len(w[0]) + len(b) * len(b[0]) for [w, b] in self.layers])
+        matrices = sum([w.shape[0] * w.shape[1] + b.shape[0] * b.shape[1] for [w, b] in self.layers])
         # momentum = sum([len(w) * len(w[0]) + len(b) * len(b[0]) for [w, b] in self.v]) if self.epoch > 0 else sum([len(v) for v in self.v])
 
         floats_bytes = 4
         if type(self.layers[0][0][0][0]) == 'float16':
-            number_size = 2.0
+            floats_bytes = 2.0
         if type(self.layers[0][0][0][0]) == 'float64':
-            number_size = 8.0
+            floats_bytes = 8.0
         
         # tot_weights = matrices + momentum
         tot_weights = matrices

@@ -44,7 +44,7 @@ def make_labels_for_class(position_labels):
 
 N_FEATURES = 64
 N_CLASSES = 1
-np.random.RandomState(42)
+np.random.RandomState(0)
 
 weights = np.random.randn(N_FEATURES, N_CLASSES).astype(np.float32) * sqrt(2/N_FEATURES)
 #weights = (np.zeros((N_FEATURES, N_CLASSES))).astype(np.float32)
@@ -52,10 +52,20 @@ bias = np.ones((1, N_CLASSES)).astype(np.float32)*0.0001
 #bias = np.random.randn(1, N_CLASSES).astype(np.float32) * sqrt(2/N_CLASSES)
 w= [[weights, bias]]
 
+weights1 = np.random.randn(N_FEATURES, 16).astype(np.float32) * sqrt(2/N_FEATURES)
+#weights = (np.zeros((N_FEATURES, N_CLASSES))).astype(np.float32)
+bias1 = np.ones((1, 16)).astype(np.float32)*0.0001
+#bias = np.random.randn(1, N_CLASSES).astype(np.float32) * sqrt(2/N_CLASSES)
+
+weights2 = np.random.randn(16, N_CLASSES).astype(np.float32) * sqrt(2/N_FEATURES)
+#weights = (np.zeros((N_FEATURES, N_CLASSES))).astype(np.float32)
+bias2 = np.ones((1, N_CLASSES)).astype(np.float32)*0.0001
+wh= [[weights1, bias1], [weights2, bias2]]
+
 
 
 for i in [3,7,10]:
-    with open("to_tex.txt", "a+") as tex:
+    with open("to_tex_h1.txt", "a+") as tex:
             tex.write("\nfile {}\n".format(i))
     for spl in [2,3,4,5,6,7,8]:
         with h5py.File('Resource2/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
@@ -121,13 +131,13 @@ for i in [3,7,10]:
         f7: epoch = 12679 - loss on sel_brancher = 0.0024501 - sum error = 0.0 - time = 176.93983s
         '''
         max_errs = []
-        for s in range(split):
-            ww = np.copy(w)
-            nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.05, mu=0.9, output_classes=1, lambd=1e-5, minibatch=32, disableLog=True)
-            nn.addLayers(['leakyrelu'], ww)
-            now=time.time()
-            loss = nn.train(stop_function=3, num_epochs=20000)
-            difference = round(time.time() - now, 5)
+        #for s in range(split):
+        #    ww = np.copy(w)
+        #    nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.05, mu=0.9, output_classes=1, lambd=0, minibatch=32, disableLog=True)
+        #   nn.addLayers(['leakyrelu'], ww)
+        #    now=time.time()
+        #    loss = nn.train(stop_function=3, num_epochs=20000)
+        #    difference = round(time.time() - now, 5)
  
            
             
@@ -140,7 +150,7 @@ for i in [3,7,10]:
             #         max_err = val
             #     mean_err += val
             # mean_err/=dim_set
-            
+        '''   
             pr = np.floor(nn.predict(splitted_bin_data[s]) * dim_set)
             lab = splitted_labels[s] *dim_set
             max_err = np.max(np.abs(pr-lab)).astype("int32")
@@ -150,28 +160,29 @@ for i in [3,7,10]:
         
         with open("to_tex.txt", "a+") as tex:
             tex.write("${}$ & ${}$ & ${}$ & ${}$ \\\ \n".format(spl, list(max_errs), max(max_errs), round(nn.get_memory_usage()*spl,5)))
-        
+        '''
 
 
 
-        # for s in range(split):
-        #     nn = NN.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.01, mu=0.9, lambd=0, minibatch=32, disableLog=True)
-        #     nn.addLayers([32],['leakyrelu','leakyrelu'])
-        #     now=time.time()
-        #     loss = nn.train(stop_function=3, num_epochs=20000)
-        #     difference = round(time.time() - now, 3)
-        #     max_err=0
-        #     mean_err=0
-        #     for j in range(dim_set // split):
-        #         pr = floor(nn.predict(splitted_bin_data[s][j])[0]*(dim_set//split))
-        #         val=abs(pr-splitted_labels[s][j]*(dim_set//split))
-        #         if val > max_err:
-        #             max_err = val
-        #         mean_err += val
-        #     mean_err/=dim_set
+        for s in range(split):
+            ww = np.copy(wh)
+            nn = NN.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.05, mu=0.9, lambd=0, minibatch=32, disableLog=True)
+            nn.addLayers([16],['leakyrelu','leakyrelu'], ww)
+            now=time.time()
+            loss = nn.train(stop_function=3, num_epochs=20000)
+            difference = round(time.time() - now, 3)
+            pr = np.floor(nn.predict(splitted_bin_data[s]) * dim_set)
+            lab = splitted_labels[s] *dim_set
+            max_err = np.max(np.abs(pr-lab)).astype("int32")
+            max_errs.append(max_err)
+             
             
-        #     print("1 hidden --> file {}, split={}, dim={}: maxerr={} -- %err={} -- meanErr={} -- time={}s -- spaceOVH={}"
-        #     .format(i, spl, (dim_set/split), max_err, round(max_err[0]/(dim_set/split)*100,3), loss, difference, nn.get_memory_usage()))
+            print("1 hidden --> file {}, split={}, dim={}: epoch: {} -- maxerr={} -- %err={} -- meanErr={} -- time={}s -- spaceOVH={}"
+            .format(i, spl, dim_set, nn.epoch, max_err, round(max_err/(dim_set)*100,3), round(loss, 5), difference, round(nn.get_memory_usage(),5)))
+        
+        
+        with open("to_tex_h1.txt", "a+") as tex:
+            tex.write("${}$ & ${}$ & ${}$ & ${}$ \\\ \n".format(spl, list(max_errs), max(max_errs), round(nn.get_memory_usage()*spl,5)))
         print("-*-*"*35)
 
 
