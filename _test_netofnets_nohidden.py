@@ -44,10 +44,10 @@ def make_labels_for_class(position_labels):
 
 N_FEATURES = 64
 N_CLASSES = 1
-np.random.RandomState(42)
+np.random.RandomState(0)
 
 weights = np.random.randn(N_FEATURES, N_CLASSES).astype(np.float32) * sqrt(2/N_FEATURES)
-bias = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
+bias = np.ones((1, N_CLASSES)).astype(np.float32)*0.00116
 w= [[weights, bias]]
 
 
@@ -55,7 +55,7 @@ w= [[weights, bias]]
 for i in [3,7,10]:
     with open("to_tex.txt", "a+") as tex:
             tex.write("\nfile {}\n".format(i))
-    for spl in [2,3,4,5,6,7,8]:
+    for spl in [2,3,4,5,6,7,8,16]:
         with h5py.File('Resource2/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
             data = f.get('Sb') 
             bin_data = np.array(data, dtype=np.bool)
@@ -81,7 +81,7 @@ for i in [3,7,10]:
         max_errs = []
         for s in range(split):
             ww = np.copy(w)
-            nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.05, mu=0.9, output_classes=1, lambd=0, minibatch=32, disableLog=True)
+            nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.03, mu=0.9, output_classes=1, lambd=0, minibatch=32, disableLog=True)
             nn.addLayers(['leakyrelu'], ww)
             now=time.time()
             loss = nn.train(stop_function=3, num_epochs=20000)

@@ -34,11 +34,7 @@ class NN:
   
         
         self.lambd = lambd
-<<<<<<< HEAD
-        self.patience = 5   
-=======
         self.patience = 5     
->>>>>>> a21deda10038bb886f490824490fa2da9c48352a
             
     def addLayers(self, neurons, activation_fun, weights=None):
         self.epoch = 0
