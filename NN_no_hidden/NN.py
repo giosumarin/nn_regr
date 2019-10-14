@@ -9,7 +9,7 @@ N_CLASSES = 1
 np.random.RandomState(42)
 
 class NN:
-    def __init__(self, training, testing, lr, mu, lambd=0, minibatch=None, dropout=None, disableLog=None, weights=None):
+    def __init__(self, training, testing, lr, mu, output_classes, lambd=0, minibatch=None, dropout=None, disableLog=None, weights=None):
         self.train_set = training[0]
         self.test = testing[0]
         self.numEx = len(self.train_set)
@@ -29,26 +29,30 @@ class NN:
         self.target_train = training[1]
         self.target_test = testing[1]
         self.epoch = 0
+        self.N_CLASSES = output_classes
   
         
         self.lambd = lambd
-        self.patience = 20    
+        self.patience = 40 
+        self.patience_5 = 100   
             
-    def addLayers(self, activation_fun, weights=None):
+    def addLayers(self, activation_fun,weights=None):
         self.epoch = 0
         self.v = [[0,0]]
         act_fun_factory = {"relu": lambda x, der: af.ReLU(x, der),
                            "sigmoid": lambda x, der: af.sigmoid(x, der),
                            "linear": lambda x, der: af.linear(x, der),
                            "tanh": lambda x, der: af.tanh(x, der),
-                           "leakyrelu": lambda x, der: af.LReLU(x, der)}      
+                           "leakyrelu": lambda x, der: af.LReLU(x, der),
+                           "softmax": lambda x, der: af.softmax_function(x, der),
+                           "softplus": lambda x, der: af.softplus_function(x,der)}      
         self.act_fun = [act_fun_factory[f] for f in activation_fun]
         if weights == None:
-            Wo = np.random.randn(N_FEATURES, N_CLASSES).astype(np.float32) * math.sqrt(1/N_FEATURES)
-            #Wo = (np.zeros((N_FEATURES, N_CLASSES))).astype(np.float32) 
-            #Wo = np.random.normal(scale=0.01, size=(N_FEATURES, N_CLASSES)).astype(np.float32) 
-            #Wo = np.random.normal(scale=0.001, size=(N_FEATURES, N_CLASSES)).astype(np.float32)
-            bWo = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
+            Wo = np.random.randn(N_FEATURES, self.N_CLASSES).astype(np.float32) * math.sqrt(2/N_FEATURES)
+            #Wo = (np.zeros((N_FEATURES, self.N_CLASSES))).astype(np.float32) 
+            #Wo = np.random.normal(scale=0.01, size=(N_FEATURES, self.N_CLASSES)).astype(np.float32) 
+            #Wo = np.random.normal(scale=0.001, size=(N_FEATURES, self.N_CLASSES)).astype(np.float32)
+            bWo = np.ones((1, self.N_CLASSES)).astype(np.float32)*0.0001
             self.layers = [[Wo,bWo]]
         else:
             self.layers=weights
@@ -91,9 +95,9 @@ class NN:
     def updateMomentum(self, X, t):
         numBatch = self.numEx // self.minibatch
 
-        #p = np.random.RandomState(seed=42).permutation(self.numEx)
-        #self.train_set = self.train_set[p]
-        #self.target_train =  self.target_train[p]
+        p = np.random.RandomState(seed=42).permutation(self.numEx)
+        self.train_set = self.train_set[p]
+        self.target_train =  self.target_train[p]
 
 
         for nb in range(numBatch):
@@ -173,6 +177,8 @@ class NN:
                 else:
                     return False
         elif t==3:
+            # if self.epoch <= 50:
+            #     return True
             if (self.best_loss - loss_epoch <= 0):
                 self.real_patience += 1
                 if self.real_patience == self.patience:
@@ -201,13 +207,39 @@ class NN:
             else:
                 return False
 
+        elif t==5:
+            pr = np.floor(self.predict(self.train_set) * self.numEx)
+            lab = self.target_train *self.numEx
+            maxerrepoch = np.max(np.abs(pr-lab))
+             
+            if (self.maxerr <= maxerrepoch): #and (self.best_loss - loss_epoch <= 0):
+                self.real_patience += 1
+                if self.real_patience == self.patience_5:
+                    return False
+                else:
+                    return True
+            else:
+                if self.epoch < num_epochs:
+                    if self.maxerr > maxerrepoch:
+                        self.maxerr = maxerrepoch
+                        self.real_patience = 0
+                    return True
+                else:
+                    return False
+                
+                # if self.best_loss > loss_epoch:
+                #     self.best_loss = loss_epoch
+                return True
+                
+                
+
 
     def train(self, stop_function, num_epochs):
         
         self.best_loss = 100.
         last_loss = 99.
         self.last_r2= -100
-            
+        self.maxerr = 2^28
         self.best_ep=0    
         self.real_patience = 0
 
@@ -244,9 +276,9 @@ class NN:
 
         floats_bytes = 4
         if type(self.layers[0][0][0][0]) == 'float16':
-            number_size = 2.0
+            floats_bytes = 2.0
         if type(self.layers[0][0][0][0]) == 'float64':
-            number_size = 8.0
+            floats_bytes = 8.0
         
         # tot_weights = matrices + momentum
         tot_weights = matrices
