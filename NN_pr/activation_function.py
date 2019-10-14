@@ -42,3 +42,21 @@ def LReLU(x, derivate=False):
         #return pos + neg
         output = np.clip(x>0,alpha,1.)
         return output
+
+
+def softmax_function( signal, derivative=False ):
+    e_x = np.exp( signal - np.max(signal, axis=1, keepdims = True) )
+    signal = e_x / np.sum( e_x, axis = 1, keepdims = True )
+    
+    if derivative:
+        return np.ones( signal.shape )
+    else:
+        return signal
+        
+def softplus_function( signal, derivative=False ):
+    if derivative:
+        # Return the partial derivation of the activation function
+        return np.exp(signal) / (1 + np.exp(signal))
+    else:
+        # Return the activation signal
+        return np.log(1 + np.exp(signal))

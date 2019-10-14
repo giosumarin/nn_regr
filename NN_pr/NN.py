@@ -5,11 +5,11 @@ from NN_pr import logger as log
 from NN_pr import activation_function as af
 
 N_FEATURES = 64
-N_CLASSES = 1
+#N_CLASSES = 1
 np.random.RandomState(42)
 
 class NN:
-    def __init__(self, training, testing, lr, mu, lambd=0, minibatch=None, dropout=None, disableLog=None, weights=None):
+    def __init__(self, training, testing, lr, mu, output_classes, lambd=0, minibatch=None, dropout=None, disableLog=None, weights=None):
         self.train_set = training[0]
         self.test = testing[0]
         self.numEx = len(self.train_set)
@@ -29,10 +29,12 @@ class NN:
         self.target_train = training[1]
         self.target_test = testing[1]
         self.epoch = 0
+        self.N_CLASSES = output_classes
+        self.hot_labels = np.argmax(self.target_train, axis=1).reshape(-1,1)
   
         
         self.lambd = lambd
-        self.patience = 4     
+        self.patience = 5   
             
     def addLayers(self, neurons, activation_fun, weights=None):
         self.epoch = 0
@@ -45,7 +47,8 @@ class NN:
                            "sigmoid": lambda x, der: af.sigmoid(x, der),
                            "linear": lambda x, der: af.linear(x, der),
                            "tanh": lambda x, der: af.tanh(x, der),
-                           "leakyrelu": lambda x, der: af.LReLU(x, der)}      
+                           "leakyrelu": lambda x, der: af.LReLU(x, der),
+                           "softmax": lambda x, der: af.softmax_function(x, der)}      
         self.act_fun = [act_fun_factory[f] for f in activation_fun]
         
         if weights == None:
@@ -56,10 +59,10 @@ class NN:
             #bias_hidden = [np.random.normal(scale=0.05, size=(1, n)) for n in neurons]
             bias_hidden = [np.ones((1, n)).astype(np.float32)*0.001 for n in neurons]
             self.layers = [[w,b] for w, b in list(zip(weights_hidden, bias_hidden))]
-            Wo = np.random.randn(neurons[-1], N_CLASSES).astype(np.float32) * math.sqrt(2.0 / neurons[-1])
+            Wo = np.random.randn(neurons[-1], self.N_CLASSES).astype(np.float32) * math.sqrt(2.0 / neurons[-1])
             #Wo = np.random.normal(scale=0.01,size=(neurons[-1], N_CLASSES)).astype(np.float32)
             # bWo = np.random.randn(1, N_CLASSES) * math.sqrt(2.0 / self.numEx)
-            bWo = np.ones((1, N_CLASSES)).astype(np.float32)*0.0001
+            bWo = np.ones((1, self.N_CLASSES)).astype(np.float32)*0.001
             self.layers += [[Wo,bWo]]
         else:
             self.layers=weights
@@ -200,6 +203,19 @@ class NN:
                 else:
                     return False 
 
+        elif t == 4:
+            if self.epoch > num_epochs:
+                return False
+            res = np.argmax(self.predict(self.train_set),axis=1).reshape(-1,1)
+            
+            sum = np.sum(np.abs(res-self.hot_labels))
+            #print("epoch: {} - err: {} - loss {}".format(self.epoch, sum, loss_epoch))
+            if sum > 0:
+                return True
+            else:
+                return False
+
+
 
     def train(self, stop_function, num_epochs):
         
@@ -218,6 +234,8 @@ class NN:
             if self.epoch % 1 == 0 and self.disableLog==False:
                 log.logNN.debug("Train - epoch {0} - MAE {1} - MeanErr {2}".format(self.epoch, last_loss, last_loss*self.numEx)) 
             
+            
+
             #if self.epoch % 10 == 0:
             #    pred = np.floor(self.predict(self.train_set)*self.numEx)           
             #    dif=np.abs(pred-self.target_train*self.numEx)              

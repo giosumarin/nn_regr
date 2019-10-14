@@ -33,7 +33,7 @@ class NN:
   
         
         self.lambd = lambd
-        self.patience = 20
+        self.patience = 25
         self.patience_5 = 100   
             
     def addLayers(self, activation_fun,weights=None):
@@ -88,7 +88,7 @@ class NN:
             loss/=batch
         else:
             predictions = self.predict(X)
-            loss = np.mean(np.abs(predictions-t))
+            loss = np.mean(np.square(predictions-t)) #np.abs
         return loss #np.round(loss, 7)
 
 
