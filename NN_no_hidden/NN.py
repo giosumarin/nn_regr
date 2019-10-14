@@ -6,7 +6,7 @@ from NN_pr import activation_function as af
 
 N_FEATURES = 64
 N_CLASSES = 1
-np.random.RandomState(42)
+np.random.RandomState(0)
 
 class NN:
     def __init__(self, training, testing, lr, mu, output_classes, lambd=0, minibatch=None, dropout=None, disableLog=None, weights=None):
@@ -33,7 +33,7 @@ class NN:
   
         
         self.lambd = lambd
-        self.patience = 40 
+        self.patience = 20
         self.patience_5 = 100   
             
     def addLayers(self, activation_fun,weights=None):
@@ -95,9 +95,9 @@ class NN:
     def updateMomentum(self, X, t):
         numBatch = self.numEx // self.minibatch
 
-        p = np.random.RandomState(seed=42).permutation(self.numEx)
-        self.train_set = self.train_set[p]
-        self.target_train =  self.target_train[p]
+        #p = np.random.RandomState(seed=0).permutation(self.numEx)
+        #self.train_set = self.train_set[p]
+        #self.target_train =  self.target_train[p]
 
 
         for nb in range(numBatch):
