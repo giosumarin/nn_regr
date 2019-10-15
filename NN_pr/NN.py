@@ -106,7 +106,7 @@ class NN:
             loss/=batch
         else:
             predictions = self.predict(X)
-            loss = np.mean(np.abs(predictions-t)) 
+            loss = np.mean(np.square(predictions-t)) 
         return round(loss, 7)
 
 

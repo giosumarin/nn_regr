@@ -5,6 +5,7 @@ import sys
 import h5py
 import time 
 from math import floor, sqrt, ceil
+from sklearn.preprocessing import MinMaxScaler
 
 
 from NN_no_hidden import NN as NN1
@@ -81,21 +82,25 @@ for i in [3,7,10]:
         max_errs = []
         for s in range(split):
             ww = np.copy(w)
+            scaler = MinMaxScaler()
+            transformed_lab = scaler.fit_transform(splitted_labels[s])
             nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.03, mu=0.9, output_classes=1, lambd=0, minibatch=32, disableLog=True)
             nn.addLayers(['leakyrelu'], ww)
+            nn.set_patience(10)
             now=time.time()
             loss = nn.train(stop_function=3, num_epochs=20000)
             difference = round(time.time() - now, 5)
             
+            #pr = np.floor(scaler.inverse_transform(nn.predict(splitted_bin_data[s])) * dim_set)
             pr = np.floor(nn.predict(splitted_bin_data[s]) * dim_set)
             lab = splitted_labels[s] *dim_set
             max_err = np.max(np.abs(pr-lab)).astype("int32")
             max_errs.append(max_err)
             print("0 hidden --> file {}, split={}, dim={}: epoch: {} -- maxerr={} -- %err={} -- meanErr={} -- time={}s -- spaceOVH={}"
-            .format(i, spl, (dim_set/split), nn.epoch, max_err, round(max_err/(dim_set)*100,3), round(loss, 5), difference, round(nn.get_memory_usage(),5)))
+            .format(i, spl, ceil(dim_set/split), nn.epoch, max_err, round(max_err/(dim_set)*100,3), round(loss, 5), difference, round(nn.get_memory_usage(dim_set),5)))
         
         with open("to_tex.txt", "a+") as tex:
-            tex.write("${}$ & ${}$ & ${}$ & ${}$ \\\ \n".format(spl, list(max_errs), max(max_errs), round(nn.get_memory_usage()*spl,5)))
+            tex.write("${}$ & ${}$ & ${}$ & ${}$ \\\ \n".format(spl, list(max_errs), max(max_errs), round(nn.get_memory_usage(dim_set)*spl,5)))
 
         print("-*-*"*35)
 

@@ -60,6 +60,9 @@ class NN:
     def set_lambda_reg_l2(self, lambd):
         self.lambd=lambd
 
+    def set_patience(self, patience):
+        self.patience = patience
+
     def feedforward(self, X):
         inputLayer = X            
         return [self.act_fun[0](np.dot(inputLayer, self.layers[0][0]) + self.layers[0][1], False)]
@@ -83,12 +86,12 @@ class NN:
                 indexLow = n * tr
                 indexHigh =(n+1) * tr 
                 predictions = self.predict(X[indexLow:indexHigh])
-                loss += np.mean(np.abs(predictions - t[indexLow:indexHigh]))
+                loss += np.mean(np.square(predictions - t[indexLow:indexHigh]))
                 
             loss/=batch
         else:
             predictions = self.predict(X)
-            loss = np.mean(np.square(predictions-t)) #np.abs
+            loss = np.mean(np.square(predictions-t))
         return np.round(loss, 7)
 
 
