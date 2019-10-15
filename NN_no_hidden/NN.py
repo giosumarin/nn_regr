@@ -209,10 +209,10 @@ class NN:
 
         elif t==5:
             pr = np.floor(self.predict(self.train_set) * self.numEx)
-            lab = self.target_train *self.numEx
+            lab = self.target_train * self.numEx #non numEx ma dataset completo?
             maxerrepoch = np.max(np.abs(pr-lab))
              
-            if (self.maxerr <= maxerrepoch): #and (self.best_loss - loss_epoch <= 0):
+            if (self.maxerr <= maxerrepoch): 
                 self.real_patience += 1
                 if self.real_patience == self.patience_5:
                     return False

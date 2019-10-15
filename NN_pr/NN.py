@@ -6,7 +6,7 @@ from NN_pr import activation_function as af
 
 N_FEATURES = 64
 #N_CLASSES = 1
-np.random.RandomState(42)
+np.random.RandomState(0)
 
 class NN:
     def __init__(self, training, testing, lr, mu, output_classes, lambd=0, minibatch=None, dropout=None, disableLog=None, weights=None):
@@ -34,7 +34,7 @@ class NN:
   
         
         self.lambd = lambd
-        self.patience = 5     
+        self.patience = 15  
             
     def addLayers(self, neurons, activation_fun, weights=None):
         self.epoch = 0
@@ -69,6 +69,9 @@ class NN:
         
     def set_lambda_reg_l2(self, lambd):
         self.lambd=lambd
+    
+    def set_patience(self, patience):
+        self.patience = patience
 
     def feedforward(self, X):
         outputs = []
@@ -103,8 +106,8 @@ class NN:
             loss/=batch
         else:
             predictions = self.predict(X)
-            loss = np.mean(np.abs(predictions-t))
-        return loss#np.round(loss, 7)
+            loss = np.mean(np.abs(predictions-t)) 
+        return round(loss, 7)
 
 
     def updateMomentum(self, X, t):
@@ -130,22 +133,31 @@ class NN:
             
             outputs_for_deltas = [X[indexLow:indexHigh]]+outputs[:-1] 
 
-            deltas_weights = [np.dot(outputs_for_deltas[i].T, deltas[i]) + (self.layers[i][0] * self.lambd) for i in range(self.nHidden + 1)]
+            deltas_weights = [np.dot(outputs_for_deltas[i].T, deltas[i]) + (self.layers[i][0] * self.lambd * 1/self.minibatch) for i in range(self.nHidden + 1)]
             deltas_bias = [np.sum(deltas[i], axis=0, keepdims=True) for i in range(self.nHidden + 1)]
             deltasUpd = [[w,b] for w, b in list(zip(deltas_weights, deltas_bias))]
 
             self.update_layers(deltasUpd)
 
             
-    def update_layers(self, deltasUpd):
-        #lr = self.exp_decay()
-        lr = self.lr
+    # def update_layers(self, deltasUpd):
+    #     #lr = self.exp_decay()
+    #     lr = self.lr
+    #     for i in range(self.nHidden + 1):
+    #         self.v[i][0] = self.mu * self.v[i][0] + lr * deltasUpd[i][0]
+    #         self.v[i][1] = self.mu * self.v[i][1] + lr * deltasUpd[i][1]
+    #     for i in range(self.nHidden + 1):
+    #         self.layers[i][0] -= self.v[i][0] 
+    #         self.layers[i][1] -= self.v[i][1]
+
+    def update_layers(self, deltaUpd):
+        v_prev = self.v.copy()
         for i in range(self.nHidden + 1):
-            self.v[i][0] = self.mu * self.v[i][0] + lr * deltasUpd[i][0]
-            self.v[i][1] = self.mu * self.v[i][1] + lr * deltasUpd[i][1]
+            self.v[i][0] = self.mu * self.v[i][0] - self.lr * deltaUpd[i][0]
+            self.v[i][1] = self.mu * self.v[i][1] - self.lr * deltaUpd[i][1]
         for i in range(self.nHidden + 1):
-            self.layers[i][0] -= self.v[i][0] 
-            self.layers[i][1] -= self.v[i][1] 
+            self.layers[i][0] += -self.mu * v_prev[i][0] + (1+self.mu) * self.v[i][0] 
+            self.layers[i][1] += -self.mu * v_prev[i][1] + (1+self.mu) * self.v[i][1] 
 
 
     def exp_decay(self):
@@ -189,7 +201,9 @@ class NN:
                 else:
                     return False
         elif t==3:
-            if (self.best_loss - loss_epoch) <= 0: #1e-7
+            if num_epochs <= self.epoch:
+                return False
+            if (self.best_loss - loss_epoch) <= 0:
                 self.real_patience += 1
                 if self.real_patience == self.patience:
                     return False
@@ -198,11 +212,8 @@ class NN:
             else:
                 if self.best_loss > loss_epoch:
                     self.best_loss=loss_epoch
-                if self.epoch < num_epochs:
                     self.real_patience = 0
                     return True
-                else:
-                    return False 
 
         elif t == 4:
             if self.epoch > num_epochs:
