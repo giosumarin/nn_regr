@@ -5,6 +5,7 @@ import sys
 import h5py
 import time 
 from math import floor, sqrt, ceil
+from sklearn.preprocessing import MinMaxScaler
 
 
 from NN_no_hidden import NN as NN1
@@ -52,7 +53,7 @@ np.random.RandomState(0)
 # weights2 = np.random.randn(16, N_CLASSES).astype(np.float32) * sqrt(2/N_FEATURES)
 # bias2 = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
 # wh= [[weights1, bias1], [weights2, bias2]]
-for size in [16,32,64,128,256]:
+for size in [8, 16, 32, 64]:
     weights1 = np.random.randn(N_FEATURES, size).astype(np.float32) * sqrt(2/N_FEATURES)
     bias1 = np.ones((1, size)).astype(np.float32)*0.001
 
@@ -74,7 +75,7 @@ for size in [16,32,64,128,256]:
 
 
 
-    for i in [7,10]:
+    for i in [3,7,10]:
         with open("to_tex_h1.txt", "a+") as tex:
                 tex.write("\nfile {} size_hidden {}\n".format(i, size))
         for spl in [2,4,8,16]:
@@ -93,22 +94,25 @@ for size in [16,32,64,128,256]:
             max_errs = []
             for s in range(split):
                 ww = np.copy(wh)
-                nn = NN.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.03, mu=0.9, output_classes=1, lambd=0, minibatch=32, disableLog=True)
+                scaler = MinMaxScaler()
+                transformed_lab = scaler.fit_transform(splitted_labels[s])
+
+                nn = NN.NN(training=[splitted_bin_data[s], transformed_lab], testing=[[0],[0]], lr=0.05, mu=0.9, output_classes=1, lambd=0, minibatch=32, disableLog=True)
                 nn.addLayers([size],['leakyrelu','leakyrelu'], ww)
                 nn.set_patience(10)
                 now=time.time()
-                loss = nn.train(stop_function=3, num_epochs=2000)
+                loss = nn.train(stop_function=3, num_epochs=10000)
                 difference = round(time.time() - now, 3)
-                pr = np.floor(nn.predict(splitted_bin_data[s]) * dim_set)
+                pr = np.floor(scaler.inverse_transform(nn.predict(splitted_bin_data[s])) * dim_set)
                 lab = splitted_labels[s] *dim_set
                 max_err = np.max(np.abs(pr-lab)).astype("int32")
                 max_errs.append(max_err)
                 
                 
                 print("1 hidden --> file {}, split={}, dim={}: epoch: {} -- maxerr={} -- %err={} -- meanErr={} -- time={}s -- spaceOVH={}"
-                .format(i, spl, dim_set, nn.epoch, max_err, round(max_err/(dim_set)*100,3), round(loss, 5), difference, round(nn.get_memory_usage(),5)))
+                .format(i, spl, dim_set, nn.epoch, max_err, round(max_err/(dim_set)*100,3), round(loss, 5), difference, round(nn.get_memory_usage(dim_set),5)))
             
             
             with open("to_tex_h1.txt", "a+") as tex:
-                tex.write("${}$ & ${}$ & ${}$ & ${}$ \\\ \n".format(spl, list(max_errs), max(max_errs), round(nn.get_memory_usage()*spl,5)))
+                tex.write("${}$ & ${}$ & ${}$ & ${}$ \\\ \n".format(spl, list(max_errs), max(max_errs), round(nn.get_memory_usage(dim_set)*spl,5)))
             print("-*-*"*35)
