@@ -13,6 +13,7 @@ from NN_no_hidden import pruning_module as pr1
 from NN_pr import NN
 from NN_pr import pruning_module as pruning
 from NN_pr import WS_module as ws
+from itertools import product
 
 def make_structured_input_for_root_NN(bin_data, labels, split, dim_set):
     position_labels = np.copy(labels)
@@ -53,31 +54,31 @@ np.random.RandomState(0)
 # weights2 = np.random.randn(16, N_CLASSES).astype(np.float32) * sqrt(2/N_FEATURES)
 # bias2 = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
 # wh= [[weights1, bias1], [weights2, bias2]]
-for size in [8, 16, 32, 64, 128]:
-    weights1 = np.random.randn(N_FEATURES, size).astype(np.float32) * sqrt(2/N_FEATURES)
-    bias1 = np.ones((1, size)).astype(np.float32)*0.001
+for size1,size2 in product([8, 16, 32, 64],[8, 16, 32, 64]):
+    # weights1 = np.random.randn(N_FEATURES, size).astype(np.float32) * sqrt(2/N_FEATURES)
+    # bias1 = np.ones((1, size)).astype(np.float32)*0.001
 
-    weights2 = np.random.randn(size, N_CLASSES).astype(np.float32) * sqrt(2/N_FEATURES)
-    bias2 = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
+    # weights2 = np.random.randn(size, N_CLASSES).astype(np.float32) * sqrt(2/N_FEATURES)
+    # bias2 = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
 
-    wh= [[weights1, bias1], [weights2, bias2]]
+    # wh= [[weights1, bias1], [weights2, bias2]]
 
-    # weights1 = np.random.randn(N_FEATURES, 32).astype(np.float32) * sqrt(2/N_FEATURES)
-    # bias1 = np.ones((1, 32)).astype(np.float32)*0.001
+    weights1 = np.random.randn(N_FEATURES, size1).astype(np.float32) * sqrt(2/N_FEATURES)
+    bias1 = np.ones((1, size1)).astype(np.float32)*0.001
 
-    # weights2 = np.random.randn(32, 16).astype(np.float32) * sqrt(2/N_FEATURES)
-    # bias2 = np.ones((1, 16)).astype(np.float32)*0.001
+    weights2 = np.random.randn(size1, size2).astype(np.float32) * sqrt(2/N_FEATURES)
+    bias2 = np.ones((1, size2)).astype(np.float32)*0.001
 
-    # weights3 = np.random.randn(16, N_CLASSES).astype(np.float32) * sqrt(2/N_FEATURES)
-    # bias3 = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
+    weights3 = np.random.randn(size2, N_CLASSES).astype(np.float32) * sqrt(2/N_FEATURES)
+    bias3 = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
 
-    #whh= [[weights1, bias1], [weights2, bias2], [weights3, bias3]]
+    whh= [[weights1, bias1], [weights2, bias2], [weights3, bias3]]
 
 
 
     for i in [3,7,10]:
         with open("to_tex_h1.txt", "a+") as tex:
-                tex.write("\nfile {} size_hidden {}\n".format(i, size))
+                tex.write("\nfile {} size_hidden {}\n".format(i, [size1, size2]))
         for spl in [2,4,8,16]:
             with h5py.File('Resource2/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
                 data = f.get('Sb') 
@@ -93,12 +94,12 @@ for size in [8, 16, 32, 64, 128]:
 
             max_errs = []
             for s in range(split):
-                ww = np.copy(wh)
+                ww = np.copy(whh)
                 scaler = MinMaxScaler()
                 transformed_lab = scaler.fit_transform(splitted_labels[s])
 
                 nn = NN.NN(training=[splitted_bin_data[s], transformed_lab], testing=[[0],[0]], lr=0.03, mu=0.9, output_classes=1, lambd=0, minibatch=32, disableLog=True)
-                nn.addLayers([size],['leakyrelu','leakyrelu'], ww)
+                nn.addLayers([size1, size2],['leakyrelu','leakyrelu','leakyrelu'], ww)
                 nn.set_patience(10)
                 now= time.time()
                 loss = nn.train(stop_function=3, num_epochs=10000)
