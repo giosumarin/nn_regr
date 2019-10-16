@@ -107,7 +107,7 @@ class NN:
         else:
             predictions = self.predict(X)
             loss = np.mean(np.square(predictions-t)) 
-        return round(loss, 7)
+        return loss
 
 
     def updateMomentum(self, X, t):
@@ -150,14 +150,23 @@ class NN:
     #         self.layers[i][0] -= self.v[i][0] 
     #         self.layers[i][1] -= self.v[i][1]
 
+    # def update_layers(self, deltaUpd):
+    #     v_prev = self.v.copy()
+    #     for i in range(self.nHidden + 1):
+    #         self.v[i][0] = self.mu * self.v[i][0] - self.lr * deltaUpd[i][0]
+    #         self.v[i][1] = self.mu * self.v[i][1] - self.lr * deltaUpd[i][1]
+    #     for i in range(self.nHidden + 1):
+    #         self.layers[i][0] += -self.mu * v_prev[i][0] + (1+self.mu) * self.v[i][0] 
+    #         self.layers[i][1] += -self.mu * v_prev[i][1] + (1+self.mu) * self.v[i][1] 
+
     def update_layers(self, deltaUpd):
-        v_prev = self.v.copy()
+        eps=1e-8
         for i in range(self.nHidden + 1):
-            self.v[i][0] = self.mu * self.v[i][0] - self.lr * deltaUpd[i][0]
-            self.v[i][1] = self.mu * self.v[i][1] - self.lr * deltaUpd[i][1]
+            self.v[i][0] += deltaUpd[i][0]**2
+            self.v[i][1] += deltaUpd[i][1]**2
         for i in range(self.nHidden + 1):
-            self.layers[i][0] += -self.mu * v_prev[i][0] + (1+self.mu) * self.v[i][0] 
-            self.layers[i][1] += -self.mu * v_prev[i][1] + (1+self.mu) * self.v[i][1] 
+            self.layers[i][0] += -self.lr * deltaUpd[i][0] / (np.sqrt(self.v[i][0]) + eps)
+            self.layers[i][1] += -self.lr * deltaUpd[i][1] / (np.sqrt(self.v[i][1]) + eps)
 
 
     def exp_decay(self):
