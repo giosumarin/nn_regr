@@ -107,7 +107,7 @@ class NN:
         else:
             predictions = self.predict(X)
             loss = np.mean(np.square(predictions-t)) 
-        return loss
+        return round(loss, 7)
 
 
     def updateMomentum(self, X, t):

@@ -54,7 +54,7 @@ np.random.RandomState(0)
 # weights2 = np.random.randn(16, N_CLASSES).astype(np.float32) * sqrt(2/N_FEATURES)
 # bias2 = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
 # wh= [[weights1, bias1], [weights2, bias2]]
-for size1,size2 in product([8, 16, 32, 64, 128],[8, 16, 32, 64]):
+for size1,size2 in product([8, 16, 32, 64],[8, 16, 32, 64]):
     if size1 >= size2:
         # weights1 = np.random.randn(N_FEATURES, size).astype(np.float32) * sqrt(2/N_FEATURES)
         # bias1 = np.ones((1, size)).astype(np.float32)*0.001
@@ -99,9 +99,9 @@ for size1,size2 in product([8, 16, 32, 64, 128],[8, 16, 32, 64]):
                     scaler = MinMaxScaler()
                     transformed_lab = scaler.fit_transform(splitted_labels[s])
 
-                    nn = NN.NN(training=[splitted_bin_data[s], transformed_lab], testing=[[0],[0]], lr=0.03, mu=0.9, output_classes=1, lambd=0, minibatch=32, disableLog=True)
+                    nn = NN.NN(training=[splitted_bin_data[s], transformed_lab], testing=[[0],[0]], lr=0.05, mu=0.9, output_classes=1, lambd=0, minibatch=32, disableLog=True)
                     nn.addLayers([size1, size2],['leakyrelu','leakyrelu','leakyrelu'], ww)
-                    nn.set_patience(10)
+                    nn.set_patience(5)
                     now= time.time()
                     loss = nn.train(stop_function=3, num_epochs=20000)
                     difference = round(time.time() - now, 3)
@@ -119,7 +119,7 @@ for size1,size2 in product([8, 16, 32, 64, 128],[8, 16, 32, 64]):
                     tex.write("${}$ & ${}$ & ${}$ & ${}$ \\\ \n".format(spl, list(max_errs), max(max_errs), round(nn.get_memory_usage(dim_set)*spl,5)))
                 print("-*-*"*35)
 
-for size1,size2 in product([32, 64, 128],[8, 16, 32, 64]):
+for size1,size2 in product([32, 64, 128],[8, 16, 32]):
     if size1 >= size2:
         # weights1 = np.random.randn(N_FEATURES, size).astype(np.float32) * sqrt(2/N_FEATURES)
         # bias1 = np.ones((1, size)).astype(np.float32)*0.001
@@ -161,9 +161,9 @@ for size1,size2 in product([32, 64, 128],[8, 16, 32, 64]):
                 max_errs = []
                 for s in range(split):
                     ww = np.copy(whh)
-                    nn = NN.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.03, mu=0.9, output_classes=1, lambd=0, minibatch=32, disableLog=True)
+                    nn = NN.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.05, mu=0.9, output_classes=1, lambd=0, minibatch=32, disableLog=True)
                     nn.addLayers([size1, size2],['leakyrelu','leakyrelu','leakyrelu'], ww)
-                    nn.set_patience(10)
+                    nn.set_patience(5)
                     now= time.time()
                     loss = nn.train(stop_function=3, num_epochs=20000)
                     difference = round(time.time() - now, 3)
