@@ -54,7 +54,7 @@ np.random.RandomState(0)
 # weights2 = np.random.randn(16, N_CLASSES).astype(np.float32) * sqrt(2/N_FEATURES)
 # bias2 = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
 # wh= [[weights1, bias1], [weights2, bias2]]
-for size1,size2 in product([32, 64, 128],[8, 16, 32, 64]):
+for size1,size2 in product([8, 16, 32, 64, 128],[8, 16, 32, 64]):
     if size1 >= size2:
         # weights1 = np.random.randn(N_FEATURES, size).astype(np.float32) * sqrt(2/N_FEATURES)
         # bias1 = np.ones((1, size)).astype(np.float32)*0.001
