@@ -91,7 +91,7 @@ class NN:
             loss/=batch
         else:
             predictions = self.predict(X)
-            loss = np.mean(np.square(predictions-t))
+            loss = np.mean(np.abs(predictions-t))
         return np.round(loss, 7)
 
 
@@ -138,6 +138,14 @@ class NN:
         
         self.layers[0][0] += -self.mu * v_prev[0][0] + (1+self.mu) * self.v[0][0] 
         self.layers[0][1] += -self.mu * v_prev[0][1] + (1+self.mu) * self.v[0][1]
+
+    # def update_layers(self, deltaUpd):
+    #     eps=1e-8
+    #     self.v[0][0] += deltaUpd[0][0]**2
+    #     self.v[0][1] += deltaUpd[0][1]**2
+        
+    #     self.layers[0][0] += -self.lr * deltaUpd[0][0] / (np.sqrt(self.v[0][0]) + eps)
+    #     self.layers[0][1] += -self.lr * deltaUpd[0][1] / (np.sqrt(self.v[0][1]) + eps)
 
     def exp_decay(self):
         k = .001
@@ -202,7 +210,7 @@ class NN:
             res=self.predict(self.train_set)
             res[res <= 0.5]=0
             res[res > 0.5]=1
-            sum = np.sum(np.abs(res-self.target_train))
+            sum = np.sum(np.square(res-self.target_train))
             
             print("epoch {} --> somma er {}, loss {}".format(self.epoch, sum, loss_epoch))
             if sum > 0:
