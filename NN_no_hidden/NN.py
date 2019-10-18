@@ -97,6 +97,7 @@ class NN:
 
     def updateMomentum(self, X, t):
         numBatch = self.numEx // self.minibatch
+        last_minibatch = self.numEx % self.minibatch
 
         #p = np.random.RandomState(seed=0).permutation(self.numEx)
         #self.train_set = self.train_set[p]
@@ -104,8 +105,12 @@ class NN:
 
 
         for nb in range(numBatch):
+            size_minibatch = self.minibatch
             indexLow = nb * self.minibatch
             indexHigh = (nb + 1) * self.minibatch
+            if nb == numBatch - 1:
+                indexHigh += last_minibatch
+                size_minibatch += last_minibatch
 
             outputs = self.feedforward(X[indexLow:indexHigh])
             
@@ -116,9 +121,9 @@ class NN:
 
             y = outputs[-1]
             
-            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh]) * 1/self.minibatch]
+            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh]) * 1/size_minibatch]
 
-            deltasUpd= [([(np.dot(X[indexLow:indexHigh].T, deltas[0]) + (1/self.minibatch * self.layers[0][0] * self.lambd)), np.sum(deltas[0], axis=0, keepdims=True)])]
+            deltasUpd= [([(np.dot(X[indexLow:indexHigh].T, deltas[0]) + (1/size_minibatch * self.layers[0][0] * self.lambd)), np.sum(deltas[0], axis=0, keepdims=True)])]
 
             self.update_layers(deltasUpd)
 
