@@ -21,7 +21,7 @@ from NN_pr import WS_module as ws
 def make_structured_input_for_root_NN(bin_data, labels, split, dim_set):
     position_labels = np.copy(labels)
     size_batch = dim_set // split
-    remain = ceil((dim_set / split - size_batch) * split)
+    remain = dim_set % split #ceil((dim_set / split - size_batch) * split)
     for i in range(0, split, 1):
         position_labels[(i*size_batch):((i+1)*(size_batch if i < (split-1) else size_batch+remain))]=i
     position_labels = np.reshape(position_labels, (-1,1))
