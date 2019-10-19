@@ -1,11 +1,13 @@
 import pickle
 import gzip
 import numpy as np
+from numpy.random import seed
 import sys
 import h5py
 import time 
 from math import floor, sqrt, ceil
 from sklearn.preprocessing import MinMaxScaler
+from itertools import chain
 
 
 from NN_no_hidden import NN as NN1
@@ -13,6 +15,8 @@ from NN_no_hidden import pruning_module as pr1
 from NN_pr import NN
 from NN_pr import pruning_module as pruning
 from NN_pr import WS_module as ws
+
+
 
 def make_structured_input_for_root_NN(bin_data, labels, split, dim_set):
     position_labels = np.copy(labels)
@@ -51,16 +55,17 @@ np.random.RandomState(0)
 # bias = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
 # w= [[weights, bias]]
 
-weights = np.random.normal(loc=0., scale = 0.05 ,size=(N_FEATURES, N_CLASSES)).astype(np.float32) * 0.001 #* sqrt(1/N_FEATURES+N_CLASSES)
+weights = np.random.normal(loc=0., scale = 0.05 ,size=(N_FEATURES, N_CLASSES)).astype(np.float32)
 bias = np.random.normal(loc=0., scale = 0.05 ,size=(1, N_CLASSES)).astype(np.float32)
 w= [[weights, bias]]
-
 
 
 for i in [3,7,10]:
     with open("to_tex_all_nn0.txt", "a+") as tex:
             tex.write("\nfile {}\n".format(i))
-    for spl in [2,3,4,5,6,7,8,16,24,32,48,64,80,96,112,128,150,172,194]:
+    
+    concatenated_splits = chain(range(1,22,1), range(22,65,4), range(64,129, 8), range(130, 195, 16))
+    for spl in concatenated_splits: #[2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,32,48,64,80,96,112,128,150,172,194]:
         with h5py.File('Resource2/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
             data = f.get('Sb') 
             bin_data = np.array(data, dtype=np.bool)
@@ -86,27 +91,26 @@ for i in [3,7,10]:
         max_errs = []
         minibatchsize = 16
         
-        dmb=minibatchsize if minibatchsize <= dim_set/split else None
-        
-        for s in range(split):
-            ww = np.copy(w)
-            nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.03, mu=0.9, output_classes=1, lambd=0, minibatch=dmb, disableLog=True)
-            nn.addLayers(['leakyrelu'], ww)                 
-            nn.set_patience(10)
-            now=time.time()
-            loss = nn.train(stop_function=3, num_epochs=20000)
-            difference = round(time.time() - now, 5)
+        if minibatchsize <= dim_set//split:
+            for s in range(split):
+                ww = np.copy(w)
+                nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.01, mu=0., output_classes=1, lambd=0, minibatch=minibatchsize, disableLog=True)
+                nn.addLayers(['leakyrelu'], ww)                 
+                nn.set_patience(10)
+                now=time.time()
+                loss = nn.train(stop_function=3, num_epochs=20000)
+                difference = round(time.time() - now, 5)
 
-            predict = nn.predict(splitted_bin_data[s])
-            pr = np.floor ((np.multiply(predict,predict>0)) * dim_set)
-            lab = splitted_labels[s] * dim_set
-            max_err = np.max(np.abs(pr-lab)).astype("int64")
-            max_errs.append(max_err)
-            print("0 hidden --> file {}, split={}, dim={}: epoch: {} -- maxerr={} -- %err={} -- meanErr={} -- time={}s -- spaceOVH={}"
-            .format(i, spl, ceil(dim_set/split), nn.epoch, max_err, round(max_err/(dim_set)*100,3), round(loss, 5), difference, round(nn.get_memory_usage(dim_set),5)))
-        
-        with open("to_tex_all_nn0.txt", "a+") as tex:
-            tex.write("${}$ & ${}$ & ${}$ \\\ \n".format(spl, max(max_errs), round(nn.get_memory_usage(dim_set)*spl,7)))
+                predict = nn.predict(splitted_bin_data[s])
+                pr = np.ceil((np.multiply(predict,predict>0)) * dim_set)
+                lab = splitted_labels[s] * dim_set
+                max_err = np.max(np.abs(pr-lab)).astype("int64")
+                max_errs.append(max_err)
+                print("0 hidden --> file {}, split={}, dim={}: epoch: {} -- maxerr={} -- %err={} -- meanErr={} -- time={}s -- spaceOVH={}"
+                .format(i, spl, ceil(dim_set/split), nn.epoch, max_err, round(max_err/(dim_set)*100,3), round(loss, 5), difference, round(nn.get_memory_usage(dim_set),5)))
+            
+            with open("to_tex_all_nn0.txt", "a+") as tex:
+                tex.write("${}$ & ${}$ ${}$ & ${}$ \\\ \n".format(spl, max(max_errs), round(np.mean(max_errs),2), round(nn.get_memory_usage(dim_set)*spl,7)))
 
-        print("-*-*"*35)
+            print("-*-*"*35)
 

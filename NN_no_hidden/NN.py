@@ -115,34 +115,34 @@ class NN:
             outputs = self.feedforward(X[indexLow:indexHigh])
             
             if self.p != None:
-                
                 mask = (np.random.rand(*outputs[0].shape) < self.p) / self.p
                 outputs[0] *= mask
 
             y = outputs[-1]
             
-            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh]) * 1/size_minibatch]
+            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh]) * 2/size_minibatch]
 
             deltasUpd= [([(np.dot(X[indexLow:indexHigh].T, deltas[0]) + (1/size_minibatch * self.layers[0][0] * self.lambd)), np.sum(deltas[0], axis=0, keepdims=True)])]
 
             self.update_layers(deltasUpd)
 
             
-    # def update_layers(self, deltasUpd):
-    #     lr = self.lr
-    #     self.v[0][0] = self.mu * self.v[0][0] + lr * deltasUpd[0][0]
-    #     self.v[0][1] = self.mu * self.v[0][1] + lr * deltasUpd[0][1]
+    def update_layers(self, deltasUpd):
+        lr = self.lr
+        self.v[0][0] = self.mu * self.v[0][0] + lr * deltasUpd[0][0]
+        self.v[0][1] = self.mu * self.v[0][1] + lr * deltasUpd[0][1]
         
-    #     self.layers[0][0] -= self.v[0][0] 
-    #     self.layers[0][1] -= self.v[0][1] 
+        self.layers[0][0] -= self.v[0][0] 
+        self.layers[0][1] -= self.v[0][1] 
 
-    def update_layers(self, deltaUpd):
-        v_prev = self.v.copy()
-        self.v[0][0] = self.mu * self.v[0][0] - self.lr * deltaUpd[0][0]
-        self.v[0][1] = self.mu * self.v[0][1] - self.lr * deltaUpd[0][1]
+    # def update_layers(self, deltaUpd):
+    #     v_prev = self.v.copy()
+    #     lr = self.lr_decay()
+    #     self.v[0][0] = self.mu * self.v[0][0] - lr * deltaUpd[0][0]
+    #     self.v[0][1] = self.mu * self.v[0][1] - lr * deltaUpd[0][1]
         
-        self.layers[0][0] += -self.mu * v_prev[0][0] + (1+self.mu) * self.v[0][0] 
-        self.layers[0][1] += -self.mu * v_prev[0][1] + (1+self.mu) * self.v[0][1]
+    #     self.layers[0][0] += -self.mu * v_prev[0][0] + (1+self.mu) * self.v[0][0] 
+    #     self.layers[0][1] += -self.mu * v_prev[0][1] + (1+self.mu) * self.v[0][1]
 
     # def update_layers(self, deltaUpd):
     #     eps=1e-8
@@ -155,6 +155,10 @@ class NN:
     def exp_decay(self):
         k = .001
         return self.lr*math.exp(-k * self.epoch)
+
+    def lr_decay(self):
+        decay = 1e-2
+        return self.lr * (1./(1+decay*self.epoch))
 
 
     def stop_fun(self, t=0, num_epochs=None, loss_epoch=None):
