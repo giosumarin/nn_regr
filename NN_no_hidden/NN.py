@@ -99,9 +99,9 @@ class NN:
         numBatch = self.numEx // self.minibatch
         last_minibatch = self.numEx % self.minibatch
 
-        #p = np.random.RandomState(seed=0).permutation(self.numEx)
-        #self.train_set = self.train_set[p]
-        #self.target_train =  self.target_train[p]
+        p = np.random.RandomState(seed=0).permutation(self.numEx)
+        self.train_set = self.train_set[p]
+        self.target_train =  self.target_train[p]
 
 
         for nb in range(numBatch):
@@ -128,7 +128,7 @@ class NN:
 
             
     def update_layers(self, deltasUpd):
-        lr = self.lr
+        lr = self.lr_decay()
         self.v[0][0] = self.mu * self.v[0][0] + lr * deltasUpd[0][0]
         self.v[0][1] = self.mu * self.v[0][1] + lr * deltasUpd[0][1]
         

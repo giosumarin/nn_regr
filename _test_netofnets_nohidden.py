@@ -57,7 +57,7 @@ def number_to_tex(num):
     while(num<1):
         num *= 10
         exp-=1
-    return "{}\\times 10^{{ {} }}".format(round(num,2), exp)
+    return "{}\\times 10^{{{}}}".format(round(num,2), exp)
 
 
 N_FEATURES = 64
@@ -102,12 +102,12 @@ for i in [3,7,10]:
         # print("H: epoch = {} - loss on sel_brancher = {} - sum error = {} - time = {}s".format(nn.epoch, loss, sum, round(diff,5)))
 
         max_errs = []
-        minibatchsize = 32
+        minibatchsize = 16
         
-        if minibatchsize <= 2* (dim_set//split):
+        if 2*minibatchsize <= (dim_set//split):
             for s in range(split):
                 ww = np.copy(w)
-                nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.003, mu=0.9, output_classes=1, lambd=0, minibatch=minibatchsize, disableLog=True)
+                nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.005, mu=0.9, output_classes=1, lambd=0, minibatch=minibatchsize, disableLog=True)
 
                 nn.addLayers(['leakyrelu'], ww)              
                 nn.set_patience(10)
