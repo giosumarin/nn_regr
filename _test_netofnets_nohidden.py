@@ -46,6 +46,19 @@ def make_labels_for_class(position_labels):
         result[i,position_labels[i]] = 1
     return result
 
+def scaler(original_label):
+    return (original_label - np.min(original_label))/(np.max(original_label) - np.min(original_label))
+
+def descaler(original_label, predicted_scaled):
+    return predicted_scaled * (np.max(original_label) - np.min(original_label)) + np.min(original_label)
+
+def number_to_tex(num):
+    exp=0
+    while(num<1):
+        num *= 10
+        exp-=1
+    return "{}\\times 10^{{ {} }}".format(round(num,2), exp)
+
 
 N_FEATURES = 64
 N_CLASSES = 1
@@ -89,13 +102,14 @@ for i in [3,7,10]:
         # print("H: epoch = {} - loss on sel_brancher = {} - sum error = {} - time = {}s".format(nn.epoch, loss, sum, round(diff,5)))
 
         max_errs = []
-        minibatchsize = 16
+        minibatchsize = 32
         
-        if minibatchsize <= dim_set//split:
+        if minibatchsize <= 2* (dim_set//split):
             for s in range(split):
                 ww = np.copy(w)
-                nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.01, mu=0., output_classes=1, lambd=0, minibatch=minibatchsize, disableLog=True)
-                nn.addLayers(['leakyrelu'], ww)                 
+                nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.003, mu=0.9, output_classes=1, lambd=0, minibatch=minibatchsize, disableLog=True)
+
+                nn.addLayers(['leakyrelu'], ww)              
                 nn.set_patience(10)
                 now=time.time()
                 loss = nn.train(stop_function=3, num_epochs=20000)
@@ -110,7 +124,7 @@ for i in [3,7,10]:
                 .format(i, spl, ceil(dim_set/split), nn.epoch, max_err, round(max_err/(dim_set)*100,3), round(loss, 5), difference, round(nn.get_memory_usage(dim_set),5)))
             
             with open("to_tex_all_nn0.txt", "a+") as tex:
-                tex.write("${}$ & ${}$ ${}$ & ${}$ \\\ \n".format(spl, max(max_errs), round(np.mean(max_errs),2), round(nn.get_memory_usage(dim_set)*spl,7)))
+                tex.write("${}$ & ${}$ ${}$ & ${}$ \\\ \n".format(spl, max(max_errs), round(np.mean(max_errs),2), number_to_tex(nn.get_memory_usage(dim_set)*spl)))
 
             print("-*-*"*35)
 
