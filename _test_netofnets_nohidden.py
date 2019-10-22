@@ -57,7 +57,10 @@ def number_to_tex(num):
     while(num<1):
         num *= 10
         exp-=1
-    return "{}\\times 10^{{{}}}".format(round(num,2), exp)
+    if exp == 0:
+        return "{}".format(round(num,2))
+    else:
+        return "{}\\times 10^{{{}}}".format(round(num,2), exp)
 
 
 N_FEATURES = 64
@@ -78,7 +81,7 @@ for i in [3,7,10]:
             tex.write("\nfile {}\n".format(i))
     
     concatenated_splits = chain(range(1,22,1), range(22,65,4), range(64,129, 8), range(130, 195, 16))
-    for spl in concatenated_splits: #[2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,32,48,64,80,96,112,128,150,172,194]:
+    for spl in concatenated_splits: 
         with h5py.File('Resource2/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
             data = f.get('Sb') 
             bin_data = np.array(data, dtype=np.bool)
@@ -102,19 +105,18 @@ for i in [3,7,10]:
         # print("H: epoch = {} - loss on sel_brancher = {} - sum error = {} - time = {}s".format(nn.epoch, loss, sum, round(diff,5)))
 
         max_errs = []
-        minibatchsize = 16
+        minibatchsize = 64
         
-        if 2*minibatchsize <= (dim_set//split):
+        if minibatchsize <= (dim_set//split):
+            
             for s in range(split):
                 ww = np.copy(w)
-                nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.005, mu=0.9, output_classes=1, lambd=0, minibatch=minibatchsize, disableLog=True)
-
-                nn.addLayers(['leakyrelu'], ww)              
+                nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.01, mu=0.9, output_classes=1, lambd=0, minibatch=minibatchsize, disableLog=True)
+                nn.addLayers(['leakyrelu'], ww)
                 nn.set_patience(10)
                 now=time.time()
                 loss = nn.train(stop_function=3, num_epochs=20000)
                 difference = round(time.time() - now, 5)
-
                 predict = nn.predict(splitted_bin_data[s])
                 pr = np.ceil((np.multiply(predict,predict>0)) * dim_set)
                 lab = splitted_labels[s] * dim_set

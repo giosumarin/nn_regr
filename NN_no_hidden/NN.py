@@ -39,6 +39,7 @@ class NN:
     def addLayers(self, activation_fun,weights=None):
         self.epoch = 0
         self.v = [[0,0]]
+        self.m_t = [[0,0]]
         act_fun_factory = {"relu": lambda x, der: af.ReLU(x, der),
                            "sigmoid": lambda x, der: af.sigmoid(x, der),
                            "linear": lambda x, der: af.linear(x, der),
@@ -97,21 +98,24 @@ class NN:
 
     def updateMomentum(self, X, t):
         numBatch = self.numEx // self.minibatch
-        last_minibatch = self.numEx % self.minibatch
+        remain_elements = self.numEx % self.minibatch
+        if numBatch <= 1:
+            distribuited_elements = [0 for i in range(numBatch)]
+            indexes_minibatchs = [[0, self.numEx]]
+        else:
+            distribuited_elements = [1 if remain_elements - i > 0 else 0 for i in range(1, numBatch+1)]
+            while (remain_elements > sum(distribuited_elements)):
+                distribuited_elements = [distribuited_elements[i]+1 if sum(distribuited_elements)+i < remain_elements else distribuited_elements[i] for i in range(0, numBatch)]
+            adjusted_batch_sizes = [minibatch+distribuited_elements[i] for i in range(numBatch)]    
+            indexes_minibatchs = [[sum(adjusted_batch_sizes[:i]), sum(adjusted_batch_sizes[:i+1])] for i in range(numBatch)]
 
-        p = np.random.RandomState(seed=0).permutation(self.numEx)
-        self.train_set = self.train_set[p]
-        self.target_train =  self.target_train[p]
+        # p = np.random.RandomState(seed=0).permutation(self.numEx)
+        # self.train_set = self.train_set[p]
+        # self.target_train =  self.target_train[p]
 
 
-        for nb in range(numBatch):
-            size_minibatch = self.minibatch
-            indexLow = nb * self.minibatch
-            indexHigh = (nb + 1) * self.minibatch
-            if nb == numBatch - 1:
-                indexHigh += last_minibatch
-                size_minibatch += last_minibatch
-
+        for [indexLow,indexHigh] in indexes_minibatchs:
+            size_minibatch = indexHigh-indexLow
             outputs = self.feedforward(X[indexLow:indexHigh])
             
             if self.p != None:
@@ -127,41 +131,54 @@ class NN:
             self.update_layers(deltasUpd)
 
             
-    def update_layers(self, deltasUpd):
-        lr = self.lr_decay()
-        self.v[0][0] = self.mu * self.v[0][0] + lr * deltasUpd[0][0]
-        self.v[0][1] = self.mu * self.v[0][1] + lr * deltasUpd[0][1]
-        
-        self.layers[0][0] -= self.v[0][0] 
-        self.layers[0][1] -= self.v[0][1] 
-
-    # def update_layers(self, deltaUpd):
-    #     v_prev = self.v.copy()
+    # def update_layers(self, deltasUpd):
     #     lr = self.lr_decay()
-    #     self.v[0][0] = self.mu * self.v[0][0] - lr * deltaUpd[0][0]
-    #     self.v[0][1] = self.mu * self.v[0][1] - lr * deltaUpd[0][1]
+    #     self.v[0][0] = self.mu * self.v[0][0] + lr * deltasUpd[0][0]
+    #     self.v[0][1] = self.mu * self.v[0][1] + lr * deltasUpd[0][1]
         
-    #     self.layers[0][0] += -self.mu * v_prev[0][0] + (1+self.mu) * self.v[0][0] 
-    #     self.layers[0][1] += -self.mu * v_prev[0][1] + (1+self.mu) * self.v[0][1]
+    #     self.layers[0][0] -= self.v[0][0] 
+    #     self.layers[0][1] -= self.v[0][1] 
+
+    def update_layers(self, deltaUpd):
+        v_prev = self.v.copy()
+        #lr = self.lr_decay()
+        self.v[0][0] = self.mu * self.v[0][0] - self.lr * deltaUpd[0][0]
+        self.v[0][1] = self.mu * self.v[0][1] - self.lr * deltaUpd[0][1]
+        
+        self.layers[0][0] += -self.mu * v_prev[0][0] + (1+self.mu) * self.v[0][0] 
+        self.layers[0][1] += -self.mu * v_prev[0][1] + (1+self.mu) * self.v[0][1]
 
     # def update_layers(self, deltaUpd):
-    #     eps=1e-8
-    #     self.v[0][0] += deltaUpd[0][0]**2
-    #     self.v[0][1] += deltaUpd[0][1]**2
-        
-    #     self.layers[0][0] += -self.lr * deltaUpd[0][0] / (np.sqrt(self.v[0][0]) + eps)
-    #     self.layers[0][1] += -self.lr * deltaUpd[0][1] / (np.sqrt(self.v[0][1]) + eps)
+    #     eps = 1e-8
+    #     beta_1 = 0.9
+    #     beta_2 = 0.999
+    #     m_cap = [[0,0]]
+    #     v_cap = [[0,0]]
+    #     self.m_t[0][0] += beta_1 * self.m_t[0][0] + (1-beta_1)*deltaUpd[0][0]
+    #     self.m_t[0][1] += beta_1 * self.m_t[0][1] + (1-beta_1)*deltaUpd[0][1]
+
+    #     self.v[0][0] += beta_2 * self.v[0][0] + (1-beta_2)*(deltaUpd[0][0]**2)
+    #     self.v[0][1] += beta_2 * self.v[0][1] + (1-beta_2)*(deltaUpd[0][1]**2)
+
+    #     m_cap[0][0] = self.m_t[0][0]/(1-(beta_1**self.epoch))
+    #     m_cap[0][1] = self.m_t[0][1]/(1-(beta_1**self.epoch))
+
+    #     v_cap[0][0] = self.v[0][0]/(1-(beta_2**self.epoch))
+    #     v_cap[0][1] = self.v[0][1]/(1-(beta_2**self.epoch))
+
+    #     self.layers[0][0] += (-self.lr * m_cap[0][0]) / (np.sqrt(v_cap[0][0]) + eps)
+    #     self.layers[0][1] += (-self.lr * m_cap[0][1]) / (np.sqrt(v_cap[0][1]) + eps)
 
     def exp_decay(self):
         k = .001
         return self.lr*math.exp(-k * self.epoch)
 
     def lr_decay(self):
-        decay = 1e-2
+        decay = 1e-3
         return self.lr * (1./(1+decay*self.epoch))
 
 
-    def stop_fun(self, t=0, num_epochs=None, loss_epoch=None):
+    def stop_fun(self, t=0, num_epochs=None, loss_epoch=None, total_example=None):
         if t==0:
             if num_epochs > self.epoch:
                 return True
@@ -228,8 +245,8 @@ class NN:
                 return False
 
         elif t==5:
-            pr = np.floor(self.predict(self.train_set) * self.numEx)
-            lab = self.target_train * self.numEx #non numEx ma dataset completo?
+            pr = np.ceil(self.predict(self.train_set) * total_example)
+            lab = self.target_train * total_example #non numEx ma dataset completo?
             maxerrepoch = np.max(np.abs(pr-lab))
              
             if (self.maxerr <= maxerrepoch): 
@@ -254,7 +271,7 @@ class NN:
                 
 
 
-    def train(self, stop_function, num_epochs):
+    def train(self, stop_function, num_epochs, total_example=None):
         
         self.best_loss = 100.
         last_loss = 99.
@@ -264,7 +281,7 @@ class NN:
         self.real_patience = 0
 
         log.logNN.info("learning rate=" + str(self.lr) + " momentum update=" + str(self.mu) + " minibatch=" + str(self.minibatch))
-        while self.stop_fun(stop_function, num_epochs, last_loss):
+        while self.stop_fun(stop_function, num_epochs, last_loss, total_example):
             self.updateMomentum(self.train_set, self.target_train)
             last_loss = self.loss(self.train_set, self.target_train)
 
