@@ -80,7 +80,7 @@ for i in [3,7,10]:
     with open("to_tex_all_nn0.txt", "a+") as tex:
             tex.write("\nfile {}\n".format(i))
     
-    concatenated_splits = chain(range(1,22,1), range(22,65,4), range(64,129, 8), range(130, 195, 16))
+    concatenated_splits = chain(range(1,22,1), range(22,65,4), range(64,129, 8))
     for spl in concatenated_splits: 
         with h5py.File('Resource2/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
             data = f.get('Sb') 
@@ -105,7 +105,7 @@ for i in [3,7,10]:
         # print("H: epoch = {} - loss on sel_brancher = {} - sum error = {} - time = {}s".format(nn.epoch, loss, sum, round(diff,5)))
 
         max_errs = []
-        minibatchsize = 64
+        minibatchsize = 32
         
         if minibatchsize <= (dim_set//split):
             
@@ -126,7 +126,7 @@ for i in [3,7,10]:
                 .format(i, spl, ceil(dim_set/split), nn.epoch, max_err, round(max_err/(dim_set)*100,3), round(loss, 5), difference, round(nn.get_memory_usage(dim_set),5)))
             
             with open("to_tex_all_nn0.txt", "a+") as tex:
-                tex.write("${}$ & ${}$ ${}$ & ${}$ \\\ \n".format(spl, max(max_errs), round(np.mean(max_errs),2), number_to_tex(nn.get_memory_usage(dim_set)*spl)))
+                tex.write("${}$ & ${}$ & ${}$ & ${}$ \\\ \n".format(spl, max(max_errs), round(np.mean(max_errs),2), number_to_tex(nn.get_memory_usage(dim_set)*spl)))
 
             print("-*-*"*35)
 

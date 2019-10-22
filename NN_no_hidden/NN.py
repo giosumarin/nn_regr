@@ -39,7 +39,7 @@ class NN:
     def addLayers(self, activation_fun,weights=None):
         self.epoch = 0
         self.v = [[0,0]]
-        self.m_t = [[0,0]]
+        #self.m_t = [[0,0]]
         act_fun_factory = {"relu": lambda x, der: af.ReLU(x, der),
                            "sigmoid": lambda x, der: af.sigmoid(x, der),
                            "linear": lambda x, der: af.linear(x, der),
