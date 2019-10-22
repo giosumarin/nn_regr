@@ -106,7 +106,7 @@ class NN:
             distribuited_elements = [1 if remain_elements - i > 0 else 0 for i in range(1, numBatch+1)]
             while (remain_elements > sum(distribuited_elements)):
                 distribuited_elements = [distribuited_elements[i]+1 if sum(distribuited_elements)+i < remain_elements else distribuited_elements[i] for i in range(0, numBatch)]
-            adjusted_batch_sizes = [minibatch+distribuited_elements[i] for i in range(numBatch)]    
+            adjusted_batch_sizes = [self.minibatch+distribuited_elements[i] for i in range(numBatch)]    
             indexes_minibatchs = [[sum(adjusted_batch_sizes[:i]), sum(adjusted_batch_sizes[:i+1])] for i in range(numBatch)]
 
         # p = np.random.RandomState(seed=0).permutation(self.numEx)
