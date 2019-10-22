@@ -141,9 +141,9 @@ class NN:
 
     def update_layers(self, deltaUpd):
         v_prev = self.v.copy()
-        #lr = self.lr_decay()
-        self.v[0][0] = self.mu * self.v[0][0] - self.lr * deltaUpd[0][0]
-        self.v[0][1] = self.mu * self.v[0][1] - self.lr * deltaUpd[0][1]
+        lr = self.lr_decay()
+        self.v[0][0] = self.mu * self.v[0][0] - lr * deltaUpd[0][0]
+        self.v[0][1] = self.mu * self.v[0][1] - lr * deltaUpd[0][1]
         
         self.layers[0][0] += -self.mu * v_prev[0][0] + (1+self.mu) * self.v[0][0] 
         self.layers[0][1] += -self.mu * v_prev[0][1] + (1+self.mu) * self.v[0][1]
