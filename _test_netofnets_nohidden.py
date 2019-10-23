@@ -111,7 +111,7 @@ for i in [3,7,10]:
             
             for s in range(split):
                 ww = np.copy(w)
-                nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.03, mu=0.9, output_classes=1, lambd=0, minibatch=minibatchsize, disableLog=True)
+                nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=0.003, mu=0.9, output_classes=1, lambd=0, minibatch=minibatchsize, disableLog=True)
                 nn.addLayers(['leakyrelu'], ww)
                 nn.set_patience(10)
                 now=time.time()
