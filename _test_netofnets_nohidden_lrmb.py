@@ -89,7 +89,7 @@ for lr in [0.001,0.003,0.005,0.008,0.01,0.03,0.05]:
     for mb in [16,32,64]:
         for i in [3,7,10]:
             with open("to_tex_all_nn0.txt", "a+") as tex:
-                tex.write("\nfile {} lr {} mb {}\n".format(i))
+                tex.write("\nfile {} lr {} mb {}\n".format(i, lr, mb))
             concatenated_splits = chain(range(1,22,1), range(22,65,4), range(64,143, 8))
             for spl in concatenated_splits: 
                 with h5py.File('Resource2/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
