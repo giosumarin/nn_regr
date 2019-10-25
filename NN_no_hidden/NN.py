@@ -92,8 +92,8 @@ class NN:
             loss/=batch
         else:
             predictions = self.predict(X)
-            loss = np.mean(np.abs(predictions-t))
-        return np.round(loss, 7)
+            loss = np.mean(np.square(predictions-t))
+        return loss
 
 
     def updateMomentum(self, X, t):
