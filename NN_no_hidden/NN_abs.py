@@ -8,6 +8,9 @@ N_FEATURES = 64
 N_CLASSES = 1
 np.random.RandomState(0)
 
+def delta_abs(X):
+    return np.clip(X,-1.,1.)
+
 class NN:
     def __init__(self, training, testing, lr, mu, output_classes, lambd=0, minibatch=None, dropout=None, disableLog=None, weights=None):
         self.train_set = training[0]
@@ -92,7 +95,7 @@ class NN:
             loss/=batch
         else:
             predictions = self.predict(X)
-            loss = np.mean(np.square(predictions-t))
+            loss = np.mean(np.abs(predictions-t))
         return loss
 
 
@@ -124,9 +127,11 @@ class NN:
 
             y = outputs[-1]
             
-            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh]) * 2/size_minibatch]
-
-            deltasUpd= [([(np.dot(X[indexLow:indexHigh].T, deltas[0]) + (1/size_minibatch * self.layers[0][0] * self.lambd)), np.sum(deltas[0], axis=0, keepdims=True)])]
+            
+            #deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh]) * 2/size_minibatch]
+            deltas = [self.act_fun[-1](y, True) * delta_abs(y-t[indexLow:indexHigh]) * 1/size_minibatch]
+            
+            deltasUpd= [([(np.dot(X[indexLow:indexHigh].T, deltas[0]) + (2/size_minibatch * self.layers[0][0] * self.lambd)), np.sum(deltas[0], axis=0, keepdims=True)])]
 
             self.update_layers(deltasUpd)
 
@@ -268,35 +273,6 @@ class NN:
                 #     self.best_loss = loss_epoch
                 return True
                 
-        elif t==6:
-            pr = np.ceil(self.predict(self.train_set) * total_example)
-            lab = self.target_train * total_example #non numEx ma dataset completo?
-            maxerrepoch = np.max(np.abs(pr-lab))
-             
-            if (self.maxerr <= maxerrepoch): 
-                self.real_patience += 1
-                if self.real_patience == self.patience_5:
-                    return False
-                else:
-                    return True
-            elif (self.best_loss <= loss_epoch): 
-                self.real_patience += 1
-                if self.real_patience == self.patience:
-                    return False
-                else:
-                    return True
-            else:
-                if self.epoch < num_epochs:
-                    if self.maxerr > maxerrepoch:
-                        self.maxerr = maxerrepoch
-                        self.real_patience = 0
-                    return True
-                else:
-                    return False
-                
-                # if self.best_loss > loss_epoch:
-                #     self.best_loss = loss_epoch
-                return True
                 
 
 
