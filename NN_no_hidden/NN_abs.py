@@ -136,22 +136,22 @@ class NN:
             self.update_layers(deltasUpd)
 
             
-    # def update_layers(self, deltasUpd):
-    #     lr = self.lr_decay()
-    #     self.v[0][0] = self.mu * self.v[0][0] + lr * deltasUpd[0][0]
-    #     self.v[0][1] = self.mu * self.v[0][1] + lr * deltasUpd[0][1]
-        
-    #     self.layers[0][0] -= self.v[0][0] 
-    #     self.layers[0][1] -= self.v[0][1] 
-
-    def update_layers(self, deltaUpd):
-        v_prev = self.v.copy()
+    def update_layers(self, deltasUpd):
         lr = self.lr_decay()
-        self.v[0][0] = self.mu * self.v[0][0] - lr * deltaUpd[0][0]
-        self.v[0][1] = self.mu * self.v[0][1] - lr * deltaUpd[0][1]
+        self.v[0][0] = self.mu * self.v[0][0] + lr * deltasUpd[0][0]
+        self.v[0][1] = self.mu * self.v[0][1] + lr * deltasUpd[0][1]
         
-        self.layers[0][0] += -self.mu * v_prev[0][0] + (1+self.mu) * self.v[0][0] 
-        self.layers[0][1] += -self.mu * v_prev[0][1] + (1+self.mu) * self.v[0][1]
+        self.layers[0][0] -= self.v[0][0] 
+        self.layers[0][1] -= self.v[0][1] 
+
+    # def update_layers(self, deltaUpd):
+    #     v_prev = self.v.copy()
+    #     lr = self.lr_decay()
+    #     self.v[0][0] = self.mu * self.v[0][0] - lr * deltaUpd[0][0]
+    #     self.v[0][1] = self.mu * self.v[0][1] - lr * deltaUpd[0][1]
+        
+    #     self.layers[0][0] += -self.mu * v_prev[0][0] + (1+self.mu) * self.v[0][0] 
+    #     self.layers[0][1] += -self.mu * v_prev[0][1] + (1+self.mu) * self.v[0][1]
 
     # def update_layers(self, deltaUpd):
     #     eps = 1e-8
