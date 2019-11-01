@@ -87,11 +87,10 @@ bias = np.random.RandomState(seed=0).normal(loc=0., scale = 0.05 ,size=(1, N_CLA
 w= [[weights, bias]]
 for l in [0,1]:
     for i in [3,7,10]:
-        for lr in [1e-4, 1e-3, 5e-3, 1e-2, 5e-2, 1e-1]:
-            for mb in [32,64]:
-                with open("to_tex_all_manythings.txt", "a+") as tex:
-                #    tex.write("\nfile {} lr {} mb {}\n".format(i, lr, mb))
-                    tex.write("\nfile {} \n".format(i))
+        with open("to_tex_all_manythings.txt", "a+") as tex:
+            tex.write("\nfile {} \n".format(i))
+        for mb in [16,32,64]:
+            for lr in [1e-4, 1e-3, 5e-3, 1e-2, 5e-2, 1e-1]:
                 # concatenated_splits = chain(range(1,22,1), range(22,65,4), range(64,143, 8))
                 concatenated_splits = [1]
 
