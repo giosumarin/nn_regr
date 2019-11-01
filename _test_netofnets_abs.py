@@ -65,7 +65,7 @@ def descaler(original_label, predicted_scaled):
 
 def number_to_tex(num):
     exp=0
-    while(num<1):
+    while(num<1 and num != 0):
         num *= 10
         exp-=1
     if exp == 0:
@@ -132,7 +132,7 @@ for l in [0,1]:
                         .format(i, spl, ceil(dim_set/split), nn.epoch, max_err, round(max_err/(dim_set)*100,3), round(loss, 5), difference, round(nn.get_memory_usage(dim_set),5)))
                     
                     with open("to_tex_all_manythings.txt", "a+") as tex:
-                        tex.write("${}$ & ${}$ & ${}$ & ${}$ & {} & ${}$ \\\ \n".format("MSE" if l==0 else "ABS", spl, max(max_errs), round(np.mean(max_errs),2), loss, number_to_tex(nn.get_memory_usage(dim_set)*spl)))
+                        tex.write("${}$ & ${}$ & ${}$ & ${}$ & {} & ${}$ \\\ \n".format("MSE" if l==0 else "ABS", spl, max(max_errs), round(np.mean(max_errs),2), number_to_tex(loss), number_to_tex(nn.get_memory_usage(dim_set)*spl)))
 
                     print("-*-*"*35)
 
