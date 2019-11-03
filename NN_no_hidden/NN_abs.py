@@ -9,7 +9,11 @@ N_CLASSES = 1
 np.random.RandomState(0)
 
 def delta_abs(X):
-    return np.clip(X,-1.,1.)
+    #return np.clip(X,-1.,1.)
+    output = np.copy(X)
+    output[X>0] = 1
+    output[x<0] = -1
+    return output
 
 class NN:
     def __init__(self, training, testing, lr, mu, output_classes, lambd=0, minibatch=None, dropout=None, disableLog=None, weights=None):

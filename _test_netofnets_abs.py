@@ -85,7 +85,7 @@ N_CLASSES = 1
 weights = np.random.RandomState(seed=0).normal(loc=0., scale = 0.05 ,size=(N_FEATURES, N_CLASSES)).astype(np.float32)
 bias = np.random.RandomState(seed=0).normal(loc=0., scale = 0.05 ,size=(1, N_CLASSES)).astype(np.float32)
 w= [[weights, bias]]
-for l in [0,1]:
+for l in [1]:
     for i in [3,7,10]:
         with open("to_tex_all_manythings.txt", "a+") as tex:
             tex.write("\nfile {} \n".format(i))
