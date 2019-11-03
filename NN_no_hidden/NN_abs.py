@@ -12,7 +12,7 @@ def delta_abs(X):
     #return np.clip(X,-1.,1.)
     output = np.copy(X)
     output[X>0] = 1
-    output[x<0] = -1
+    output[X<0] = -1
     return output
 
 class NN:
