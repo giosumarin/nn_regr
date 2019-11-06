@@ -105,7 +105,7 @@ for i in [3,7,10]:
                 labels = np.linspace(1, len(bin_data), num=len(bin_data), dtype=np.float64)
                 bin_data, splitted_bin_data, position_labels, splitted_labels = make_structured_input_for_root_NN(bin_data, labels, split, dim_set)
                 
-                for mb in [1,16,32,64,dim_set]:
+                for mb in [16,32,64,128,dim_set]:
                     max_errs = []
                     minibatchsize = mb
                     
