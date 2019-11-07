@@ -9,7 +9,6 @@ N_CLASSES = 1
 np.random.RandomState(0)
 
 def delta_abs(X):
-    #return np.clip(X,-1.,1.)
     output = np.copy(X)
     output[X>0] = 1
     output[X<0] = -1
@@ -135,15 +134,15 @@ class NN:
             #deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh]) * 2/size_minibatch]
             deltas = [self.act_fun[-1](y, True) * delta_abs(y-t[indexLow:indexHigh]) * 1/size_minibatch]
             
-            deltasUpd= [([(np.dot(X[indexLow:indexHigh].T, deltas[0]) + (2/size_minibatch * self.layers[0][0] * self.lambd)), np.sum(deltas[0], axis=0, keepdims=True)])]
+            deltasUpd= [([(np.dot(X[indexLow:indexHigh].T, deltas[0]) + (2 * self.layers[0][0] * self.lambd)), np.sum(deltas[0], axis=0, keepdims=True)])]
 
             self.update_layers(deltasUpd)
 
             
     def update_layers(self, deltasUpd):
-        lr = self.lr_decay()
-        self.v[0][0] = self.mu * self.v[0][0] + lr * deltasUpd[0][0]
-        self.v[0][1] = self.mu * self.v[0][1] + lr * deltasUpd[0][1]
+        # lr = self.lr_decay()
+        self.v[0][0] = self.mu * self.v[0][0] + self.lr * deltasUpd[0][0]
+        self.v[0][1] = self.mu * self.v[0][1] + self.lr * deltasUpd[0][1]
         
         self.layers[0][0] -= self.v[0][0] 
         self.layers[0][1] -= self.v[0][1] 

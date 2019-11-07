@@ -65,13 +65,22 @@ def descaler(original_label, predicted_scaled):
 
 def number_to_tex(num):
     exp=0
-    while(num<1 and num != 0):
-        num *= 10
-        exp-=1
-    if exp == 0:
-        return "{}".format(round(num,2))
+    if num<1000:
+        while(num<1 and num != 0):
+            num *= 10
+            exp-=1
+        if exp == 0:
+            return "{}".format(round(num,2))
+        else:
+            return "{}\\times 10^{{{}}}".format(round(num,2), exp)
     else:
-        return "{}\\times 10^{{{}}}".format(round(num,2), exp)
+        while(num>1000 and num != 0):
+            num /= 10
+            exp+=1
+        if exp == 0:
+            return "{}".format(round(num,2))
+        else:
+            return "{}\\times 10^{{{}}}".format(round(num,2), exp)
 
 
 N_FEATURES = 64
@@ -86,7 +95,8 @@ weights = np.random.RandomState(seed=0).normal(loc=0., scale = 0.05 ,size=(N_FEA
 bias = np.random.RandomState(seed=0).normal(loc=0., scale = 0.05 ,size=(1, N_CLASSES)).astype(np.float32)
 w= [[weights, bias]]
 for i in [3,7,10]:
-    for af in [["sigmoid"], ["relu"], ["tanh"], ["linear"]]:
+    for af in [["relu"], ["sigmoid"], ["leakyrelu"], ["tanh"], ["linear"]]:
+    #for af in [["relu"]]:
         with open("to_tex_all_moreaf.txt", "a+") as tex:
             tex.write("\nfile {} \n".format(i))
         for lr in [1e-4, 1e-3, 5e-3, 1e-2, 5e-2, 1e-1]:
@@ -105,7 +115,7 @@ for i in [3,7,10]:
                 labels = np.linspace(1, len(bin_data), num=len(bin_data), dtype=np.float64)
                 bin_data, splitted_bin_data, position_labels, splitted_labels = make_structured_input_for_root_NN(bin_data, labels, split, dim_set)
                 
-                for mb in [16,32,64,128,dim_set]:
+                for mb in [64]:
                     max_errs = []
                     minibatchsize = mb
                     
@@ -131,7 +141,7 @@ for i in [3,7,10]:
                     
                     with open("to_tex_all_moreaf.txt", "a+") as tex:
                         #tex.write("${}$ & ${}$ & ${}$ & ${}$ & ${}$ & ${}$ & {} & ${}$ \\\ \n".format(af[0], number_to_tex(lr), mb, spl, max(max_errs), round(np.mean(max_errs),2), number_to_tex(loss), number_to_tex(nn.get_memory_usage(dim_set)*spl)))
-                        tex.write("${}$ & ${}$ & ${}$ & ${}$ & ${}$ \\\ \n".format(af[0], number_to_tex(lr), "ALL" if mb==dim_set else mb, max(max_errs), number_to_tex(loss)))
+                        tex.write("${}$ & ${}$ & ${}$ & ${}$ \\\ \n".format(af[0], number_to_tex(lr), number_to_tex(max(max_errs)), number_to_tex(loss)))
 
                     print("-*-*"*35)
 
