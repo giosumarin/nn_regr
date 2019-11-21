@@ -34,7 +34,9 @@ class NN:
         
         self.lambd = lambd
         self.patience = 10
-        self.patience_5 = 100   
+        self.patience_5 = 100
+
+        self.decay = 1e-3
             
     def addLayers(self, activation_fun,weights=None):
         self.epoch = 0
@@ -132,9 +134,9 @@ class NN:
 
             
     def update_layers(self, deltasUpd):
-        #lr = self.lr_decay()
-        self.v[0][0] = self.mu * self.v[0][0] + self.lr * deltasUpd[0][0]
-        self.v[0][1] = self.mu * self.v[0][1] + self.lr * deltasUpd[0][1]
+        lr = self.lr_decay()
+        self.v[0][0] = self.mu * self.v[0][0] + lr * deltasUpd[0][0]
+        self.v[0][1] = self.mu * self.v[0][1] + lr * deltasUpd[0][1]
         
         self.layers[0][0] -= self.v[0][0] 
         self.layers[0][1] -= self.v[0][1] 
@@ -174,8 +176,7 @@ class NN:
         return self.lr*math.exp(-k * self.epoch)
 
     def lr_decay(self):
-        decay = 1e-3
-        return self.lr * (1./(1+decay*self.epoch))
+        return self.lr * (1./(1+self.decay*self.epoch))
 
 
     def stop_fun(self, t=0, num_epochs=None, loss_epoch=None, total_example=None):

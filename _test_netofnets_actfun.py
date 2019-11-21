@@ -94,54 +94,58 @@ N_CLASSES = 1
 weights = np.random.RandomState(seed=0).normal(loc=0., scale = 0.05 ,size=(N_FEATURES, N_CLASSES)).astype(np.float32)
 bias = np.random.RandomState(seed=0).normal(loc=0., scale = 0.05 ,size=(1, N_CLASSES)).astype(np.float32)
 w= [[weights, bias]]
-for i in [3,7,10]:
-    for af in [["relu"], ["sigmoid"], ["leakyrelu"], ["tanh"], ["linear"]]:
-    #for af in [["relu"]]:
+for decay in [0, 1e-1, 1e-2, 1e-3, 1e-4]:
+    with open("to_tex_all_moreaf.txt", "a+") as tex:
+            tex.write("\ndecay {} \n".format(decay))
+    for i in [3,7,10]:
         with open("to_tex_all_moreaf.txt", "a+") as tex:
             tex.write("\nfile {} \n".format(i))
-        for lr in [1e-4, 1e-3, 5e-3, 1e-2, 5e-2, 1e-1]:
-                # concatenated_splits = chain(range(1,22,1), range(22,65,4), range(64,143, 8))
-            concatenated_splits = [1]
+        for af in [["relu"], ["sigmoid"], ["leakyrelu"], ["tanh"], ["linear"]]:
+            with open("to_tex_all_moreaf.txt", "a+") as tex:
+                tex.write("\n {} \n".format(af[0]))
+        #for af in [["relu"]]:
+            for lr in [1e-4, 1e-3, 5e-3, 1e-2, 5e-2, 1e-1]:
+                    # concatenated_splits = chain(range(1,22,1), range(22,65,4), range(64,143, 8))
+                concatenated_splits = [1]
 
-            for spl in concatenated_splits: 
-                with h5py.File('Resource2/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
-                    data = f.get('Sb') 
-                    bin_data = np.array(data, dtype=np.bool)
-                    bin_data = np.transpose(bin_data)
-                    bin_data = np.flip(bin_data,axis=1)
-                    dim_set = len(bin_data)
-                
-                split = spl
-                labels = np.linspace(1, len(bin_data), num=len(bin_data), dtype=np.float64)
-                bin_data, splitted_bin_data, position_labels, splitted_labels = make_structured_input_for_root_NN(bin_data, labels, split, dim_set)
-                
-                for mb in [64]:
-                    max_errs = []
-                    minibatchsize = mb
+                for spl in concatenated_splits: 
+                    with h5py.File('Resource2/file'+str(i)+'uniform_bin.sorted.mat','r') as f:
+                        data = f.get('Sb') 
+                        bin_data = np.array(data, dtype=np.bool)
+                        bin_data = np.transpose(bin_data)
+                        bin_data = np.flip(bin_data,axis=1)
+                        dim_set = len(bin_data)
                     
+                    split = spl
+                    labels = np.linspace(1, len(bin_data), num=len(bin_data), dtype=np.float64)
+                    bin_data, splitted_bin_data, position_labels, splitted_labels = make_structured_input_for_root_NN(bin_data, labels, split, dim_set)
                     
+                    for mb in [64]:
+                        max_errs = []
+                        minibatchsize = mb
+                            
+                        for s in range(split):
+                            ww = np.copy(w)
+                            
+                            nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=lr, mu=0.9, output_classes=1, lambd=0, minibatch=minibatchsize, disableLog=True)
+            
+                            nn.addLayers(af, ww)
+                            nn.set_patience(10)
+                            nn.decay = decay
+                            now=time.time()
+                            loss = nn.train(stop_function=3, num_epochs=20000)
+                            difference = round(time.time() - now, 5)
+                            predict = nn.predict(splitted_bin_data[s])
+                            pr = np.ceil((np.multiply(predict,predict>0)) * dim_set)
+                            lab = splitted_labels[s] * dim_set
+                            max_err = np.max(np.abs(pr-lab)).astype("int64")
+                            max_errs.append(max_err)
+                            print("0 hidden --> file {}, split={}, dim={}: epoch: {} -- maxerr={} -- %err={} -- meanErr={} -- time={}s -- spaceOVH={}"
+                            .format(i, spl, ceil(dim_set/split), nn.epoch, max_err, round(max_err/(dim_set)*100,3), round(loss, 5), difference, round(nn.get_memory_usage(dim_set),5)))
                         
-                    for s in range(split):
-                        ww = np.copy(w)
-                        
-                        nn = NN1.NN(training=[splitted_bin_data[s], splitted_labels[s]], testing=[[0],[0]], lr=lr, mu=0.9, output_classes=1, lambd=0, minibatch=minibatchsize, disableLog=True)
-        
-                        nn.addLayers(af, ww)
-                        nn.set_patience(10)
-                        now=time.time()
-                        loss = nn.train(stop_function=3, num_epochs=20000)
-                        difference = round(time.time() - now, 5)
-                        predict = nn.predict(splitted_bin_data[s])
-                        pr = np.ceil((np.multiply(predict,predict>0)) * dim_set)
-                        lab = splitted_labels[s] * dim_set
-                        max_err = np.max(np.abs(pr-lab)).astype("int64")
-                        max_errs.append(max_err)
-                        print("0 hidden --> file {}, split={}, dim={}: epoch: {} -- maxerr={} -- %err={} -- meanErr={} -- time={}s -- spaceOVH={}"
-                        .format(i, spl, ceil(dim_set/split), nn.epoch, max_err, round(max_err/(dim_set)*100,3), round(loss, 5), difference, round(nn.get_memory_usage(dim_set),5)))
-                    
-                    with open("to_tex_all_moreaf.txt", "a+") as tex:
-                        #tex.write("${}$ & ${}$ & ${}$ & ${}$ & ${}$ & ${}$ & {} & ${}$ \\\ \n".format(af[0], number_to_tex(lr), mb, spl, max(max_errs), round(np.mean(max_errs),2), number_to_tex(loss), number_to_tex(nn.get_memory_usage(dim_set)*spl)))
-                        tex.write("${}$ & ${}$ & ${}$ & ${}$ \\\ \n".format(af[0], number_to_tex(lr), number_to_tex(max(max_errs)), number_to_tex(loss)))
+                        with open("to_tex_all_moreaf.txt", "a+") as tex:
+                            #tex.write("${}$ & ${}$ & ${}$ & ${}$ & ${}$ & ${}$ & {} & ${}$ \\\ \n".format(af[0], number_to_tex(lr), mb, spl, max(max_errs), round(np.mean(max_errs),2), number_to_tex(loss), number_to_tex(nn.get_memory_usage(dim_set)*spl)))
+                            tex.write("${}$ & ${}$ & ${}$ & ${}$ \\\ \n".format(number_to_tex(lr), number_to_tex(max(max_errs)), number_to_tex(loss), number_to_tex(difference)))
 
-                    print("-*-*"*35)
+                        print("-*-*"*35)
 
