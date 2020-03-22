@@ -46,6 +46,8 @@ def softmax_function( signal, derivative=False ):
     else:
         return signal
         
+    #signal = np.array([[3,5,6,10],[11,3,20]])
+        
 def softplus_function( signal, derivative=False ):
     if derivative:
         return np.exp(signal) / (1 + np.exp(signal))

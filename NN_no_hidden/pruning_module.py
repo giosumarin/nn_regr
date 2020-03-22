@@ -5,8 +5,14 @@ from NN_no_hidden import NN
 from NN_no_hidden import logger as log
 from NN_pr import activation_function as af
 
+# def pruning_from_perc(tax_compression, layers):
+#     weights_dimension = [[w.shape[0], w.shape[1]] for [w, b] in layers]
+#     nonzero_perc = [sum(tax_compression - 1/m - 1/(m*n))/2 for [m, n] in weights_dimension]
+#     return 1-max(nonzero_perc)
+#     #controllare e sistemare
+    
+
 class NN_pruned(NN.NN):
-   
     def set_pruned_layers(self, pruning, weights):
         layers = weights
         mask = []

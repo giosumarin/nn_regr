@@ -6,6 +6,7 @@ import scipy.ndimage
 from NN_no_hidden import NN
 from NN_no_hidden import logger as log
 from NN_pr import activation_function as af
+from NN_no_hidden import loss_function
 
 def nearest_centroid_index(centers,value):
     centers = np.asarray(centers)
@@ -13,8 +14,10 @@ def nearest_centroid_index(centers,value):
     return idx
 
 def build_clusters(cluster,weights):
-    kmeans = MiniBatchKMeans(n_clusters=cluster,init_size=3*cluster)
+    kmeans = KMeans(n_clusters=cluster)
     kmeans.fit(np.hstack(weights).reshape(-1,1))
+    #_, freq = np.unique(kmeans.cluster_centers_, return_counts=True)
+    #print("unici centri = {}".format(len(freq)))
     return kmeans.cluster_centers_.astype('float32')
 
 def redefine_weights(weights,centers):
@@ -71,14 +74,12 @@ class NN_WS(NN.NN):
                       
             outputs = self.feedforward(X[indexLow:indexHigh])
             if self.p != None:
-                for i in range(len(outputs) - 1):
-                    mask = (np.random.rand(*outputs[i].shape) < self.p) / self.p
-                    outputs[i] *= mask
+                mask = (np.random.rand(*outputs[0].shape) < self.p) / self.p
+                outputs[0] *= mask
 
             y = outputs[-1]
-            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh])]
+            deltas = [self.act_fun[-1](y, True) * self.loss_fun(y, t[indexLow:indexHigh], True)]
 
-            
             deltasUpd = []
             deltasUpd.append([ (np.dot(X[indexLow:indexHigh].T, deltas[0]) + (self.layers[0][0] * self.lambd)), np.sum(deltas[0], axis=0, keepdims=True)])
 

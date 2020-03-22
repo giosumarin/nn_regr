@@ -33,18 +33,14 @@ def make_structured_input_for_root_NN(bin_data, labels, split, dim_set):
     perm_splitted_bin_data = []
     perm_splitted_labels = []
     for i in range(split):
-        #np.random.RandomState(42)
         p_split = np.random.RandomState(seed=0).permutation(len(splitted_bin_data[i]))
         
         perm_splitted_labels.append(splitted_labels[i][p_split])
         perm_splitted_bin_data.append(splitted_bin_data[i][p_split])
     
     
-
-    #perm_splitted_bin_data = [splitted_bin_data[i][p_split] for i in range(split)]
     p = np.random.RandomState(seed=0).permutation(dim_set)
     perm_position_labels = position_labels[p]
-    #perm_splitted_labels = [splitted_labels[i][p_split] for i in range(split)]
 
 
     return bin_data[p], perm_splitted_bin_data, perm_position_labels, perm_splitted_labels
@@ -78,14 +74,10 @@ N_FEATURES = 64
 N_CLASSES = 1
 
 
-# weights = np.random.randn(N_FEATURES, N_CLASSES).astype(np.float32) * 0.001 #* sqrt(1/N_FEATURES+N_CLASSES)
-# bias = np.ones((1, N_CLASSES)).astype(np.float32)*0.001
-# w= [[weights, bias]]
-#np.random.RandomState(42)
 weights = np.random.RandomState(seed=0).normal(loc=0., scale = 0.05 ,size=(N_FEATURES, N_CLASSES)).astype(np.float32)
 bias = np.random.RandomState(seed=0).normal(loc=0., scale = 0.05 ,size=(1, N_CLASSES)).astype(np.float32)
 w= [[weights, bias]]
-for l in [1]:
+for l in [0,1]:
     for i in [3,7,10]:
         with open("to_tex_all_manythings.txt", "a+") as tex:
             tex.write("\nfile {} \n".format(i))
@@ -132,8 +124,8 @@ for l in [1]:
                         .format(i, spl, ceil(dim_set/split), nn.epoch, max_err, round(max_err/(dim_set)*100,3), round(loss, 5), difference, round(nn.get_memory_usage(dim_set),5)))
                     
                     with open("to_tex_all_manythings.txt", "a+") as tex:
-                        #tex.write("${}$ & ${}$ & ${}$ & ${}$ & ${}$ & ${}$ & {} & ${}$ \\\ \n".format("MSE" if l==0 else "ABS", number_to_tex(lr), mb, spl, max(max_errs), round(np.mean(max_errs),2), number_to_tex(loss), number_to_tex(nn.get_memory_usage(dim_set)*spl)))
-                        tex.write("${}$ & ${}$ & ${}$ & ${}$ & ${}$ & ${}$ \\\ \n".format("MSE" if l==0 else "ABS", number_to_tex(lr), mb, max(max_errs), number_to_tex(loss), number_to_tex(nn.get_memory_usage(dim_set)*spl)))
+                        tex.write("${}$ & ${}$ & ${}$ & ${}$ & ${}$ & ${}$ & {} & ${}$ \\\ \n".format("MSE" if l==0 else "ABS", number_to_tex(lr), mb, spl, max(max_errs), round(np.mean(max_errs),2), number_to_tex(loss), number_to_tex(nn.get_memory_usage(dim_set)*spl)))
+                        #tex.write("${}$ & ${}$ & ${}$ & ${}$ & ${}$ & ${}$ \\\ \n".format("MSE" if l==0 else "ABS", number_to_tex(lr), mb, max(max_errs), number_to_tex(loss), number_to_tex(nn.get_memory_usage(dim_set)*spl)))
 
                     print("-*-*"*35)
 

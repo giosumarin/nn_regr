@@ -1,10 +1,11 @@
 \documentclass[]{article}
 
 %opening
-\title{Risultati Net of Nets}
-\author{Marinò Giosuè Cataldo}
-
+\title{\textbf{Tree of Nets}}
+\author{\vspace{-7ex}}
+\date{\vspace{-10ex}}
 \begin{document}
+	\maketitle
 	
 	\section{Modello NN1}
 	Divido il dataset in S parti per poi usare S reti neurali (64 neuroni di input, 1 neurone di output).
@@ -19,11 +20,10 @@
 		\item Inizializ. connessioni = normale * $\sqrt{\frac{2}{NeuroniInput(64)}}$		
 		\item Inizializ. bias = 0.001
 		%\item Permutazione (con seme=42) del train_set ogni epoca
-		\item Criterio di stopping = non avvengono cambiamenti al mean square error con patience=10, massimo 20000 epoche
+		\item Criterio di stopping = non viene riscontrata una diminuzione dell'errore quadratico medio con patience=10, massimo 20000 epoche
 	\end{itemize}
 	
 	
-
 
 \section{Risultati}
 	Modelli:
@@ -36,30 +36,30 @@
 	\begin{itemize}
 		\item Split = numero di sottoreti utilizzate
 		\item Errori max = errore di ogni sottorete
-		\item Errore max = errore massimo del'albero di sottoreti ($\max{ErroriMax}$)
-		\item Space OVH (KB) = spazio in KB rispetto al dataset
+		\item $\epsilon$ = errore massimo del'albero di sottoreti ($\max{ErroriMax}$)
+		\item SpaceOVH = spazio in KB rispetto al dataset
 	\end{itemize}
 	
 
 	%\begin{table*}
 	\begin{center}
 		\begin{tabular}{|c | c | c | l|}
-		\hline
+		
 		\multicolumn{4}{c}{NN1 file 3} \\
 			\hline
-			Split & Errori max & Errore max & Space OVH (KB) \\ \hline
+			Split & Errori max & $\epsilon$ & SpaceOVH \\ \hline
 			 NN1K & - & 9 & $8.93 \times 10^{-2}$\\ 
 			 NN2K & - & 4 & $1.29\times 10^{1}$ \\
 			 NN3K & - & 4 &  $6.31\times 10^{1}$ \\
 			 \hline
-			 $2$ & $6, 7$ & $7$ & $1.98\times 10^{-1}$ \\ 
-			 $3$ & $4, 7, 7$ & $7$ & $4.48\times 10^{-1}$ \\ 
-			 $4$ & $4, 6, 8, 5$ & $8$ & $7.93\times 10^{-1}$ \\ 
-			 $5$ & $3, 6, 3, 5, 6$ & $6$ & $1.24$ \\ 
-			 $6$ & $4, 4, 3, 4, 5, 4$ & $5$ & $1.79$ \\ 
-			 $7$ & $4, 4, 5, 3, 5, 6, 3$ & $6$ & $2.43$ \\ 
-			 $8$ & $3, 4, 6, 3, 2, 3, 3, 3$ & $6$ & $3.17$ \\
-			 $16$ & $3, 2, 2, 2, 2, 2, 2, 1, 2...$ & $6$ & $1.27$ \\
+			 $2$ & $6, 7$ & $7$ & $9.92\times 10^{-2}$ \\ 
+			 $3$ & $4, 7, 7$ & $7$ & $1.48\times 10^{-1}$ \\ 
+			 $4$ & $4, 6, 8, 5$ & $8$ & $2.48\times 10^{-1}$ \\ 
+			 $5$ & $3, 6, 3, 5, 6$ & $6$ & $2.48\times 10^{-1}$ \\ 
+			 $6$ & $4, 4, 3, 4, 5, 4$ & $5$ & $2.98\times 10^{-1}$ \\ 
+			 $7$ & $4, 4, 5, 3, 5, 6, 3$ & $6$ & $3.47\times 10^{-1}$ \\ 
+			 $8$ & $3, 4, 6, 3, 2, 3, 3, 3$ & $6$ & $3.97\times 10^{-1}$ \\
+			 $16$ & $3, 2, 2, 2, 2, 2, 2, 1, 2...$ & $6$ & $7.93\times 10^{-1}$ \\
 			 %, 2, 6, 2, 2, 2, 3, 2
 			\hline  
 	
@@ -72,22 +72,22 @@
 
 	
 		\begin{tabular}{| c | c | c | l |}
-		\hline
+		
 		\multicolumn{4}{c}{NN1 file 7} \\
 		\hline
-		Split & Errori max & Errore max & Space OVH (KB) \\ \hline
+		Split & Errori max & $\epsilon$ & SpaceOVH \\ \hline
 		NN1K & - & 53 & $3.09 \times 10^{-3}$ \\ 
 		NN2K & - & 33 & $8.06 \times 10^{-1}$\\
 		NN3K & - & 40 & $3.94$\\
 		\hline
-		$2$ & $40, 23$ & $40$ & $1.24\times 10^{-2}$ \\ 
-		$3$ & $29, 36, 22$ & $36$ & $2.79\times 10^{-2}$ \\ 
-		$4$ & $23, 41, 31, 22$ & $41$ & $4.96\times 10^{-2}$ \\ 
-		$5$ & $22, 26, 21, 20, 21$ & $26$ & $7.75 \times 10^{-2}$ \\ 
-		$6$ & $20, 29, 32, 16, 19, 17$ & $32$ & $1.12\times 10^{-1}$ \\ 
-		$7$ & $19, 21, 31, 16, 14, 23, 18$ & $31$ & $1.52\times 10^{-1}$ \\ 
-		$8$ & $18, 25, 30, 26, 16, 35, 22, 16$ & $35$ & $1.98\times 10^{-1}$ \\
-		$16$ & $16, 18, 8, 12, 9, 15, 21, 12, 12...$ & $21$ & $7.93\times 10^{-1}$ \\ 
+		$2$ & $40, 23$ & $40$ & $6.2\times 10^{-3}$ \\ 
+		$3$ & $29, 36, 22$ & $36$ & $9.3\times 10^{-3}$ \\ 
+		$4$ & $23, 41, 31, 22$ & $41$ & $1.24\times 10^{-2}$ \\ 
+		$5$ & $22, 26, 21, 20, 21$ & $26$ & $1.55 \times 10^{-2}$ \\ 
+		$6$ & $20, 29, 32, 16, 19, 17$ & $32$ & $1.86\times 10^{-2}$ \\ 
+		$7$ & $19, 21, 31, 16, 14, 23, 18$ & $31$ & $2.17\times 10^{-2}$ \\ 
+		$8$ & $18, 25, 30, 26, 16, 35, 22, 16$ & $35$ & $2.48\times 10^{-2}$ \\
+		$16$ & $16, 18, 8, 12, 9, 15, 21, 12, 12...$ & $21$ & $4.96\times 10^{-2}$ \\ 
 		%, 10, 13, 16, 13, 16, 8, 16
 		
 		\hline  
@@ -97,22 +97,22 @@
 		\vspace*{0.5 cm}
 
 		\begin{tabular}{|c | c | c | l |}
-			\hline
+			
 			\multicolumn{4}{c}{NN1 file 10} \\
 			\hline
-			Split & Errori max & Errore max & Space OVH (KB) \\ \hline
+			Split & Errori max & $\epsilon$ & SpaceOVH \\ \hline
 			NN1K & - & 905 & $2.42 \times 10^{-5}$  \\ 
 			NN2K & - & 1031 & $6.29 \times 10^{-3}$\\
 			NN3K & - & 1270  & $3.08 \times 10^{-2}$ \\
 			\hline
-			$2$ & $653, 495$ & $653$ & $1.\times 10^{-4}$ \\ 
-			$3$ & $546, 382, 407$ & $546$ & $2.2\times 10^{-4}$ \\ 
-			$4$ & $513, 531, 308, 435$ & $531$ & $3.9\times 10^{-4}$ \\ 
-			$5$ & $544, 242, 421, 293, 374$ & $544$ & $6.1\times 10^{-4}$ \\ 
-			$6$ & $597, 190, 260, 219, 453, 364$ & $597$ & $8.7\times 10^{-4}$ \\ 
-			$7$ & $540, 202, 226, 400, 216, 342, 378$ & $540$ & $1.19\times 10^{-3}$ \\ 
-			$8$ & $514, 257, 280, 249, 240, 259, 280, 355$ & $514$ & $1.55\times 10^{-3}$ \\
-			$16$ & $188,295,202,284,145,215,232,211,209...$ & $339$ & $6.2\times 10^{-3}$ \\
+			$2$ & $653, 495$ & $653$ & $5\times 10^{-5}$ \\ 
+			$3$ & $546, 382, 407$ & $546$ & $7\times 10^{-5}$ \\ 
+			$4$ & $513, 531, 308, 435$ & $531$ & $1\times 10^{-4}$ \\ 
+			$5$ & $544, 242, 421, 293, 374$ & $544$ & $1.2\times 10^{-4}$ \\ 
+			$6$ & $597, 190, 260, 219, 453, 364$ & $597$ & $1.5\times 10^{-4}$ \\ 
+			$7$ & $540, 202, 226, 400, 216, 342, 378$ & $540$ & $1.7\times 10^{-4}$ \\ 
+			$8$ & $514, 257, 280, 249, 240, 259, 280, 355$ & $514$ & $1.9\times 10^{-4}$ \\
+			$16$ & $188,295,202,284,145,215,232,211,209...$ & $339$ & $3.9\times 10^{-4}$ \\
 			%167,172,163,319,198,339,223
 			\hline  
 		\end{tabular}

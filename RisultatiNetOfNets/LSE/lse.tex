@@ -1,0 +1,343 @@
+\documentclass[10pt]{article}
+%\usepackage[nofiglist, notablist]{endfloat}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amscd,bm,amsbsy}
+\usepackage{authblk}
+% spaziatura colonne
+\setlength{\tabcolsep}{7pt}
+% spaziatura righe
+\renewcommand{\arraystretch}{1.1}
+
+\begin{document}
+
+
+\title{Tuning parameters for prefix}
+
+%% use optional labels to link authors explicitly to addresses:
+%% \author[label1,label2]{<author name>}
+%% \address[label1]{<address>}
+%% \address[label2]{<address>}
+
+\author[$1$]{Marinò Giosuè Cataldo}
+%\corref{cor1}
+
+%\cortext[cor1]{Corresponding author}
+\affil[$1$]{Dipartimento di Informatica, Universit\`a degli Studi di Milano\\ Via Celoria 18 Milano, 20133, Italy}
+\maketitle
+
+\section{Model}
+	In this tests we used a feed-forward Neural Network with 64 input neurons and 1 output neuron.
+	The fixed settings are:	
+	\begin{itemize}
+		\item The activation function of output neuros is Leaky-ReLU ($\alpha$ = 0.05)
+		%\item Learning rate is a schedule decay learning rate which start from 0.005. $lr_{t} = 0.005 * \frac{1}{1+0.001*t}$
+		\item Optimizer = SGD with Momentum ($\mu$ = 0.9)
+		\item Initializer for weights connection and bias is Random Normal with $\mu$ = 0 and $\sigma$ = 0.05
+		\item Stopping Criteria: the mean absolute error/log sum exponential don't improve with patience 10 or number of epochs is 20000
+		\item Fixed Learning Rate
+	\end{itemize}
+	We try to find a better loss function than common Mean Square Error (MSE). So we try also the Log Sum Exponential (LSE) with many learning rate $(\eta)$ and batch size (mb) on the three dataset we have.
+\section{Results}
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+
+\vspace*{\fill}
+\begin{center}
+
+\begin{table}[]
+  \small
+  \caption{File3}\label{tab:tab1}
+\begin{center}
+\begin{tabular}{@{}cc|cc@{}}
+
+\hline\\[-11pt]
+\hline\\[-6.5pt]
+\multicolumn{2}{c}{\bf MSE} & \multicolumn{2}{c}{\bf LSE } \\[5pt]
+\hline\\[-11pt]
+\multicolumn{4}{c}{$\eta = 1.0\times 10^{-5}$} \\[5pt]
+\hline\\[-11pt]
+\texttt{mb} & \texttt{$\epsilon$} & \texttt{mb} & \texttt{$\epsilon$} \\[1pt]
+$64$ & $149$& $64$ & $23$ \\ [1pt] 
+$128$ & $97$ & $128$ & $16$ \\[1pt] 
+$256$ & $79$ & $256$ & $13$ \\[1pt] 
+$512$ & $72$ & $512$ & $11$ \\[1pt] 
+\hline\\[-11pt]
+\multicolumn{4}{c}{$\eta = 1.0\times 10^{-4}$} \\[5pt]
+\hline\\[-11pt]
+$64$ & $12$ & $64$ & $8$ \\ [1pt]
+$128$ & $9$ & $128$ & $8$ \\ [1pt]
+$256$ & $8$ & $256$ & $8$ \\ [1pt]
+$512$ & $8$ & $512$ & $8$ \\ [1pt]
+\hline\\[-11pt]
+\multicolumn{4}{c}{$\eta = 1.0\times 10^{-3}$} \\[5pt]
+\hline\\[-11pt]
+$64$ & $8$ & $64$ & $8$ \\ [1pt]
+$128$ & $8$ & $128$ & $8$ \\ [1pt]
+$256$ & $8$ & $256$ & $8$ \\ [1pt]
+$512$ & $8$ & $512$ & $8$ \\ [1pt]
+\hline\\[-11pt]
+
+\multicolumn{4}{c}{$\eta = 1.0\times 10^{-2}$} \\[5pt]
+\hline\\[-11pt]
+$64$ & $8$ & $64$ & $8$ \\ [1pt]
+$128$ & $8$ & $128$ & $8$ \\ [1pt]
+$256$ & $8$ & $256$ & $8$ \\ [1pt]
+$512$ & $8$ & $512$ & $8$ \\ [1pt]
+\hline\\[-11pt]
+
+\multicolumn{4}{c}{$\eta = 1.0\times 10^{-1}$} \\[5pt]
+\hline\\[-11pt]
+$64$ & $8$ & $64$ & $8$ \\ [1pt]
+$128$ & $8$ & $128$ & $8$ \\ [1pt]
+$256$ & $8$ & $256$ & $8$ \\ [1pt]
+$512$ & $8$ & $512$ & $8$ \\ [1pt]
+\hline\\[-11pt]
+
+\hline\\[-8pt]
+\end{tabular}\\[5pt]
+\end{center}
+\normalsize
+\end{table}
+
+\begin{table}[]
+  \small
+  \caption{File7}\label{tab:tab2}
+\begin{center}
+\begin{tabular}{@{}cc|cc@{}}
+
+\hline\\[-11pt]
+\hline\\[-6.5pt]
+\multicolumn{2}{c}{\bf MSE} & \multicolumn{2}{c}{\bf LSE } \\[5pt]
+\hline\\[-11pt]
+\multicolumn{4}{c}{$\eta = 1.0\times 10^{-5}$} \\[5pt]
+\hline\\[-11pt]
+\texttt{mb} & \texttt{$\epsilon$} & \texttt{mb} & \texttt{$\epsilon$} \\[1pt]
+$64$ & $44$  & $64$ & $42$ \\ [1pt]
+$128$ & $43$   & $128$ & $42$ \\ [1pt]
+$256$ & $43$   & $256$ & $42$ \\ [1pt]
+$512$ & $43$   & $512$ & $42$ \\ [1pt]
+$1024$ & $43$  & $1024$ & $42$ \\ [1pt]
+$8192$ & $43$  & $8192$ & $42$ \\ [1pt]
+\hline\\[-11pt]
+\multicolumn{4}{c}{$\eta = 1.0\times 10^{-4}$} \\[5pt]
+\hline\\[-11pt]
+$64$ & $42$   & $64$ & $42$ \\ [1pt]
+$128$ & $42$  & $128$ & $42$ \\ [1pt]
+$256$ & $42$  & $256$ & $42$ \\ [1pt]
+$512$ & $42$  & $512$ & $42$ \\ [1pt]
+$1024$ & $42$  & $1024$ & $42$ \\ [1pt]
+$8192$ & $42$  & $8192$ & $42$ \\ [1pt]
+\hline\\[-11pt]
+\multicolumn{4}{c}{$\eta = 1.0\times 10^{-3}$} \\[5pt]
+\hline\\[-11pt]
+$64$ & $42$  & $64$ & $42$ \\ [1pt]
+$128$ & $42$   & $128$ & $42$ \\ [1pt]
+$256$ & $42$   & $256$ & $42$ \\ [1pt]
+$512$ & $42$   & $512$ & $42$ \\ [1pt]
+$1024$ & $42$  & $1024$ & $42$ \\ [1pt]
+$8192$ & $42$  & $8192$ & $42$ \\ [1pt]
+\hline\\[-11pt]
+
+\multicolumn{4}{c}{$\eta = 1.0\times 10^{-2}$} \\[5pt]
+\hline\\[-11pt]
+$64$ & $42$  & $64$ & $42$ \\ [1pt]
+$128$ & $42$  & $128$ & $43$ \\ [1pt]
+$256$ & $42$  & $256$ & $42$ \\ [1pt]
+$512$ & $43$  & $512$ & $43$ \\ [1pt]
+$1024$ & $42$  & $1024$ & $42$ \\ [1pt] 
+$8192$ & $42$  & $8192$ & $42$ \\ [1pt] 
+\hline\\[-11pt]
+
+\multicolumn{4}{c}{$\eta = 1.0\times 10^{-1}$} \\[5pt]
+\hline\\[-11pt]
+$64$ & $56$  & $64$ & $55$ \\ [1pt]
+$128$ & $49$  & $128$ & $48$ \\ [1pt]
+$256$ & $45$  & $256$ & $43$ \\ [1pt]
+$512$ & $41$  & $512$ & $41$ \\ [1pt]
+$1024$ & $41$  & $1024$ & $41$ \\ [1pt]
+$8192$ & $42$  & $8192$ & $43$ \\ [1pt]
+\hline\\[-11pt]
+
+\hline\\[-8pt]
+\end{tabular}\\[5pt]
+\end{center}
+\normalsize
+\end{table}
+
+\begin{table}[]
+  \small
+  \caption{File10}\label{tab:tab3}
+\begin{center}
+\begin{tabular}{@{}cc|cc@{}}
+
+\hline\\[-11pt]
+\hline\\[-6.5pt]
+\multicolumn{2}{c}{\bf MSE} & \multicolumn{2}{c}{\bf LSE } \\[5pt]
+\hline\\[-11pt]
+\multicolumn{4}{c}{$\eta = 1.0\times 10^{-5}$} \\[5pt]
+\hline\\[-11pt]
+\texttt{mb} & \texttt{$\epsilon$} & \texttt{mb} & \texttt{$\epsilon$} \\[1pt]
+$64$ & $788$  & $64$ & $766$ \\  [1pt]
+$128$ & $788$   & $128$ & $766$ \\  [1pt]
+$256$ & $787$   & $256$ & $766$ \\  [1pt]
+$512$ & $787$   & $512$ & $765$ \\  [1pt]
+$1024$ & $787$ & $1024$ & $765$ \\  [1pt]
+$1048576$ & $787$   & $1048576$ & $765$ \\  [1pt]
+\hline\\[-11pt]
+\multicolumn{4}{c}{$\eta = 1.0\times 10^{-4}$} \\[5pt]
+\hline\\[-11pt]
+$64$ & $624$  & $64$ & $623$ \\  [1pt]
+$128$ & $626$  & $128$ & $625$ \\  [1pt]
+$256$ & $628$  & $256$ & $627$ \\  [1pt]
+$512$ & $629$  & $512$ & $628$ \\  [1pt]
+$1024$ & $629$  & $1024$ & $628$ \\  [1pt]
+$1048576$ & $629$   & $1048576$ & $628$ \\  [1pt]
+\hline\\[-11pt]
+\multicolumn{4}{c}{$\eta = 1.0\times 10^{-3}$} \\[5pt]
+\hline\\[-11pt]
+$64$ & $626$  & $64$ & $627$ \\  [1pt]
+$128$ & $619$  & $128$ & $619$ \\  [1pt]
+$256$ & $616$  & $256$ & $615$ \\  [1pt]
+$512$ & $620$  & $512$ & $620$ \\  [1pt]
+$1024$ & $619$  & $1024$ & $619$ \\  [1pt]
+$1048576$ & $622$   & $1048576$ & $622$ \\  [1pt]
+\hline\\[-11pt]
+
+\multicolumn{4}{c}{$\eta = 1.0\times 10^{-2}$} \\[5pt]
+\hline\\[-11pt]
+$64$ & $635$  & $64$ & $636$ \\  [1pt]
+$128$ & $636$  & $128$ & $594$ \\  [1pt]
+$256$ & $660$  & $256$ & $659$ \\  [1pt]
+$512$ & $617$  & $512$ & $615$ \\  [1pt]
+$1024$ & $616$  & $1024$ & $614$ \\  [1pt]
+$1048576$ & $620$   & $1048576$ & $621$ \\  [1pt]
+\hline\\[-11pt]
+
+\multicolumn{4}{c}{$\eta = 1.0\times 10^{-1}$} \\[5pt]
+\hline\\[-11pt]
+$64$ & $984$  & $64$ & $979$ \\  [1pt]
+$128$ & $717$  & $128$ & $696$ \\  [1pt]
+$256$ & $661$  & $256$ & $667$ \\  [1pt]
+$512$ & $603$  & $512$ & \textbf{573} \\  [1pt]
+$1024$ & $671$  & $1024$ & $716$ \\  [1pt]
+$1048576$ & $636$   & $1048576$ & $633$ \\ [1pt]
+\hline\\[-11pt]
+
+\hline\\[-8pt]
+\end{tabular}\\[5pt]
+\end{center}
+\normalsize
+\end{table}
+
+\end{center}
+\vspace*{\fill}
+
+\clearpage
+
+\section{After Model Selection}
+	After comparison between MSE and LSE we found a good configuration with LSE on file10 (mb=512 and $\eta = 1.0\times 10^{-1}$). With this configuration we try to compress this model with Pruning (table \ref{tab:tab4}), Weight Sharing (table \ref{tab:tab5}) and Pruning+Weight Sharing (table \ref{tab:tab6}). With this three compression we re-train with the same loss of original network (in this case LSE).
+\clearpage
+\begin{table}[]
+  \small
+  \caption{Pruning}\label{tab:tab4}
+\begin{center}
+\begin{tabular}{cc}
+\multicolumn{2}{c}{file10,  $\eta=1.0\times 10^{-1}$, mb=512} \\[5pt]
+\hline\\[-11pt]
+\texttt{$\% Pruning$} & \texttt{$\epsilon$} \\[5pt]
+\hline\\[-11pt]
+
+$10$ & $618$ \\ [1pt]
+$20$ & $626$ \\ [1pt]
+$30$ & $628$ \\ [1pt]
+$40$ & $628$ \\ [1pt]
+$50$ & $630$ \\ [1pt]
+$60$ & $744$ \\ [1pt]
+$70$ & $1608$ \\ [1pt]
+$80$ & $8837$ \\ [1pt]
+$90$ & $66552$ \\ [1pt]
+
+\hline\\[-8pt]
+\end{tabular}\\[5pt]
+\end{center}
+\normalsize
+\end{table}	
+
+
+\begin{table}[]
+  \small
+  \caption{Weight Sharing}\label{tab:tab5}
+\begin{center}
+\begin{tabular}{cc}
+\multicolumn{2}{c}{file10,  $\eta=1.0\times 10^{-1}$, mb=512} \\[5pt]
+\hline\\[-11pt]
+\texttt{$Cluster$} & \texttt{$\epsilon$} \\[5pt]
+\hline\\[-11pt]
+
+$10$ & $1600$ \\ [1pt]
+$12$ & $925$ \\ [1pt]
+$14$ & $699$ \\ [1pt]
+$16$ & $693$ \\ [1pt]
+
+\hline\\[-8pt]
+\end{tabular}\\[5pt]
+\end{center}
+\normalsize
+\end{table}	
+
+\begin{table}[]
+  \small
+  \caption{Pruning + Weight Sharing}\label{tab:tab6}
+\begin{center}
+\begin{tabular}{cc}
+\multicolumn{2}{c}{file10,  $\eta=1.0\times 10^{-1}$, mb=512} \\[5pt]
+\hline\\[-11pt]
+\texttt{$\% Pruning$} & \texttt{$\epsilon$} \\[5pt]
+\hline\\[-11pt]
+
+\multicolumn{2}{c}{$Cluster = 10$} \\[5pt]
+\hline\\[-11pt]
+$10$ & $1745$ \\ [1pt]
+$20$ & $1859$ \\ [1pt]
+$30$ & $1996$ \\ [1pt]
+$40$ & $2250$ \\ [1pt]
+$50$ & $2624$ \\ [1pt]
+\hline\\[-11pt]
+
+\multicolumn{2}{c}{$Cluster = 12$} \\[5pt]
+\hline\\[-11pt]
+$10$ & $966$ \\ [1pt]
+$20$ & $988$ \\ [1pt]
+$30$ & $1016$ \\[1pt] 
+$40$ & $1115$ \\[1pt] 
+$50$ & $1179$ \\[1pt]
+\hline\\[-11pt]
+
+\multicolumn{2}{c}{$Cluster = 14$} \\[5pt]
+\hline\\[-11pt]
+$10$ & $694$ \\ [1pt]
+$20$ & $724$ \\ [1pt]
+$30$ & $758$ \\ [1pt]
+$40$ & $811$ \\ [1pt]
+$50$ & $864$ \\ [1pt]
+\hline\\[-11pt]
+
+\multicolumn{2}{c}{$Cluster = 16$} \\[5pt]
+\hline\\[-11pt]
+$10$ & $703$ \\ [1pt]
+$20$ & $675$ \\ [1pt]
+$30$ & $667$ \\ [1pt]
+$40$ & $654$ \\ [1pt]
+$50$ & $631$ \\ [1pt]
+\hline\\[-11pt]
+
+\hline\\[-8pt]
+\end{tabular}\\[5pt]
+\end{center}
+\normalsize
+\end{table}	
+
+\end{document}

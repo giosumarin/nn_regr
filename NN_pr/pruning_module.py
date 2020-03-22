@@ -37,6 +37,7 @@ class NN_pruned(NN.NN):
         self.csc_layers = [[csc_matrix(w, dtype='float32'), b] for [w,b] in self.layers]        
     
     def get_memory_usage(self):
+        self.make_compression()
         try:
             num = sum([
                 csc.data.nbytes + 

@@ -73,10 +73,19 @@ class NN_WS(NN.NN):
         
     def updateMomentum(self, X, t):
         numBatch = self.numEx // self.minibatch
-        
-        for nb in range(numBatch):
-            indexLow = nb * self.minibatch
-            indexHigh = (nb + 1) * self.minibatch
+        remain_elements = self.numEx % self.minibatch
+        if numBatch <= 1:
+            distribuited_elements = [0 for i in range(numBatch)]
+            indexes_minibatchs = [[0, self.numEx]]
+        else:
+            distribuited_elements = [1 if remain_elements - i > 0 else 0 for i in range(1, numBatch+1)]
+            while (remain_elements > sum(distribuited_elements)):
+                distribuited_elements = [distribuited_elements[i]+1 if sum(distribuited_elements)+i < remain_elements else distribuited_elements[i] for i in range(0, numBatch)]
+            adjusted_batch_sizes = [self.minibatch+distribuited_elements[i] for i in range(numBatch)]    
+            indexes_minibatchs = [[sum(adjusted_batch_sizes[:i]), sum(adjusted_batch_sizes[:i+1])] for i in range(numBatch)]
+
+        for [indexLow,indexHigh] in indexes_minibatchs:
+            size_minibatch = indexHigh-indexLow
             
             self.layers = []
             for i in range(self.nHidden + 1):
@@ -91,14 +100,14 @@ class NN_WS(NN.NN):
 
             y = outputs[-1]
 
-            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh])]
+            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh]) * 2/size_minibatch]
             for i in range(self.nHidden):
                 deltas.append(np.dot(deltas[i], self.layers[self.nHidden - i][0].T) * self.act_fun[self.nHidden - i - 1](outputs[self.nHidden - i - 1], True))
             deltas.reverse()
 
             outputs_for_deltas = [X[indexLow:indexHigh]]+outputs[:-1] 
 
-            deltas_weights = [np.dot(outputs_for_deltas[i].T, deltas[i]) + (self.layers[i][0] * self.lambd) for i in range(self.nHidden + 1)]
+            deltas_weights = [np.dot(outputs_for_deltas[i].T, deltas[i]) + (self.layers[i][0] * self.lambd * 2/size_minibatch) for i in range(self.nHidden + 1)]
             deltas_bias = [np.sum(deltas[i], axis=0, keepdims=True) for i in range(self.nHidden + 1)]
             deltasUpd = [[w,b] for w, b in list(zip(deltas_weights, deltas_bias))]
 
@@ -106,10 +115,11 @@ class NN_WS(NN.NN):
 
     def get_memory_usage(self):
         floats_bytes_layers = 4
-        if isinstance(self.idx_layers[0][1][0][0], np.float16):
+        if isinstance(self.idx_layers[0][1][0][0], np.uint8):
+            floats_bytes_layers = 1.0
+        if isinstance(self.idx_layers[0][1][0][0], np.uint16):
             floats_bytes_layers = 2.0
-        if isinstance(self.idx_layers[0][1][0][0], np.float64):
-            floats_bytes_layers = 8.0
+        print(floats_bytes_layers)
 
         floats_bytes_center = 4
         if isinstance(self.centers[0][0][0], np.float16):

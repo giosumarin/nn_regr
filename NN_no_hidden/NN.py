@@ -3,10 +3,10 @@ import math
 from sklearn.metrics import r2_score
 from NN_pr import logger as log
 from NN_pr import activation_function as af
+from NN_no_hidden import loss_function as lf
 
 N_FEATURES = 64
 N_CLASSES = 1
-np.random.RandomState(0)
 
 class NN:
     def __init__(self, training, testing, lr, mu, output_classes, lambd=0, minibatch=None, dropout=None, disableLog=None, weights=None):
@@ -38,18 +38,25 @@ class NN:
 
         self.decay = 1e-3
             
-    def addLayers(self, activation_fun,weights=None):
+    def addLayers(self, activation_fun, loss, weights=None):
         self.epoch = 0
         self.v = [[0,0]]
-        #self.m_t = [[0,0]]
+        
         act_fun_factory = {"relu": lambda x, der: af.ReLU(x, der),
                            "sigmoid": lambda x, der: af.sigmoid(x, der),
                            "linear": lambda x, der: af.linear(x, der),
                            "tanh": lambda x, der: af.tanh(x, der),
                            "leakyrelu": lambda x, der: af.LReLU(x, der),
                            "softmax": lambda x, der: af.softmax_function(x, der),
-                           "softplus": lambda x, der: af.softplus_function(x,der)}      
+                           "softplus": lambda x, der: af.softplus_function(x,der)}     
         self.act_fun = [act_fun_factory[f] for f in activation_fun]
+        
+        loss_fun_factory = {"MSE": lambda y, t, der: lf.MSE(y, t, der),
+                           "MAE": lambda y, t, der: lf.MAE(y, t, der),
+                           "LSE": lambda y, t, der: lf.LSE(y, t, der)}
+                           
+        self.loss_fun = loss_fun_factory[loss]
+                           
         if weights == None:
             Wo = np.random.randn(N_FEATURES, self.N_CLASSES).astype(np.float32) * math.sqrt(2/N_FEATURES)
             #Wo = (np.zeros((N_FEATURES, self.N_CLASSES))).astype(np.float32) 
@@ -76,26 +83,8 @@ class NN:
 
 
     def loss(self, X, t):
-        #predictions = self.predict(X)
-        #loss = np.mean((predictions-t)**2, axis=0)
-        #return loss
-
-        #scegliere soglia e fare media pesat
-        tr = 2 ** 5 
-        if X.shape[0] > 2**1000:
-            loss = 0
-            batch=self.numEx // tr
-            for n in range(batch):
-                indexLow = n * tr
-                indexHigh =(n+1) * tr 
-                predictions = self.predict(X[indexLow:indexHigh])
-                loss += np.mean(np.square(predictions - t[indexLow:indexHigh]))
-                
-            loss/=batch
-        else:
-            predictions = self.predict(X)
-            loss = np.mean(np.square(predictions-t))
-        return loss
+        predictions = self.predict(X)
+        return self.loss_fun(predictions, t, False)
 
 
     def updateMomentum(self, X, t):
@@ -126,7 +115,7 @@ class NN:
 
             y = outputs[-1]
             
-            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh]) * 2/size_minibatch]
+            deltas = [self.act_fun[-1](y, True) * self.loss_fun(y, t[indexLow:indexHigh], True)]
 
             deltasUpd= [([(np.dot(X[indexLow:indexHigh].T, deltas[0]) + (1/size_minibatch * self.layers[0][0] * self.lambd)), np.sum(deltas[0], axis=0, keepdims=True)])]
 
@@ -134,12 +123,12 @@ class NN:
 
             
     def update_layers(self, deltasUpd):
-        lr = self.lr_decay()
-        self.v[0][0] = self.mu * self.v[0][0] + lr * deltasUpd[0][0]
-        self.v[0][1] = self.mu * self.v[0][1] + lr * deltasUpd[0][1]
+        #lr = self.lr_decay()
+        self.v[0][0] = self.mu * self.v[0][0] + self.lr * deltasUpd[0][0]
+        self.v[0][1] = self.mu * self.v[0][1] + self.lr * deltasUpd[0][1]
         
         self.layers[0][0] -= self.v[0][0] 
-        self.layers[0][1] -= self.v[0][1] 
+        self.layers[0][1] -= self.v[0][1]
 
     # def update_layers(self, deltaUpd):
     #     v_prev = self.v.copy()

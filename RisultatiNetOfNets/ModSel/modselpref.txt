@@ -1,0 +1,52 @@
+
+\documentclass[10pt]{article}
+%\usepackage[nofiglist, notablist]{endfloat}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amscd,bm,amsbsy}
+\usepackage{authblk}
+% spaziatura colonne
+\setlength{\tabcolsep}{7pt}
+% spaziatura righe
+\renewcommand{\arraystretch}{1.1}
+
+\begin{document}
+
+
+\title{Model Selection for prefix}
+
+%% use optional labels to link authors explicitly to addresses:
+%% \author[label1,label2]{<author name>}
+%% \address[label1]{<address>}
+%% \address[label2]{<address>}
+
+\author[$1$]{Author name}
+%\corref{cor1}
+
+%\cortext[cor1]{Corresponding author}
+\affil[$1$]{Dipartimento di Informatica, Universit\`a degli Studi di Milano\\ Via Celoria 18 Milano, 20133, Italy}
+\maketitle
+\section{Tabella}
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}[]
+  \small
+  \caption{Qui descrizone dati.}\label{tab:tab1}
+\begin{center}
+%lr in multicol, mb, eps, loss
+\begin{tabular}{@{}ccc|ccc@{}}
+
+\hline\\[-11pt]
+\hline\\[-6.5pt]
+\multicolumn{3}{c}{\bf MSE} & \multicolumn{3}{c}{\bf MAE }& \\[5pt]
+\texttt{mb} & \texttt{$\epsilon$} & \texttt{Loss} & \texttt{mb} & \texttt{$\epsilon$} & \texttt{Loss} \\[1pt]
+$16$ & $1$ & $0.3$ & $16$ & $1$ & $0.3$ \\[1pt]
+\hline\\[-11pt]
+\hline\\[-8pt]
+\end{tabular}
+\end{center}
+\normalsize
+\end{table}
+
+\end{document}

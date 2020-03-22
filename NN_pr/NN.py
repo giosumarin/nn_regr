@@ -34,7 +34,7 @@ class NN:
   
         
         self.lambd = lambd
-        self.patience = 15  
+        self.patience = 10  
             
     def addLayers(self, neurons, activation_fun, weights=None):
         self.epoch = 0
@@ -54,14 +54,9 @@ class NN:
         if weights == None:
             weights_hidden_shapes = list(zip([N_FEATURES]+neurons[:-1], neurons))   
             weights_hidden = [np.random.randn(row, col).astype(np.float32) * math.sqrt(2.0 / row) for row, col in weights_hidden_shapes] 
-            #bias_hidden = [np.random.randn(1, n) * math.sqrt(2.0 / self.numEx) for n in neurons]
-            #weights_hidden = [np.random.normal(scale=0.0001, size=(row, col)).astype(np.float32) for row, col in weights_hidden_shapes] 
-            #bias_hidden = [np.random.normal(scale=0.05, size=(1, n)) for n in neurons]
             bias_hidden = [np.ones((1, n)).astype(np.float32)*0.001 for n in neurons]
             self.layers = [[w,b] for w, b in list(zip(weights_hidden, bias_hidden))]
             Wo = np.random.randn(neurons[-1], self.N_CLASSES).astype(np.float32) * math.sqrt(2.0 / neurons[-1])
-            #Wo = np.random.normal(scale=0.01,size=(neurons[-1], N_CLASSES)).astype(np.float32)
-            # bWo = np.random.randn(1, N_CLASSES) * math.sqrt(2.0 / self.numEx)
             bWo = np.ones((1, self.N_CLASSES)).astype(np.float32)*0.001
             self.layers += [[Wo,bWo]]
         else:
@@ -106,17 +101,25 @@ class NN:
             loss/=batch
         else:
             predictions = self.predict(X)
-            loss = np.mean(np.square(predictions-t)) 
+            loss = np.mean(np.abs(predictions-t)) 
         return round(loss, 7)
 
 
     def updateMomentum(self, X, t):
         numBatch = self.numEx // self.minibatch
+        remain_elements = self.numEx % self.minibatch
+        if numBatch <= 1:
+            distribuited_elements = [0 for i in range(numBatch)]
+            indexes_minibatchs = [[0, self.numEx]]
+        else:
+            distribuited_elements = [1 if remain_elements - i > 0 else 0 for i in range(1, numBatch+1)]
+            while (remain_elements > sum(distribuited_elements)):
+                distribuited_elements = [distribuited_elements[i]+1 if sum(distribuited_elements)+i < remain_elements else distribuited_elements[i] for i in range(0, numBatch)]
+            adjusted_batch_sizes = [self.minibatch+distribuited_elements[i] for i in range(numBatch)]    
+            indexes_minibatchs = [[sum(adjusted_batch_sizes[:i]), sum(adjusted_batch_sizes[:i+1])] for i in range(numBatch)]
 
-        for nb in range(numBatch):
-            indexLow = nb * self.minibatch
-            indexHigh = (nb + 1) * self.minibatch
-
+        for [indexLow,indexHigh] in indexes_minibatchs:
+            size_minibatch = indexHigh-indexLow
             outputs = self.feedforward(X[indexLow:indexHigh])
             
             if self.p != None:
@@ -126,29 +129,27 @@ class NN:
 
             y = outputs[-1]
             
-            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh]) * 1/self.minibatch]
+            deltas = [self.act_fun[-1](y, True) * (y - t[indexLow:indexHigh]) * 2/size_minibatch]
             for i in range(self.nHidden):
                 deltas.append(np.dot(deltas[i], self.layers[self.nHidden - i][0].T) * self.act_fun[self.nHidden - i - 1](outputs[self.nHidden - i - 1], True))
             deltas.reverse()
             
             outputs_for_deltas = [X[indexLow:indexHigh]]+outputs[:-1] 
 
-            deltas_weights = [np.dot(outputs_for_deltas[i].T, deltas[i]) + (self.layers[i][0] * self.lambd * 1/self.minibatch) for i in range(self.nHidden + 1)]
+            deltas_weights = [np.dot(outputs_for_deltas[i].T, deltas[i]) + (self.layers[i][0] * self.lambd * 2/size_minibatch) for i in range(self.nHidden + 1)]
             deltas_bias = [np.sum(deltas[i], axis=0, keepdims=True) for i in range(self.nHidden + 1)]
             deltasUpd = [[w,b] for w, b in list(zip(deltas_weights, deltas_bias))]
 
             self.update_layers(deltasUpd)
 
             
-    # def update_layers(self, deltasUpd):
-    #     #lr = self.exp_decay()
-    #     lr = self.lr
-    #     for i in range(self.nHidden + 1):
-    #         self.v[i][0] = self.mu * self.v[i][0] + lr * deltasUpd[i][0]
-    #         self.v[i][1] = self.mu * self.v[i][1] + lr * deltasUpd[i][1]
-    #     for i in range(self.nHidden + 1):
-    #         self.layers[i][0] -= self.v[i][0] 
-    #         self.layers[i][1] -= self.v[i][1]
+    def update_layers(self, deltasUpd):
+        for i in range(self.nHidden + 1):
+            self.v[i][0] = self.mu * self.v[i][0] + self.lr * deltasUpd[i][0]
+            self.v[i][1] = self.mu * self.v[i][1] + self.lr * deltasUpd[i][1]
+        for i in range(self.nHidden + 1):
+            self.layers[i][0] -= self.v[i][0] 
+            self.layers[i][1] -= self.v[i][1]
 
     # def update_layers(self, deltaUpd):
     #     v_prev = self.v.copy()
@@ -159,14 +160,14 @@ class NN:
     #         self.layers[i][0] += -self.mu * v_prev[i][0] + (1+self.mu) * self.v[i][0] 
     #         self.layers[i][1] += -self.mu * v_prev[i][1] + (1+self.mu) * self.v[i][1] 
 
-    def update_layers(self, deltaUpd):
-        eps=1e-8
-        for i in range(self.nHidden + 1):
-            self.v[i][0] += deltaUpd[i][0]**2
-            self.v[i][1] += deltaUpd[i][1]**2
-        for i in range(self.nHidden + 1):
-            self.layers[i][0] += -self.lr * deltaUpd[i][0] / (np.sqrt(self.v[i][0]) + eps)
-            self.layers[i][1] += -self.lr * deltaUpd[i][1] / (np.sqrt(self.v[i][1]) + eps)
+    # def update_layers(self, deltaUpd):
+    #     eps=1e-5
+    #     for i in range(self.nHidden + 1):
+    #         self.v[i][0] += deltaUpd[i][0]**2
+    #         self.v[i][1] += deltaUpd[i][1]**2
+    #     for i in range(self.nHidden + 1):
+    #         self.layers[i][0] += -self.lr * deltaUpd[i][0] / (np.sqrt(self.v[i][0]) + eps)
+    #         self.layers[i][1] += -self.lr * deltaUpd[i][1] / (np.sqrt(self.v[i][1]) + eps)
 
 
     def exp_decay(self):
