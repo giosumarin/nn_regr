@@ -2,6 +2,7 @@
 openright]{book}
 \usepackage{fullpage}
 \usepackage{amsmath}
+\usepackage{mathtools}
 \usepackage{amsthm}
 \usepackage{amssymb}
 \usepackage{amsfonts}
@@ -25,7 +26,7 @@ openright]{book}
                         (0,-0.5em) --  (-0.5em,-0.5em)
                         (0em,0.75em) -- (0em,-0.75em)
                         (0.75em,0em) -- (-0.75em,0em);}
-
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 \renewcommand{\contentsname}{Indice}
 
 \begin{document}
@@ -585,31 +586,190 @@ W'_{ij} = C_{N_{ij}}
 %Come si vede nell'equazione~\eqref{ntc123}, le cose non sono come si pensa.
 
 \chapter{Esperimenti}
+In questo capitolo spiegheremo gli espereminti eseguiti su due dataset differenti.
+\begin{itemize}
+\item CIFAR MNIST: problema di classificazione, il dataset è composto da un insieme di immagini che rappresentano cifre scritte a mano
+\item Sequenze ordinate di numeri: problema di regressione, il dataset è composto da sequenze di numeri rappresentati in 64 bit
+\end{itemize}
+\subsection*{Classificazione e Regressione}
+I classificatori separano i dati in due o più classi, nel caso di questo elaborato negli esperimenti con MNIST abbiamo 10 classi (le cifre tra 0 e 9).
+I regressori invece si basano sull'interpolazione dei dati per associare tra loro due o più caratteristiche (\textit{feature}). Simile alla classificazione con la differenza che l'output ha un dominio continuo.
+Entrambe le categorie sono affrontate, in questo elaborato, con apprendimento \textit{supervisionato} in cui si ha un insieme di input di esempio e il corrispettivo output desiderato con lo scopo di apprendere una regola generale in grado di mappare gli input negli output.
 \section{Problema del predecessore}
+
+Sia $X$ un sottoinsieme delle parti di un universo $U$, ordinato in base all'ordine $\leq$ definito su $U$. Partiamo dal presupposto che ogni elemento di $U$ può essere rappresentato da $d$ bit. Supponiamo anche che l'ordinamento lessicografico della rappresentazione binaria di ogni elemento in $U$ mantiene la relazione d'ordine $\leq$. Il problema di ricerca del predecessore consiste nel trovare la posizione della chiave più grande in $X$ non maggiore di una data in input $x$, indichiamo con $pos(x)$ la posizione di $x$ appartenente a $X$ nella sequenza ordinata, il problema è determinare $pred(x)=pos(z)$ con $z = \max y \in X$ dove $y \leq x$.
+\begin{equation}
+x=\{2,3,4,5,12,15,18\}
+\tag{Esempio}
+\end{equation}
+Assumiamo che 7 è la chiave da cercare. La ricerca del predecessore dovrebbe restituire la posizione 4.
+Dato $|X|=n$, sia $F_{X}$ la distribuzione cumulativa empirica degli elementi di $U$ rispetto a $X$, per ogni $x\in U$, $F_X(x)$ = ${\frac{|y \in X | y \leq z|}{n}}$. Per semplificare la notazione denotiamo $F_{X}$ con $F$. Nell'esempio sopra, $F(2)=\frac{1}{7}$, $F(5)=\frac{4}{7}$, $F(6)=\frac{4}{7}$, $F(18)=1$. La conoscenza di $F$ ci da una soluzione al nostro problema, dato un elemento di $x$ appartenente a U, una sola valutazione di $F$ fornisce $pred(x)=\ceil{(F(z)*n)}$. Il nostro obiettivo è trovare una buona approssimazione $\tilde{F}$  di $F$.
+La risoluzione di questo problema potrebbe consentire di trovare un elemento all'interno di una lista ordinata in tempo $O(1)$ invece che $O(\log n)$ degli alberi di ricerca.
+La rete neurale però può compiere un errore nel dare la posizione di un elemento, per questo motivo teniamo traccia dell'errore massimo ($\epsilon$) che la rete compie. Questo perchè durante la ricerca dopo che il modello ci ha dato la posizione dobbiamo effettuare una ricerca di $\epsilon$ a destra e sinistra della posizione restituita dal modello. Per questo motivo negli esperimenti abbiamo provato a minimizzare una funzione che approssima il massimo convessa, ovvero la \textit{Log Sum Exp}.
+Diversamente da MNIST il modello MLP cerchera di risolvere un problema di regressione. La rete neurale dovrà imparare a restituire, data una chiave, $\tilde{F}$.
+\section*{Regressione e classificazione}
+
+\section{Addestramento e Tuning Parametri}
+Diversamente da MNIST il modello MLP cerchera di risolvere un problema di regressione. La rete neurale dovrà imparare a restituire, data una chiave, $\tilde{F}$.
+I parametri soggetti al tuning sono la funzione di errore, il learning rate ($\eta$), la taglia dei minibatch, le funzioni di attivazione.
+Per quanto riguarda la loss ho effettuato dei confronti tra MSE, MAE e LSE. 
+
+\section{Applicazione degli algoritmi di compressione}
+\section{Splitting in N modelli}
+L'idea usata in questa sezione è quella di dividere il dataset ordinato in sottosequenze ordinate e usare una rete neurale senza strati hidden per ogni sottosequenza con l'obiettivo di ridurre l'errore massimo $\epsilon$ che sarà quindi il massimo degli errori massimi di ogni modello.
+
+\begin{itemize}
+		\item Split = Numero di split sul dataset (e di conseguenza numero di modelli NN0 usati)
+		\item $\epsilon$ = Massimodegli errori massimi di ogni NN0
+		\item $\mu$ = Media degli errpri massimi di ogni NN0
+		\item SpaceOVH =  spazio del modelli in KB rispetto al dataset
+	\end{itemize}
+	
+		\begin{tabular}{| c | c | c | l |}
+		
+		\multicolumn{4}{c}{NN0 file 3} \\
+		\hline
+		Split & $\epsilon$ & $\mu$ & SpaceOVH \\ \hline
+		
+		\hline
+		$1$ & $8$ & $8.0$ & $4.96\times 10^{-2}$ \\ 
+		$2$ & $8$ & $6.5$ & $9.92\times 10^{-2}$ \\ 
+		$3$ & $7$ & $5.0$ & $1.49\times 10^{-1}$ \\ 
+		$4$ & $9$ & $6.0$ & $1.98\times 10^{-1}$ \\ 
+		$5$ & $6$ & $4.4$ & $2.48\times 10^{-1}$ \\ 
+		$6$ & $5$ & $3.5$ & $2.98\times 10^{-1}$ \\ 
+		$7$ & $5$ & $3.14$ & $3.47\times 10^{-1}$ \\ 
+		$8$ & $5$ & $3.25$ & $3.97\times 10^{-1}$ \\ 
+		$9$ & $3$ & $2.33$ & $4.46\times 10^{-1}$ \\ 
+		$10$ & $4$ & $2.8$ & $4.96\times 10^{-1}$ \\ 
+		$11$ & $4$ & $2.45$ & $5.45\times 10^{-1}$ \\ 
+		$12$ & $3$ & $1.92$ & $5.95\times 10^{-1}$ \\ 
+		$13$ & $3$ & $1.85$ & $6.45\times 10^{-1}$ \\ 
+		$14$ & $2$ & $1.57$ & $6.94\times 10^{-1}$ \\ 
+		$15$ & $4$ & $1.67$ & $7.44\times 10^{-1}$ \\ 
+		$16$ & $2$ & $1.19$ & $7.93\times 10^{-1}$ \\ 
+		$17$ & $2$ & $1.12$ & $8.43\times 10^{-1}$ \\ 
+		$18$ & $2$ & $1.17$ & $8.93\times 10^{-1}$ \\ 
+		$19$ & $4$ & $1.16$ & $9.42\times 10^{-1}$ \\ 
+		$20$ & $1$ & $1.0$ & $9.92\times 10^{-1}$ \\ 
+		$21$ & $2$ & $1.1$ & $1.04$ \\ 
+		$22$ & $2$ & $1.05$ & $1.09$ \\ 
+		$26$ & $1$ & $1.0$ & $1.29$ \\ 
+		$30$ & $2$ & $1.07$ & $1.49$ \\ 
+		 
+		
+		\hline  
+		
+		\end{tabular}
+	
+		
+		\vspace*{0.5 cm}
+	\begin{table}
+		\begin{tabular}{|c | c | c | l |}
+			
+			\multicolumn{4}{c}{NN0 file 7} \\
+			\hline
+			Split & $\epsilon$ & $\mu$ & SpaceOVH \\ \hline
+			$1$ & $41$ & $41.0$ & $3.1\times 10^{-3}$ \\ 
+			$2$ & $36$ & $29.0$ & $6.2\times 10^{-3}$ \\ 
+			$3$ & $33$ & $27.67$ & $9.3\times 10^{-3}$ \\ 
+			$4$ & $43$ & $30.5$ & $1.24\times 10^{-2}$ \\ 
+			$5$ & $27$ & $20.2$ & $1.55\times 10^{-2}$ \\ 
+			$6$ & $31$ & $22.17$ & $1.86\times 10^{-2}$ \\ 
+			$7$ & $32$ & $19.86$ & $2.17\times 10^{-2}$ \\ 
+			$8$ & $29$ & $21.5$ & $2.48\times 10^{-2}$ \\ 
+			$9$ & $33$ & $19.0$ & $2.79\times 10^{-2}$ \\ 
+			$10$ & $24$ & $15.6$ & $3.1\times 10^{-2}$ \\ 
+			$11$ & $25$ & $15.09$ & $3.41\times 10^{-2}$ \\ 
+			$12$ & $28$ & $14.92$ & $3.72\times 10^{-2}$ \\ 
+			$13$ & $24$ & $14.46$ & $4.03\times 10^{-2}$ \\ 
+			$14$ & $26$ & $13.64$ & $4.34\times 10^{-2}$ \\ 
+			$15$ & $24$ & $12.4$ & $4.65\times 10^{-2}$ \\ 
+			$16$ & $21$ & $13.25$ & $4.96\times 10^{-2}$ \\ 
+			$17$ & $23$ & $12.65$ & $5.27\times 10^{-2}$ \\ 
+			$18$ & $21$ & $12.44$ & $5.58\times 10^{-2}$ \\ 
+			$19$ & $19$ & $10.79$ & $5.89\times 10^{-2}$ \\ 
+			$20$ & $27$ & $11.55$ & $6.2\times 10^{-2}$ \\ 
+			$21$ & $20$ & $11.05$ & $6.51\times 10^{-2}$ \\ 
+			$22$ & $20$ & $10.77$ & $6.82\times 10^{-2}$ \\ 
+			$26$ & $13$ & $9.35$ & $8.06\times 10^{-2}$ \\ 
+			$30$ & $17$ & $9.3$ & $9.3\times 10^{-2}$ \\ 
+			$34$ & $16$ & $8.53$ & $1.05\times 10^{-1}$ \\ 
+			$38$ & $13$ & $7.39$ & $1.18\times 10^{-1}$ \\ 
+			$42$ & $11$ & $7.14$ & $1.3\times 10^{-1}$ \\ 
+			$46$ & $13$ & $7.13$ & $1.43\times 10^{-1}$ \\ 
+			$50$ & $12$ & $6.8$ & $1.55\times 10^{-1}$ \\ 
+			$54$ & $13$ & $6.57$ & $1.67\times 10^{-1}$ \\ 
+			$58$ & $12$ & $6.24$ & $1.8\times 10^{-1}$ \\ 
+			$62$ & $11$ & $6.02$ & $1.92\times 10^{-1}$ \\ 
+			$64$ & $21$ & $6.0$ & $1.98\times 10^{-1}$ \\ 
+			$72$ & $9$ & $5.24$ & $2.23\times 10^{-1}$ \\ 
+			$80$ & $9$ & $4.92$ & $2.48\times 10^{-1}$ \\ 
+			$88$ & $10$ & $4.65$ & $2.73\times 10^{-1}$ \\ 
+			$96$ & $9$ & $4.38$ & $2.98\times 10^{-1}$ \\ 
+			$104$ & $8$ & $4.13$ & $3.22\times 10^{-1}$ \\ 
+			$112$ & $7$ & $3.83$ & $3.47\times 10^{-1}$ \\ 
+			$120$ & $10$ & $3.75$ & $3.72\times 10^{-1}$ \\ 
+			$128$ & $6$ & $3.52$ & $3.97\times 10^{-1}$ \\  
+			\hline  
+		\end{tabular}
+	\end{table}
+	\vspace*{0.5 cm}
+	\begin{table}
+
+	
+	\begin{tabular}{|c | c | c | l |}
+		
+		\multicolumn{4}{c}{NN0 file 10} \\
+		\hline
+		Split & $\epsilon$ & $\mu$ & SpaceOVH \\ \hline
+		$1$ & $714$ & $714.0$ & $2.42\times 10^{-5}$ \\ 
+		$2$ & $593$ & $557.5$ & $4.84\times 10^{-5}$ \\ 
+		$3$ & $494$ & $420.33$ & $7.26\times 10^{-5}$ \\ 
+		$4$ & $515$ & $428.75$ & $9.69\times 10^{-5}$ \\ 
+		$5$ & $545$ & $360.0$ & $1.21\times 10^{-4}$ \\ 
+		$6$ & $561$ & $319.17$ & $1.45\times 10^{-4}$ \\ 
+		$7$ & $538$ & $292.57$ & $1.69\times 10^{-4}$ \\ 
+		$8$ & $465$ & $298.5$ & $1.94\times 10^{-4}$ \\ 
+		$9$ & $453$ & $240.33$ & $2.18\times 10^{-4}$ \\ 
+		$10$ & $425$ & $228.6$ & $2.42\times 10^{-4}$ \\ 
+		$11$ & $338$ & $222.64$ & $2.66\times 10^{-4}$ \\ 
+		$12$ & $311$ & $200.08$ & $2.91\times 10^{-4}$ \\ 
+		$13$ & $207$ & $183.85$ & $3.15\times 10^{-4}$ \\ 
+		$14$ & $238$ & $175.07$ & $3.39\times 10^{-4}$ \\ 
+		$15$ & $254$ & $176.53$ & $3.63\times 10^{-4}$ \\ 
+		$16$ & $305$ & $196.75$ & $3.87\times 10^{-4}$ \\ 
+		$17$ & $266$ & $169.53$ & $4.12\times 10^{-4}$ \\ 
+		$18$ & $246$ & $154.06$ & $4.36\times 10^{-4}$ \\ 
+		$19$ & $193$ & $147.79$ & $4.6\times 10^{-4}$ \\ 
+		$20$ & $233$ & $144.3$ & $4.84\times 10^{-4}$ \\ 
+		$21$ & $277$ & $150.67$ & $5.08\times 10^{-4}$ \\ 
+		$22$ & $357$ & $143.0$ & $5.33\times 10^{-4}$ \\ 
+		$26$ & $209$ & $131.85$ & $6.3\times 10^{-4}$ \\ 
+		$30$ & $233$ & $116.7$ & $7.26\times 10^{-4}$ \\ 
+		$34$ & $196$ & $106.15$ & $8.23\times 10^{-4}$ \\ 
+		$38$ & $177$ & $104.55$ & $9.2\times 10^{-4}$ \\ 
+		$42$ & $214$ & $101.38$ & $1.02\times 10^{-3}$ \\ 
+		$46$ & $153$ & $88.57$ & $1.11\times 10^{-3}$ \\ 
+		$50$ & $143$ & $84.88$ & $1.21\times 10^{-3}$ \\ 
+		$54$ & $145$ & $85.07$ & $1.31\times 10^{-3}$ \\ 
+		$58$ & $133$ & $82.4$ & $1.4\times 10^{-3}$ \\ 
+		$62$ & $143$ & $80.34$ & $1.5\times 10^{-3}$ \\ 
+		$64$ & $142$ & $79.77$ & $1.55\times 10^{-3}$ \\ 
+		$72$ & $121$ & $69.71$ & $1.74\times 10^{-3}$ \\ 
+		$80$ & $134$ & $66.75$ & $1.94\times 10^{-3}$ \\ 
+		$88$ & $153$ & $65.88$ & $2.13\times 10^{-3}$ \\ 
+		$96$ & $109$ & $60.6$ & $2.32\times 10^{-3}$ \\ 
+		$104$ & $107$ & $59.13$ & $2.52\times 10^{-3}$ \\ 
+		$112$ & $99$ & $56.11$ & $2.71\times 10^{-3}$ \\ 
+		$120$ & $118$ & $54.53$ & $2.91\times 10^{-3}$ \\ 
+		$128$ & $302$ & $56.22$ & $3.1\times 10^{-3}$ \\  
+		\hline  
+	\end{tabular}
+\end{table}
+
+
 
 \bibliography{mybib}{}
 \bibliographystyle{plain}
 \end{document}
-
-4.2 problema del predecessore
-Sia X un sottoinsieme delle parti di un universo U, ordinato in base all'ordine <= definito su U. Partiamo dal presupposto che ogni elemento di U può essere rappresentato da d bit. Supponiamo anche che l'ordinamento lessicografico della rappresentazione binaria di ogni elemento in U mantiene la relazione d'ordine <=. Il problema di ricerca del predecessore consiste nel trovare la posizione della chiave più grande in X non maggiore di una data in input x, indichiamo con pos(x) la posizione di x appartenente a X nella sequenza ordinata, il problema è determinare pred(x)=pos(z) con z = max y appartente a X dove y<=x.
-
-esempio
-x={2,3,4,5,12,15,18}
-Assumiamo che 7 è la chiave da cercare. La ricerca del predecessore dovrebbe restituire la posizione 4.
-
-Dato |X|=n, sia FX la distribuzione cumulativa empirica degli elementi di U rispetto a X, per ogni x appartenente a U, F(x)X = copia. Per semplificare la notazione denotiamo FX con F. nell'esempio sopra, F(2)=1/7, F(5)=4/7, F(6)=4/7, F(18)=1. La conoscenza di F ci da una soluzione al nostro problema, dato un elemento di x appartenente a U, una sola valutazione di F fornisce pred(x)=sup(F(z)*n). Il nostro obiettivo è trovare una buona approssimazione F tilde di F.
-
-La risoluzione di questo problema potrebbe consentire di trovare un elemento all'interno di una lista ordinata in tempo O(1) invece che O(log n) degli alberi di ricerca.
-
-La rete neurale però può compiere un errore nel dare la posizione di un elemento, per questo motivo teniamo traccia dell'errore massimo ($\epsilon$) che la rete compie. Questo perchè durante la ricerca dopo che il modello ci ha dato la posizione dobbiamo effettuare una ricerca di $\epsilon$ a destra e sinistra della posizione restituita dal modello. Per questo motivo negli esperimenti ho provato a minimizzare una funzione che approssima il massimo convessa, ovvero la Log Sum Exp.
-
-4.2.1. addestramento e tuning parametri
-Diversamente da MNIST il modello MLP cerchera di risolvere un problema di regressione. La rete neurale dovrà imparare a restituire, data una chiave, F tilde.
-I parametri soggetti al tuning sono la funzione di loss, il learning rate, la taglia dei minibatch, le funzioni di attivazione.
-Per quanto riguarda la loss ho effettuato dei confronti tra MSE, MAE e LSE. 
-
-4.2.2 model selection
-4.2.3. applicazione degli algoritmi di compressione
-4.2.4. splitting in N modelli
-L'idea usata in questa sezione è quella di dividere il dataset ordinato in sottosequenze ordinate e usare una rete neurale senza strati hidden per ogni sottosequenza con l'obiettivo di ridurre l'errore massimo che sarà quindi il massimo degli errori massimi di ogni modello
