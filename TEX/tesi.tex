@@ -28,6 +28,7 @@ openright]{book}
                         (0.75em,0em) -- (-0.75em,0em);}
 \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 \renewcommand{\contentsname}{Indice}
+\newcommand{\matr}[1]{\mathbf{#1}} 
 
 \begin{document}
 
@@ -588,15 +589,177 @@ W'_{ij} = C_{N_{ij}}
 \chapter{Esperimenti}
 In questo capitolo spiegheremo gli espereminti eseguiti su due dataset differenti.
 \begin{itemize}
-\item CIFAR MNIST: problema di classificazione, il dataset è composto da un insieme di immagini che rappresentano cifre scritte a mano
+\item MNIST: problema di classificazione, il dataset è composto da un insieme di immagini che rappresentano cifre scritte a mano
 \item Sequenze ordinate di numeri: problema di regressione, il dataset è composto da sequenze di numeri rappresentati in 64 bit
 \end{itemize}
-\subsection*{Classificazione e Regressione}
+\paragraph*{Classificazione e Regressione}
 I classificatori separano i dati in due o più classi, nel caso di questo elaborato negli esperimenti con MNIST abbiamo 10 classi (le cifre tra 0 e 9).
 I regressori invece si basano sull'interpolazione dei dati per associare tra loro due o più caratteristiche (\textit{feature}). Simile alla classificazione con la differenza che l'output ha un dominio continuo.
 Entrambe le categorie sono affrontate, in questo elaborato, con apprendimento \textit{supervisionato} in cui si ha un insieme di input di esempio e il corrispettivo output desiderato con lo scopo di apprendere una regola generale in grado di mappare gli input negli output.
-\section{Problema del predecessore}
 
+\section{MNIST}
+Il dataset è una vasta base di dati di cifre scritte a mano, spesso impiegata nel campo dell'apprendimento automatico (\textit{machine learning}).
+Il dataset contiene 60000 immagini di training e 10000 immagini di testing.
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=200pt]{MnistExamples.png}
+\caption{Esempi MNIST~\cite{pict_mnist}}
+\end{center}
+\label{fig:mnist}
+\end{figure}
+
+\subsection{Addestramento e Tuning Parametri}
+Per trovare una buona configurazione abbiamo svolto una \textit{K-Fold Cross Validation}.
+\paragraph*{K-Fold Cross Validation}
+Il \textit{training set} viene diviso in \textit{k} subset, a rotazione vengono usati come \textit{training set} $k-1$ subset mentre il rimanente con \textit{validation set} (un \textit{test set} fittizio).
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=300pt]{K-fold_cross_validation_EN.jpg}
+\caption{Esempio k-fold con k=4~\cite{pict_kfold}}
+\end{center}
+\label{fig:kfold}
+\end{figure}
+
+Negli esperiamenti abbiamo fissato i seguenti parametri:
+\begin{itemize}
+\item $\eta=0.003$
+\item Funzione errore = Errore quadratico medio
+\item Funzione di attivazione degli strati \textit{hidden} = \textit{ReLU}
+\item Funzione di attivazione dello strato di output = \textit{softmax}
+\item Dimensione dei minibatch = 100 elementi
+\item Funzione di stop = 100 epoche
+\item Inizializzazione pesi = $\matr{W^l}= \matr{randn}\sqrt{\frac{2}{size^{l-1}}}$  (He et al initialization~\cite{he2015delving}) dove $\matr{randn}$ è una matrice di numeri casuali estratti da una distribuzione normale standard, $l$ rappresenta lo strato e $size^{l-1}$ il numero di neuroni dello strato precedente.
+\end{itemize}
+
+I parametri di cui vogliamo trovare la configurazione migliore sono invece:
+\begin{itemize}
+\item Modello (ovvero quanti neuroni e quanti neuroni per ogni strato hidden)
+\item Dropout (\% di neuroni negli strati hidden non utilizzati nella fase di training)
+\end{itemize}
+
+\paragraph*{Dropout}
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=200pt]{dropout.jpeg}
+\caption{Esempio dropout~\cite{10.5555/2627435.2670313}} 
+\end{center}
+\label{fig:dropout}
+\end{figure}
+Il \textit{dropout}~\cite{10.5555/2627435.2670313} è una tecnica utilizzata per evitare l'overfitting (ovvero imparare troppo dagli esempi del \textit{training set} senza imparare a generalizzare) mediante l'eliminazione di alcuni neuroni casuali in ogni strato ad eccezione dello strato di output. I neuroni da eliminare cambiamo ogni epoca, durante la fase di predizione invece sono attivi tutti i neuroni.
+Nell'elaborato è stata utilizzata la versione chiamata \textit{inverted dropout}
+\begin{equation}
+\matr{drop_l}=(\matr{rand} < p)/p  \qquad
+\matr{output_l}=\matr{output_l} * \matr{drop_l}
+\label{drop}
+\end{equation}
+dove $\matr{output_l}$ rappresenta l'output di un generico strato $l$, mentre \textbf{rand} rappresenta una matrice di numeri casuali estratti da una distribuzione uniforme nell'intervallo $[0,1)$ della stessa dimensione di \textbf{$output_l$}. $p$ invece è un parametro che rappresenta la probabilità di tenere attivo un neurone.
+
+\vspace*{\fill}
+\begin{center}
+
+\begin{table}[]
+  \small
+  \caption{MLP con uno strato hidden}\label{tab:tab1}
+\begin{center}
+\begin{tabular}{@{}cc|cc@{}}
+
+\hline\\[-11pt]
+\hline\\[-6.5pt]
+\multicolumn{2}{c}{\bf $p=0.75$} & \multicolumn{2}{c}{\bf $p=1$ } \\[5pt]
+\hline\\[-11pt]
+\texttt{neuroni} & \texttt{accuratezza} & \texttt{neuroni} & \texttt{accuratezza} \\[1pt]
+$100$ & $97.64$ & $100$ & $97.38$ \\ [1pt]
+$125$ & $97.63$ & $125$ & $97.57$ \\ [1pt]
+$150$ & $97.72$ & $150$ & $94.41$ \\ [1pt]
+$175$ & $97.75$ & $175$ & $97.81$ \\ [1pt]
+$200$ & $97.83$ & $200$ & $94.29$ \\ [1pt]
+$225$ & $97.82$ & $225$ & $94.75$ \\ [1pt]
+$250$ & $97.82$ & $250$ & $94.88$ \\ [1pt]
+$275$ & $97.84$ & $275$ & $95.25$ \\ [1pt]
+$300$ & $97.86$ & $\textbf{300}$ & $\textbf{98.08}$ \\ [1pt]
+\hline\\[-11pt]
+\hline\\[-8pt]
+\end{tabular}\\[5pt]
+\end{center}
+\normalsize
+\end{table}
+\end{center}
+
+\vspace*{\fill}
+\begin{center}
+
+\begin{table}[]
+  \small
+  \caption{MLP con due strato hidden}\label{tab:tab1}
+\begin{center}
+\begin{tabular}{@{}cc|cc@{}}
+
+\hline\\[-11pt]
+\hline\\[-6.5pt]
+\multicolumn{2}{c}{\bf $p=0.75$} & \multicolumn{2}{c}{\bf $p=1$ } \\[5pt]
+\hline\\[-11pt]
+\texttt{neuroni} & \texttt{accuratezza} & \texttt{neuroni} & \texttt{accuratezza} \\[1pt]
+$50$ - $25$ & $97.14$ & $50$ - $25$ & $97.08$ \\ [1pt]
+$50$ - $50$ & $97.26$ & $50$ - $50$ & $96.82$ \\ [1pt]
+$75$ - $25$ & $97.43$ & $75$ - $25$ & $97.43$ \\ [1pt]
+$75$ - $50$ & $97.52$ & $75$ - $50$ & $97.51$ \\ [1pt]
+$75$ - $75$ & $97.51$ & $75$ - $75$ & $97.49$ \\ [1pt]
+$100$ - $25$ & $97.53$  &  $100$ - $25$ & $97.54$ \\ [1pt]
+$100$ - $50$ & $97.66$  &  $100$ - $50$ & $97.62$ \\ [1pt]
+$100$ - $75$ & $97.62$  &  $100$ - $75$ & $97.63$ \\ [1pt]
+$100$ - $100$ & $97.67$  & $100$ - $100$ & $97.67$ \\ [1pt]
+$125$ - $25$ & $97.68$  &  $125$ - $25$ & $97.62$ \\ [1pt]
+$125$ - $50$ & $97.77$ &  $125$ - $50$ & $97.7$ \\ [1pt]
+$125$ - $75$ & $97.72$  &  $125$ - $75$ & $97.68$ \\ [1pt]
+$125$ - $100$ & $97.73$  & $125$ - $100$ & $97.74$ \\ [1pt]
+$125$ - $125$ & $97.74$  & $125$ - $125$ & $97.77$ \\ [1pt]
+$150$ - $25$ & $97.76$  &  $150$ - $25$ & $97.59$ \\ [1pt]
+$150$ - $50$ & $97.71$ &  $150$ - $50$ & $97.8$ \\ [1pt]
+$150$ - $75$ & $97.76$  &  $150$ - $75$ & $97.76$ \\ [1pt]
+$150$ - $100$ & $97.75$  & $150$ - $100$ & $97.85$ \\ [1pt]
+$150$ - $125$ & $97.78$  & $150$ - $125$ & $97.74$ \\ [1pt]
+$150$ - $150$ & $97.75$  &  $150$ - $150$ & $97.8$ \\ [1pt]
+$175$ - $25$ & $97.78$  &  $175$ - $25$ & $97.71$ \\ [1pt]
+$175$ - $50$ & $97.85$ &  $175$ - $50$ & $97.8$ \\ [1pt]
+$175$ - $75$ & $97.8$ &  $175$ - $75$ & $97.8$ \\ [1pt]
+$175$ - $100$ & $97.83$  &  $175$ - $100$ & $97.8$ \\ [1pt]
+$175$ - $125$ & $97.85$  &  $175$ - $125$ & $97.8$ \\ [1pt]
+$175$ - $150$ & $97.82$  & $175$ - $150$ & $97.86$ \\ [1pt]
+$175$ - $175$ & $97.85$  & $175$ - $175$ & $97.84$ \\ [1pt]
+$200$ - $25$ & $97.81$  &  $200$ - $25$ & $97.82$ \\ [1pt]
+$200$ - $50$ & $97.83$  &  $200$ - $50$ & $97.83$ \\ [1pt]
+$200$ - $75$ & $97.83$ &  $200$ - $75$ & $97.9$ \\ [1pt]
+$200$ - $100$ & $97.88$  & $200$ - $100$ & $97.89$ \\ [1pt]
+$200$ - $125$ & $97.91$  & $200$ - $125$ & $97.85$ \\ [1pt]
+$200$ - $150$ & $97.84$  & $200$ - $150$ & $97.85$ \\ [1pt]
+$200$ - $175$ & $97.84$  & $200$ - $175$ & $97.89$ \\ [1pt]
+$200$ - $200$ & $97.86$  & $200$ - $200$ & $97.83$ \\ [1pt]
+$225$ - $25$ & $97.84$ & $225$ - $25$ & $97.86$ \\ [1pt]
+$225$ - $50$ & $97.87$ &  $225$ - $50$ & $97.8$ \\ [1pt]
+$225$ - $75$ & $97.92$ &  $225$ - $75$ & $97.9$ \\ [1pt]
+$225$ - $100$ & $97.86$  & $225$ - $100$ & $97.79$ \\ [1pt]
+$225$ - $125$ & $97.85$  & $225$ - $125$ & $97.85$ \\ [1pt]
+$225$ - $150$ & $97.94$  & $225$ - $150$ & $97.94$ \\ [1pt]
+$225$ - $175$ & $97.88$  & $225$ - $175$ & $97.89$ \\ [1pt]
+$225$ - $200$ & $97.91$  &  $225$ - $200$ & $97.9$ \\ [1pt]
+$250$ - $25$ & $97.86$  &  $250$ - $25$ & $97.84$ \\ [1pt]
+$250$ - $50$ & $97.91$  &  $250$ - $50$ & $97.87$ \\ [1pt]
+$250$ - $75$ & $97.86$  &  $250$ - $75$ & $97.88$ \\ [1pt]
+$250$ - $100$ & $97.91$  & $250$ - $100$ & $97.91$ \\ [1pt]
+$250$ - $125$ & $97.93$  & $250$ - $125$ & $97.94$ \\ [1pt]
+$250$ - $150$ & $97.93$  &  $250$ - $150$ & $97.9$ \\ [1pt]
+$250$ - $175$ & $97.86$  &  $250$ - $175$ & $97.9$ \\ [1pt]
+$250$ - $200$ & $97.89$  & $250$ - $200$ & $97.92$ \\ [1pt]
+\hline\\[-11pt]
+\hline\\[-8pt]
+\end{tabular}\\[5pt]
+\end{center}
+\normalsize
+\end{table}
+\end{center}
+
+\section{Problema del predecessore}
 Sia $X$ un sottoinsieme delle parti di un universo $U$, ordinato in base all'ordine $\leq$ definito su $U$. Partiamo dal presupposto che ogni elemento di $U$ può essere rappresentato da $d$ bit. Supponiamo anche che l'ordinamento lessicografico della rappresentazione binaria di ogni elemento in $U$ mantiene la relazione d'ordine $\leq$. Il problema di ricerca del predecessore consiste nel trovare la posizione della chiave più grande in $X$ non maggiore di una data in input $x$, indichiamo con $pos(x)$ la posizione di $x$ appartenente a $X$ nella sequenza ordinata, il problema è determinare $pred(x)=pos(z)$ con $z = \max y \in X$ dove $y \leq x$.
 \begin{equation}
 x=\{2,3,4,5,12,15,18\}
@@ -607,22 +770,21 @@ Dato $|X|=n$, sia $F_{X}$ la distribuzione cumulativa empirica degli elementi di
 La risoluzione di questo problema potrebbe consentire di trovare un elemento all'interno di una lista ordinata in tempo $O(1)$ invece che $O(\log n)$ degli alberi di ricerca.
 La rete neurale però può compiere un errore nel dare la posizione di un elemento, per questo motivo teniamo traccia dell'errore massimo ($\epsilon$) che la rete compie. Questo perchè durante la ricerca dopo che il modello ci ha dato la posizione dobbiamo effettuare una ricerca di $\epsilon$ a destra e sinistra della posizione restituita dal modello. Per questo motivo negli esperimenti abbiamo provato a minimizzare una funzione che approssima il massimo convessa, ovvero la \textit{Log Sum Exp}.
 Diversamente da MNIST il modello MLP cerchera di risolvere un problema di regressione. La rete neurale dovrà imparare a restituire, data una chiave, $\tilde{F}$.
-\section*{Regressione e classificazione}
 
-\section{Addestramento e Tuning Parametri}
+\subsection{Addestramento e Tuning Parametri}
 Diversamente da MNIST il modello MLP cerchera di risolvere un problema di regressione. La rete neurale dovrà imparare a restituire, data una chiave, $\tilde{F}$.
 I parametri soggetti al tuning sono la funzione di errore, il learning rate ($\eta$), la taglia dei minibatch, le funzioni di attivazione.
-Per quanto riguarda la loss ho effettuato dei confronti tra MSE, MAE e LSE. 
+Per quanto riguarda la loss ho effettuato dei confronti tra MSE (Mean Square Error), MAE (Mean Absolute Error) e LSE (log sum exp). 
 
-\section{Applicazione degli algoritmi di compressione}
-\section{Splitting in N modelli}
+\subsection{Applicazione degli algoritmi di compressione}
+\subsection{Splitting in N modelli}
 L'idea usata in questa sezione è quella di dividere il dataset ordinato in sottosequenze ordinate e usare una rete neurale senza strati hidden per ogni sottosequenza con l'obiettivo di ridurre l'errore massimo $\epsilon$ che sarà quindi il massimo degli errori massimi di ogni modello.
 
 \begin{itemize}
 		\item Split = Numero di split sul dataset (e di conseguenza numero di modelli NN0 usati)
 		\item $\epsilon$ = Massimodegli errori massimi di ogni NN0
 		\item $\mu$ = Media degli errpri massimi di ogni NN0
-		\item SpaceOVH =  spazio del modelli in KB rispetto al dataset
+		\item SpaceOVH =  spazio dei modelli in KB rispetto al dataset
 	\end{itemize}
 	
 		\begin{tabular}{| c | c | c | l |}
