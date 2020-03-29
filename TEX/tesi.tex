@@ -1,5 +1,6 @@
 \documentclass[11pt,a4paper,twoside,
 openright]{book}
+\usepackage[italian]{babel}
 \usepackage{fullpage}
 \usepackage{amsmath}
 \usepackage{mathtools}
@@ -14,8 +15,10 @@ openright]{book}
 \usepackage{makeidx}
 \usepackage{pgf}
 \usepackage{tikz}
+
 \usetikzlibrary{decorations.pathreplacing}
 \usetikzlibrary{fadings}
+\usetikzlibrary{positioning,calc}
 \usetikzlibrary{arrows,shapes,snakes,automata,backgrounds,petri}
 \tikzset{basic/.style={draw,fill=blue!50!green!20,
                        text badly centered,minimum width=3em}}
@@ -49,12 +52,12 @@ openright]{book}
 %\end{center}
 
 \begin{center}
-{\LARGE Corso di Laurea F1X}
+{\LARGE Corso di Laurea in Informatica}
 \end{center}
 
 \begin{center}
 \vspace{3 cm}
-{\Large \textsc{Compressione di reti neurali in problemi \\ di classificazione e regressione} }
+{\Large \textsc{Compressione di reti neurali \\ in problemi  di classificazione e regressione} }
 \end{center}
 \par
   \vspace{3 cm}
@@ -84,7 +87,7 @@ BLABLA
 Blablabla said Nobody ~\cite{Nobody06}.
 \chapter{Reti Neurali}
 \section{Reti Neurali Biologiche}
-I neuroni sono delle celle elettricamente attive ed il cervello umano ne contiene circa $10^{11}$. La maggior parte di essi ha la forma indicata in figura~\ref{fig:neurbio}. I dendriti rappresentano gli ingressi del neurone mentre l’assone ne rappresenta l’uscita. La comunicazione tra i neuroni avviene alle giunzioni, chiamate sinapsi. Ogni neurone è tipicamente connesso ad un migliaio di altri neuroni e, di conseguenza, il numero di sinapsi nel cervello supera $10^{14}$.
+I neuroni sono delle celle elettricamente attive e il sistema nervoso centrale ne contiene circa $10^{11}$. La maggior parte di essi ha la forma indicata in Figura~\ref{fig:neurbio}. I dendriti rappresentano gli ingressi del neurone mentre l’assone ne rappresenta l’uscita. La comunicazione tra i neuroni avviene alle giunzioni, chiamate sinapsi. Ogni neurone è tipicamente connesso ad un migliaio di altri neuroni e, di conseguenza, il numero di sinapsi nel cervello supera $10^{14}$.
 \begin{figure}[h!]
 \begin{center}
 \includegraphics[width=200pt]{BioNeuron.png}
@@ -93,10 +96,11 @@ I neuroni sono delle celle elettricamente attive ed il cervello umano ne contien
 \label{fig:neurbio}
 \end{figure}
 
-Ogni neurone si può trovare principalmente in 2 stati: attivo o a riposo. Quando il neurone si attiva esso produce un potenziale di azione (impulso elettrico) che viene trasportato lungo l’assone. Una volta che il segnale raggiunge la sinapsi esso provoca il rilascio di sostanze chimiche (neurotrasmettitori) che attraversano la giunzione ed entrano nel corpo di altri neuroni. In base al tipo di sinapsi, che possono essere eccitatori o inibitori, queste sostanze aumentano o diminuiscono rispettivamente la probabilità che il successivo neurone si attivi. Ad ogni sinapsi è associato un peso che ne determina il tipo e l’ampiezza dell’effetto eccitatore o inibitore. Quindi, in poche parole, ogni neurone effettua una somma pesata degli ingressi provenienti dagli altri neuroni e, se questa somma supera una certa soglia, il neurone si attiva.\\
+Ogni neurone si può trovare principalmente in 2 stati: attivo o a riposo. Quando il neurone si attiva, esso produce un potenziale di azione (impulso elettrico) che viene trasportato lungo l’assone. Una volta che il segnale raggiunge la sinapsi esso provoca il rilascio di sostanze chimiche (neurotrasmettitori) che attraversano la giunzione ed entrano nel corpo di altri neuroni. In base al tipo di sinapsi, che possono essere eccitatori o inibitori, queste sostanze aumentano o diminuiscono rispettivamente la probabilità che il successivo neurone si attivi. Ad ogni sinapsi è associato un peso che ne determina il tipo e l’ampiezza dell’effetto eccitatore o inibitore. Quindi, in poche parole, ogni neurone effettua una somma pesata degli ingressi provenienti dagli altri neuroni e, se questa somma supera una certa soglia, il neurone si attiva.\\
 Ogni neurone, operando ad un ordine temporale del millisecondo, rappresenta un sistema di elaborazione relativamente lento; tuttavia, l’intera rete ha un numero molto elevato di neuroni e sinapsi che possono operare in modo parallelo e simultaneo, rendendo l’effettiva potenza di elaborazione molto elevata. Inoltre la rete neurale biologica ha un’alta tolleranza ad informazioni poco precise (o sbagliate), ha la facoltà di apprendimento e generalizzazione.
 
 \section{Reti Neurali Artificiali}
+\label{section:retiartificiali}
 Ci concentreremo su una classe particolare di modelli di reti neurali: le reti a catena aperta (feedforward). Queste reti possono essere viste come funzioni matematiche non lineari che trasformano un insieme di variabili indipendenti $x = (x_{1}, ... , x_{d})$, chiamate ingressi della rete, in un insieme di variabili dipendenti $y = (y_{1}, ... , y_{c})$, chiamate uscite della rete. La precisa forma di queste funzioni dipende dalla struttura interna della rete e da un insieme di valori $w = (w_{1}, ... , w_{d})$, chiamati pesi. Possiamo quindi scrivere la funzione della rete nella forma $y = y(x; w)$ che denota il fatto che $y$ sia una funzione di $x$ parametrizzata da $w$.
 
 \begin{figure}[h!]
@@ -133,76 +137,76 @@ Ci concentreremo su una classe particolare di modelli di reti neurali: le reti a
 \end{figure}
 \subsection*{Modello di McCulloch-Pitts}
 
-Un semplice modello matematico di un singolo neurone è quello rappresentato in figura~\ref{fig:mcpitts} ed è stato proposto da McCulloch e Pitts ~\cite{McCulloch:1943aa} alle origini delle reti neurali. Esso può essere visto come una funzione non lineare che trasforma le variabili di ingresso $x_{1}, ..., x_{d}$ nella variabile di uscita $z$. Nell’elaborato ci riferiremo a questo modello come unità di elaborazione, o semplicemente unità.
-In questo modello, viene effettuata la somma ponderata degli ingressi, usando come pesi i valori $w_{1}, ..., w_{d}$ (che sono analoghi alle potenze delle sinapsi nella rete biologica), ottenendo così:
+Un semplice modello matematico di un singolo neurone è quello rappresentato in Figura~\ref{fig:mcpitts} ed è stato proposto da McCulloch e Pitts ~\cite{McCulloch:1943aa} alle origini delle reti neurali. Esso può essere visto come una funzione non lineare che trasforma le variabili di ingresso $x_{1}, ..., x_{d}$ nella variabile di uscita $z$. Nell’elaborato ci riferiremo a questo modello come unità di elaborazione, o semplicemente unità.
+In questo modello, viene effettuata la somma ponderata degli ingressi, usando come pesi i valori $w_{1}, ..., w_{d}$ (che sono analoghi alle potenze delle sinapsi nella rete biologica), ottenendo così
 \begin{equation}
 a = \sum\limits_{i=1}^d w_{i}x_{i}+b
 \label{som+b}
 \end{equation}
-
-dove il parametro $b$ viene chiamato bias (corrisponde alla soglia di attivazione del neurone biologico). Se definiamo un ulteriore ingresso $x_{0}$, impostato costantemente a 1, possiamo scrivere l'equazione~\eqref{som+b} come:
+dove il parametro $b$ viene chiamato bias (corrisponde alla soglia di attivazione del neurone biologico). Se definiamo un ulteriore ingresso $x_{0}$, impostato costantemente a 1, possiamo scrivere~\eqref{som+b} come
 \begin{equation}
 a = \sum\limits_{i=0}^d w_{i}x_{i}
 \label{som}
 \end{equation}
-dove $x_{0}$ = 1. Precisiamo che i valori dei pesi possono essere di qualsiasi segno, che dipende dal tipo di sinapsi. L’uscita $z$ (che può essere vista come tasso medio di attivazione del neurone biologico) viene ottenuta applicando ad a una trasformazione non lineare $g()$, chiamata funzione di attivazione, ottenendo 
+dove $x_{0}$ = 1. Precisiamo che i valori dei pesi possono essere di qualsiasi segno, che dipende dal tipo di sinapsi. L’uscita $z$ (che può essere vista come tasso medio di attivazione del neurone biologico) viene ottenuta applicando ad $a$ una trasformazione non lineare $g$, chiamata funzione di attivazione, ottenendo 
 \begin{equation}
-z=g(a)=g\left( \sum\limits_{i=1}^d w_{i}x_{i} \right).
+z=g(a)=g\left( \sum\limits_{i=0}^d w_{i}x_{i} \right).
 \label{act+som}
 \end{equation}
-Il modello originale di McCulloch-Pitts usava la funzione gradino
+Il modello originale di McCulloch-Pitts usava come attivazione la funzione gradino
 \begin{equation}
 g(a)=
 \begin{cases}
-1 &\text{ se } a\geq0 \\
--1 &\text{ altrimenti}
+1 &\text{ se } a\geq0, \\
+-1 &\text{ altrimenti}.
 \end{cases}
 \label{act+som}
 \end{equation}
 
 \section{Addestramento della rete}
-Abbiamo detto che una rete neurale può essere rappresentata dal modello matematico $y = y(x; w)$, che è una funzione di $x$ parametrizzata dai pesi $w$. Prima di poter utilizzare questa rete, dobbiamo identificare il modello, ovvero dobbiamo determinare tutti i parametri $w$. Il processo di determinazione di questi parametri è chiamato addestramento e può essere un’azione molto intensa dal punto di vista computazionale. Tuttavia, una volta che sono stati definiti i pesi, nuovi ingressi possono essere processati molto rapidamente.
-Per addestrare una rete abbiamo bisogno di un insieme di esempi, chiamato insieme di addestramento (\textit{training set}), i cui elementi sono coppie $(x^{q}, t^{q})$, $q = 1, ..., n$, dove $t^{q}$ rappresenta il valore di uscita desiderato, chiamato target, in corrispondenza del ingresso $x^{q}$. 
+\label{addestramento}
+Abbiamo detto che una rete neurale può essere rappresentata dal modello matematico $y = y(x; w)$, che è una funzione di $x$ parametrizzata dai pesi $w$. Prima di poter utilizzare questa rete, dobbiamo identificare il modello, ovvero dobbiamo determinare tutti i parametri $w$. Il processo di determinazione di questi parametri è chiamato addestramento e può essere un’azione molto intensa dal punto di vista computazionale. Tuttavia, una volta che sono stati definiti i pesi, nuovi ingressi possono essere elaborati molto rapidamente.
+Per addestrare una rete abbiamo bisogno di un insieme di esempi, chiamato insieme di addestramento (\textit{training set}), i cui elementi sono coppie $(x^{q}, t^{q})$, $q = 1, ..., n$, dove $t^{q}$ rappresenta il valore di uscita desiderato, chiamato target, in corrispondenza dell'ingresso $x^{q}$. 
 L’addestramento consiste nella ricerca dei valori per i parametri $w$ che minimizzano un’opportuna funzione di errore. Ci sono diverse forme di questa funzione, la più usata risulta essere la somma dei quadrati residui. I residui sono definiti come:
 \begin{equation}
 r_{qk} = y_{k}\left(x^{q}; w\right) - t^{q}_{k}
 \label{res}
 \end{equation}
-La funzione di errore E risulta allora essere:
+La funzione di errore $E$ risulta allora essere:
 \begin{equation}
 E = \sum\limits_{q=1}^n \sum\limits_{k=1}^c r_{qk}^{2}
 \label{quadres}
 \end{equation}
-é facile osservare che E dipende da $x^{q}$ e da $t^{q}$ che sono valori noti e da $w$ che è incognito, quindi E è in realtà una funzione dei soli pesi $w$.
+é facile osservare che $E$ dipende da $x^{q}$ e da $t^{q}$ che sono valori noti e da $w$ che è incognito, quindi E è in realtà una funzione dei soli pesi $w$.
 
 \section{Funzioni di attivazione}
-Le funzioni di attivazione sono equazioni matematiche che determinano l'output di una rete neurale.
-Le funzioni utilizzate principalmente negli esperimenti di questo elaborato sono tre: \textit{sigmoid}, \textit{ReLU} (\textit{Rectified Linear Units}) e \textit{Leaky-ReLU}.
+Come già introdotto nel Paragrafo~\ref{section:retiartificiali}, le funzioni di attivazione determinano l'output di una rete neurale.
+Le funzioni utilizzate principalmente negli esperimenti di questo elaborato sono tre: \textit{sigmoid}, \textit{ReLU} (\textit{Rectified Linear Units}) e \textit{LeakyReLU} descritte in (\ref{sigmoid}-\ref{lrelu}).
 Le funzioni di attivazione sono non-lineari e la loro derivata è calcolabile in modo analitico per velocizzare la computazione.
 
 \begin{equation}
-sigmoid(a) = \frac{1}{1+e^{-x}} \qquad
-sigmoid'(a) = sigmoid(a)(1-sigmoid(a))
+\mathrm{sigmoid}(a) = \frac{1}{1+e^{-a}}, \qquad
+\mathrm{sigmoid}'(a) = \mathrm{sigmoid}(a)(1-\mathrm{sigmoid}(a)).
 \label{sigmoid}
 \end{equation}
 
 \begin{equation}
-ReLU(a) = \max(0,a) \qquad
+\mathrm{ReLU}(a) = \max(0,a), \qquad
 ReLU'(a) = \begin{cases}
-1 &\text{ se } a\geq0 \\
-0 &\text{ altrimenti}
+1 &\text{ se } a\geq0, \\
+0 &\text{ altrimenti}.
 \end{cases}
 \label{relu}
 \end{equation}
 
 \begin{equation}
-Leaky-ReLU(a) = \begin{cases}
-a &\text{ se } a\geq0 \\
-- \alpha a &\text{ altrimenti}
+\mathrm{LeakyReLU}(a) = \begin{cases}
+a &\text{ se } a\geq0, \\
+- \alpha a &\text{ altrimenti}.
 \end{cases} \qquad
-Leaky-ReLU'(a) = \begin{cases}
-1 &\text{ se } a\geq0 \\
-\alpha &\text{ altrimenti}
+\mathrm{LeakyReLU}'(a) = \begin{cases}
+1 &\text{ se } a\geq0, \\
+\alpha &\text{ altrimenti}.
 \end{cases}
 \label{lrelu}
 \end{equation}
@@ -232,12 +236,14 @@ La scelta della funzione è guidata dal tipo di problema che si vuole affrontare
     % This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
         \node[input neuron] (I-\name) at (0,-\y-1) {$x_\y$};
 	\node[input neuron] (I-d) at (0,-4-1) {$x_d$};
-    
+    \node (dot) at (0,-4.4) {$\vdots$};
     %\node[annot,pin={[pin edge={->}]right:bias}, left of=I-0] (O) {};
 	\node[annot,pin={[pin edge={->}]below:},above of=I-0, node distance=1.5cm] {$bias$};
     % Draw the output layer node
     \node[output neuron, right of=I-1] (O) {$z_1$};
+    \node[right of=I-2] (dot) {$\vdots$};
     \node[output neuron, right of=I-3] (O2) {$z_m$};
+	%\node[below of=I-1] (dots) {$\vdots$} -- (dots) node[left of=dots] (ldots) {$\vdots$};
 
     % Connect every node in the input layer with every node in the
     % hidden layer.
@@ -258,7 +264,7 @@ La scelta della funzione è guidata dal tipo di problema che si vuole affrontare
 \caption{MLP a uno strato}
 \label{fig:MLP1}
 \end{figure}
-Nella sezione precedente abbiamo trattato la singola unità di elaborazione descritta dall'equazione~\eqref{act+som}. Consideriamo ora un insieme di $m$ unità, con ingressi comuni, otteniamo una rete neurale a singolo strato come in figura~\ref{fig:MLP1}. Le uscite di questa rete sono date da
+Nella sezione precedente abbiamo trattato la singola unità di elaborazione descritta in~\eqref{act+som}. Consideriamo ora un insieme di $m$ unità, con ingressi comuni, otteniamo una rete neurale a singolo strato come in Figura~\ref{fig:MLP1}. Le uscite di questa rete sono date da
 \begin{equation}
 z_j = g\left(\sum\limits_{i=0}^d w_{ji}x_i\right), \quad
 j=1,..,m
@@ -287,6 +293,8 @@ dove $w_{ij}$ rappresenta il peso che connette l'ingresso $i$ con l'uscita $j$; 
     % This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
         \node[input neuron] (I-\name) at (0,-\y-1) {$x_\y$};
 	\node[input neuron] (I-d) at (0,-3-1) {$x_d$};
+    \node (dot) at (0,-3.4) {$\vdots$};
+
     % Draw the input layer nodes
     %\foreach \name / \y in {1,...,4}
     % This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
@@ -301,7 +309,8 @@ dove $w_{ij}$ rappresenta il peso che connette l'ingresso $i$ con l'uscita $j$; 
     % This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
         \node[input neuron] (H-\y) at (\layersep,-\y) {$z_\y$};
 	\node[input neuron] (H-m) at (\layersep,-5) {$z_m$};    
-    
+    \node (dot) at (\layersep,-4.4) {$\vdots$};
+
     %\foreach \N in {1,...,\Nhidden} {
     %   \foreach \y in {1,...,5} {
     %      \path[yshift=0.5cm]
@@ -314,7 +323,8 @@ dove $w_{ij}$ rappresenta il peso che connette l'ingresso $i$ con l'uscita $j$; 
     % Draw the output layer node
     \node[input neuron, right of=H-2] (O) {$y_1$};
     \node[input neuron, below of=O] (Oc) {$y_c$};
-
+    %\node (dot) at (\layersep*2,-2.6) {$\vdots$};
+	\node(dot) at ($(O)!0.4!(Oc)$) {$\vdots$};
     % Connect every node in the input layer with every node in the
     % hidden layer.
     \foreach \source in {0,...,2}
@@ -347,31 +357,32 @@ dove $w_{ij}$ rappresenta il peso che connette l'ingresso $i$ con l'uscita $j$; 
 \label{fig:MLP2}
 \end{center}
 \end{figure}
-Per ottenere reti più potenti è necessario considerare reti aventi più strati chiamate \textit{multilayer perceptron}. Le unità centrali rappresentano lo strato nascosto (\textit{hidden}) perchè il valore di attivazione delle singole unità di questo strato non sono misurabili dall'esterno. L'attivazione di queste unità è data dall'equazione~\eqref{rete1}. Le uscite della rete vengono ottenute tramite una seconda trasformazione, analoga alla prima, sui valori $z_j$ ottenendo
+Per ottenere reti più potenti\footnote{un percettrone mono-strato non è in grado di esprimere tutte le funzioni possibili, mentre un percettrone a più strati lo è~\cite{cybenko}.} è necessario considerare reti aventi più strati chiamate \textit{multilayer perceptron} come in Figura~\ref{fig:MLP2}. Le unità centrali rappresentano lo strato nascosto (\textit{hidden}) perchè il valore di attivazione delle singole unità di questo strato non sono misurabili dall'esterno. L'attivazione di queste unità è data da~\eqref{rete1}. Le uscite della rete vengono ottenute tramite una seconda trasformazione, analoga alla prima, sui valori $z_j$ ottenendo
 \begin{equation}
 y_k = \tilde{g}\left(\sum\limits_{j=0}^m \tilde{w}_{kj}z_i\right), \quad
 k=1,..,c
 \label{rete2}
 \end{equation}
-dove $\tilde{w}_{kj}$ rappresenta il peso del secondo strato che connette l'unità nascosta $j$ all'unità di uscita $k$. Sostituendo l'equazione~\eqref{rete1} nell'equazione~\eqref{rete2} otteniamo:
+dove $\tilde{w}_{kj}$ rappresenta il peso del secondo strato che connette l'unità nascosta $j$ all'unità di uscita $k$. Sostituendo~\eqref{rete1} in~\eqref{rete2} otteniamo
 \begin{equation}
 y_k = \tilde{g}\left( \sum\limits_{j=0}^m \tilde{w}_{kj}g\left(\sum\limits_{i=0}^d w_{ji}x_i\right) \right), \quad
-k=1,..,c
+k=1,..,c.
 \label{rete2.1}
 \end{equation}
-La funzione di attivazione $\tilde{g}$, applicata alle unità di uscità può essere diversa dalla funzione di attivazione $g$, applicata alle unità nascoste.
+La funzione di attivazione $\tilde{g}$, applicata alle unità di uscita, può essere diversa dalla funzione di attivazione $g$, applicata alle unità nascoste.
 
-Per ottenere una capacità di rappresentazione universale, la funzione di attivazione $g$ delle unità nascoste deve essere scelta non lineare. Se $g$ e $\tilde{g}$ fossero entrambe lineari l'equazione~\eqref{rete2.1} diventerebbe un prodotto tra matrici, che è esso stesso una matrice. Inoltre, come vedremo più avanti, le funzioni di attivazione devono essere differenziabili.
+Per ottenere una capacità di rappresentazione universale, la funzione di attivazione $g$ delle unità nascoste deve essere scelta non lineare. Se $g$ e $\tilde{g}$ fossero entrambe lineari,~\eqref{rete2.1} diventerebbe un prodotto tra matrici, che è esso stesso una matrice. Inoltre, come vedremo più avanti, le funzioni di attivazione devono essere differenziabili.
 \subsection{Addestramento}
-L'addestramento consiste nella ricerca dei valori $\textbf{w}=(w_1,..,w_d)$ che minimizzano la funzione di errore $E(\textbf{w})$.
+L'addestramento consiste nella ricerca dei valori $\textbf{w}=(w_1,..,w_n)$ \footnote{con $\textbf{w}$ intendiamo i pesi di ogni strato} che minimizzano la funzione di errore $E(\textbf{w})$ (Capitolo~\ref{addestramento}).
 La ricerca del minimo avviene in modo iterativo partendo da un valore iniziale $\textbf{w}$, scelto in modo casuale o tramite un criterio. Alcuni algoritmi trovano il minimo locale più vicino al punto iniziale, mentre altri riescono a trovare il minimo globale.
 
 Diversi algoritmi di ricerca del punto minimo fanno uso delle derivate parziali della funzione di errore $E$, ovvero del suo vettore gradiente $\nabla E$. Questo vettore indica la direzione ed il verso di massima crescita di $E$ nel punto $\textbf{w}$.
-\subsection*{Error back-propagation~\cite{Rumelhart20081B}}
+\subsection*{Error back-propagation}
+L'algoritmo di \textit{Error back-propagation}~\cite{Rumelhart20081B} confronta il valore in uscita con il valore desiderato. Sulla base della differenza calcolata, l'algoritmo modifica i pesi della rete neurale, facendo convergere progressivamente il set dei valori di uscita verso quelli desiderati.
 Consideriamo come funzione errore la somma dei quadrati residui~\eqref{quadres}. 
 \begin{equation}
-E = \sum\limits_{q=1}^n E^{q} \qquad
-E^q = \sum\limits_{k=1}^c [y_k (x^q;w) - t_{k}^{q}]^2
+E = \sum\limits_{q=1}^n E^{q}, \qquad
+E^q = \sum\limits_{k=1}^c [y_k (x^q;w) - t_{k}^{q}]^2.
 \label{resq}
 \end{equation}
 
@@ -464,7 +475,7 @@ Ottenendo infine
 che ha la stessa semplice forma dell'equazione~\eqref{deltaz}.
 Elenchiamo quindi i passi da seguire per valutare la derivata della funzione E:
 \begin{itemize}
-\item Per ogni coppia $(\textbf{x}^q,\textbf{t}^q)$ valutare le attivazioni delle unità nascoste e di uscita usando le equazioni~\eqref{aj} e~\eqref{ak};
+\item Per ogni coppia $(x^q,t^q)$ valutare le attivazioni delle unità nascoste e di uscita usando le equazioni~\eqref{aj} e~\eqref{ak};
 \item Valutare il valore $\tilde{\delta}_k$ per $k=1,..,c$ usando equazione~\eqref{delta};
 \item Valutare il valore $\delta_j$ per $j=1,..,m$ usando equazione~\eqref{delta2};
 \item Valutare il valore di $E^q$ usando le equazioni~\eqref{deltax} e~\eqref{deltaz};
@@ -480,10 +491,10 @@ w_{ij}^{(t)}=w_{ij}^{(t-1)} + \Delta w_{ij}^{(t)},
 \Delta w_{ij}^{(t)} = -\eta \nabla E(w_{ij}^{(t)}),
 \label{deltawij}
 \end{equation}
-dove $\eta$ è il coefficiente di apprendimento (\textit{learning rate}), più $\eta$ è grande più imparera velocemente.
+dove $\eta>0$ è il coefficiente di apprendimento (\textit{learning rate}): più $\eta$ è grande più imparerà velocemente, valori troppo grandi di $\eta$ fanno divergere la rete.
 Questo verrà ripetuto iterativamente ogni epoca, dove con epoca intendiamo la visione dell'intero \textit{training set}.
 L'aggiornamento dei pesi durante ogni epoca può avvenire dopo ogni elemento (\textit{online}), dopo tutti gli elementi (\textit{batch}) o dopo un numero parametrico di esempi (\textit{mini-batch}).
-Negli esperimenti di questo elaborato viene utilizzata la modalità \textit{mini-batch} perchè permette al modello di convergere più velocemente.
+Negli esperimenti di questo elaborato viene utilizzata la modalità \textit{mini-batch} perché permette al modello di convergere più velocemente.
 
 Per migliorare la convergenza della rete abbiamo utilizzato la versione di discesa del gradiente con \textit{momento}~\cite{journals/nn/Qian99}.
 In questa versione l'equazione~\eqref{deltawij} diventa:
@@ -494,28 +505,14 @@ w_{ij}^{(t)}=- \eta \nabla E(w_{ij}^{(t)}) + \mu \Delta w_{ij}^{(t-1)}
 dove $\mu$ è un parametro aggiuntivo nell'intervallo $[0,1)$ che valorizza quanto considerare il gradiente dell'epoca precedente. 
 Questo tipo di aggiornamento accelererà la convergenza se il verso del gradiente è lo stesso dell'epoca precedente. 
 
-\subsection*{Stopping}
-In questa sezione vogliamo rispondere alla domanda: "quando fermiamo l'addestramento?". Negli esperimenti sono stati utilizzati diversi criteri, quali:
+\subsection*{Criteri di arresto}
+la procedura di addestramento del paragrafo precedente viene iterata fino a che non risulta soddisfatto un prefissato criterio di arresto. Negli esperimenti descritti nel Capitolo ~\ref{esperimenti}, sono stati utilizzati diversi criteri, quali:
+
 \begin{itemize}
-\item Stop dopo un numero prefissate di epoche;
+\item Stop dopo un numero prefissato di epoche;
 \item Stop dopo che l'errore/accuratezza non migliora rispetto all'epoca precedente;
-\item Stop dopo che l'errore/accuratezza non migliora rispetto all'epoca precedente con \textit{patience}, ovvero che si aspetta un numero finito di epoche senza miglioramento delle prestazioni prima di interrompersi.
+\item Stop dopo che l'errore/accuratezza non migliora rispetto all'epoca precedente con \textit{patience}, ovvero attendendo in ogni caso un numero finito di epoche senza miglioramento delle prestazioni prima di interrompersi.
 \end{itemize}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 \chapter{Metodi di compressione}
 \section{Pruning}
@@ -537,11 +534,10 @@ Durante la configurazione della rete viene aggiunta una procedura che esegue il 
 w_{ij}=
 \begin{cases}
 0 \text{ se } |w_{ij}|<\tau \\
-w_{ij} \text{ altrimenti}
+w_{ij} \text{ altrimenti}.
 \end{cases}
 \label{pruning}
 \end{equation}
-
 Per comodità abbiamo scelto $\tau$ come il quantile q della distribuzione del valore assoluto dei pesi, dove q assume i valori in [0,1].
 
 \subsection{Tasso di compressione}
@@ -587,6 +583,7 @@ W'_{ij} = C_{N_{ij}}
 %Come si vede nell'equazione~\eqref{ntc123}, le cose non sono come si pensa.
 
 \chapter{Esperimenti}
+\label{esperimenti}
 In questo capitolo spiegheremo gli espereminti eseguiti su due dataset differenti.
 \begin{itemize}
 \item MNIST: problema di classificazione, il dataset è composto da un insieme di immagini che rappresentano cifre scritte a mano
@@ -599,7 +596,7 @@ Entrambe le categorie sono affrontate, in questo elaborato, con apprendimento \t
 
 \section{MNIST}
 Il dataset è una vasta base di dati di cifre scritte a mano, spesso impiegata nel campo dell'apprendimento automatico (\textit{machine learning}).
-Il dataset contiene 60000 immagini di training e 10000 immagini di testing.
+Il dataset contiene 60000 immagini di training e 10000 immagini di testing, nella Figura~\ref{fig:mnist} sono presenti alcuni esempi.
 \begin{figure}[h!]
 \begin{center}
 \includegraphics[width=200pt]{MnistExamples.png}
@@ -609,7 +606,7 @@ Il dataset contiene 60000 immagini di training e 10000 immagini di testing.
 \end{figure}
 
 \subsection{Addestramento e Tuning Parametri}
-Per trovare una buona configurazione abbiamo svolto una \textit{K-Fold Cross Validation}.
+Per trovare una buona configurazione abbiamo svolto una \textit{K-Fold Cross Validation}~\cite{Refaeilzadeh2009}.
 \paragraph*{K-Fold Cross Validation}
 Il \textit{training set} viene diviso in \textit{k} subset, a rotazione vengono usati come \textit{training set} $k-1$ subset mentre il rimanente con \textit{validation set} (un \textit{test set} fittizio).
 
@@ -691,7 +688,7 @@ $300$ & $97.86$ & $\textbf{300}$ & $\textbf{98.08}$ \\ [1pt]
 
 \begin{table}[]
   \small
-  \caption{MLP con due strato hidden}\label{tab:tab1}
+  \caption{MLP con due strati hidden}\label{tab:tab1}
 \begin{center}
 \begin{tabular}{@{}cc|cc@{}}
 
@@ -720,14 +717,12 @@ $150$ - $75$ & $97.76$  &  $150$ - $75$ & $97.76$ \\ [1pt]
 $150$ - $100$ & $97.75$  & $150$ - $100$ & $97.85$ \\ [1pt]
 $150$ - $125$ & $97.78$  & $150$ - $125$ & $97.74$ \\ [1pt]
 $150$ - $150$ & $97.75$  &  $150$ - $150$ & $97.8$ \\ [1pt]
-$175$ - $25$ & $97.78$  &  $175$ - $25$ & $97.71$ \\ [1pt]
 $175$ - $50$ & $97.85$ &  $175$ - $50$ & $97.8$ \\ [1pt]
 $175$ - $75$ & $97.8$ &  $175$ - $75$ & $97.8$ \\ [1pt]
 $175$ - $100$ & $97.83$  &  $175$ - $100$ & $97.8$ \\ [1pt]
 $175$ - $125$ & $97.85$  &  $175$ - $125$ & $97.8$ \\ [1pt]
 $175$ - $150$ & $97.82$  & $175$ - $150$ & $97.86$ \\ [1pt]
 $175$ - $175$ & $97.85$  & $175$ - $175$ & $97.84$ \\ [1pt]
-$200$ - $25$ & $97.81$  &  $200$ - $25$ & $97.82$ \\ [1pt]
 $200$ - $50$ & $97.83$  &  $200$ - $50$ & $97.83$ \\ [1pt]
 $200$ - $75$ & $97.83$ &  $200$ - $75$ & $97.9$ \\ [1pt]
 $200$ - $100$ & $97.88$  & $200$ - $100$ & $97.89$ \\ [1pt]
@@ -735,16 +730,12 @@ $200$ - $125$ & $97.91$  & $200$ - $125$ & $97.85$ \\ [1pt]
 $200$ - $150$ & $97.84$  & $200$ - $150$ & $97.85$ \\ [1pt]
 $200$ - $175$ & $97.84$  & $200$ - $175$ & $97.89$ \\ [1pt]
 $200$ - $200$ & $97.86$  & $200$ - $200$ & $97.83$ \\ [1pt]
-$225$ - $25$ & $97.84$ & $225$ - $25$ & $97.86$ \\ [1pt]
-$225$ - $50$ & $97.87$ &  $225$ - $50$ & $97.8$ \\ [1pt]
 $225$ - $75$ & $97.92$ &  $225$ - $75$ & $97.9$ \\ [1pt]
 $225$ - $100$ & $97.86$  & $225$ - $100$ & $97.79$ \\ [1pt]
 $225$ - $125$ & $97.85$  & $225$ - $125$ & $97.85$ \\ [1pt]
 $225$ - $150$ & $97.94$  & $225$ - $150$ & $97.94$ \\ [1pt]
 $225$ - $175$ & $97.88$  & $225$ - $175$ & $97.89$ \\ [1pt]
 $225$ - $200$ & $97.91$  &  $225$ - $200$ & $97.9$ \\ [1pt]
-$250$ - $25$ & $97.86$  &  $250$ - $25$ & $97.84$ \\ [1pt]
-$250$ - $50$ & $97.91$  &  $250$ - $50$ & $97.87$ \\ [1pt]
 $250$ - $75$ & $97.86$  &  $250$ - $75$ & $97.88$ \\ [1pt]
 $250$ - $100$ & $97.91$  & $250$ - $100$ & $97.91$ \\ [1pt]
 $250$ - $125$ & $97.93$  & $250$ - $125$ & $97.94$ \\ [1pt]
@@ -758,6 +749,99 @@ $250$ - $200$ & $97.89$  & $250$ - $200$ & $97.92$ \\ [1pt]
 \normalsize
 \end{table}
 \end{center}
+
+\subsection{Pruning}
+
+\vspace*{\fill}
+\begin{center}
+
+\begin{table}[]
+  \small
+  \caption{Pruning su MNIST}\label{tab:tabws}
+\begin{center}
+\begin{tabular}{cc}
+
+\hline\\[-11pt]
+
+\hline\\[-11pt]
+\texttt{\%Pruning} & \texttt{accuratezza} \\[1pt]
+\hline\\[-6.5pt]
+ALL & $98.34$ \\ 
+$10\%$ & $98.34$ \\ 
+$15\%$ & $98.34$ \\ 
+$20\%$ & $98.34$ \\ 
+$25\%$ & $98.35$ \\ 
+$30\%$ & $98.36$ \\ 
+$35\%$ & $98.35$ \\ 
+$40\%$ & $98.36$ \\ 
+$45\%$ & $98.36$ \\ 
+$50\%$ & $98.36$ \\ 
+$55\%$ & $98.32$ \\ 
+$60\%$ & $98.3$ \\ 
+$65\%$ & $98.33$ \\ 
+$70\%$ & $98.34$ \\ 
+$75\%$ & $98.34$ \\ 
+$80\%$ & $98.38$ \\ 
+$85\%$ & $98.31$ \\ 
+$90\%$ & $98.27$ \\ 
+$95\%$ & $98.28$ \\   
+\hline\\[-11pt]
+\hline\\[-8pt]
+\end{tabular}\\[5pt]
+\end{center}
+\normalsize
+\end{table}
+\end{center}
+
+
+
+\subsection{Weight Sharing}
+
+\vspace*{\fill}
+\begin{center}
+
+\begin{table}[]
+  \small
+  \caption{Weight Sharing su MNIST}\label{tab:tabws}
+\begin{center}
+\begin{tabular}{cc}
+
+\hline\\[-11pt]
+
+\hline\\[-11pt]
+\texttt{Centroidi} & \texttt{accuratezza} \\[1pt]
+\hline\\[-6.5pt]
+ALL & $98.34$ \\ 
+$4$ - $2$ & $94.0$ \\ 
+$16$ - $8$ & $98.14$ \\ 
+$32$ - $8$ & $98.32$ \\ 
+$32$ - $16$ & $98.25$ \\ 
+$64$ - $16$ & $98.29$ \\ 
+$64$ - $32$ & $98.34$ \\
+$128$ - $32$ & $98.38$ \\ 
+$192$ - $32$ & $98.38$ \\  
+$192$ - $64$ & $98.36$ \\
+$256$ - $32$ & $98.31$ \\ 
+$256$ - $64$ & $98.36$ \\
+$512$ - $32$ & $98.38$ \\  
+$512$ - $64$ & $98.35$ \\
+$1024$ - $32$ & $98.37$ \\  
+$1024$ - $64$ & $98.37$ \\
+$2048$ - $32$ & $98.36$ \\  
+$2048$ - $64$ & $98.36$ \\ 
+$4096$ - $32$ & $98.35$ \\ 
+$4096$ - $64$ & $98.37$ \\
+$8192$ - $32$ & $98.43$ \\
+$8192$ - $64$ & $98.34$ \\  
+\hline\\[-11pt]
+\hline\\[-8pt]
+\end{tabular}\\[5pt]
+\end{center}
+\normalsize
+\end{table}
+\end{center}
+
+
 
 \section{Problema del predecessore}
 Sia $X$ un sottoinsieme delle parti di un universo $U$, ordinato in base all'ordine $\leq$ definito su $U$. Partiamo dal presupposto che ogni elemento di $U$ può essere rappresentato da $d$ bit. Supponiamo anche che l'ordinamento lessicografico della rappresentazione binaria di ogni elemento in $U$ mantiene la relazione d'ordine $\leq$. Il problema di ricerca del predecessore consiste nel trovare la posizione della chiave più grande in $X$ non maggiore di una data in input $x$, indichiamo con $pos(x)$ la posizione di $x$ appartenente a $X$ nella sequenza ordinata, il problema è determinare $pred(x)=pos(z)$ con $z = \max y \in X$ dove $y \leq x$.
