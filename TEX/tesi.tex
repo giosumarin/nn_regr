@@ -15,6 +15,9 @@ openright]{book}
 \usepackage{makeidx}
 \usepackage{pgf}
 \usepackage{tikz}
+\usepackage{changepage}
+\usepackage{booktabs}
+\usepackage{url}
 
 \usetikzlibrary{decorations.pathreplacing}
 \usetikzlibrary{fadings}
@@ -101,7 +104,7 @@ Ogni neurone, operando ad un ordine temporale del millisecondo, rappresenta un s
 
 \section{Reti Neurali Artificiali}
 \label{section:retiartificiali}
-Ci concentreremo su una classe particolare di modelli di reti neurali: le reti a catena aperta (feedforward). Queste reti possono essere viste come funzioni matematiche non lineari che trasformano un insieme di variabili indipendenti $x = (x_{1}, ... , x_{d})$, chiamate ingressi della rete, in un insieme di variabili dipendenti $y = (y_{1}, ... , y_{c})$, chiamate uscite della rete. La precisa forma di queste funzioni dipende dalla struttura interna della rete e da un insieme di valori $w = (w_{1}, ... , w_{d})$, chiamati pesi. Possiamo quindi scrivere la funzione della rete nella forma $y = y(x; w)$ che denota il fatto che $y$ sia una funzione di $x$ parametrizzata da $w$.
+Ci concentreremo su una classe particolare di modelli di reti neurali: le reti a catena aperta. Queste reti possono essere viste come funzioni matematiche non lineari che trasformano un insieme di variabili indipendenti $x = (x_{1}, ... , x_{d})$, chiamate ingressi della rete, in un insieme di variabili dipendenti $y = (y_{1}, ... , y_{c})$, chiamate uscite della rete. La precisa forma di queste funzioni dipende dalla struttura interna della rete e da un insieme di valori $w = (w_{1}, ... , w_{d})$, chiamati pesi. Possiamo quindi scrivere la funzione della rete nella forma $y = y(x; w)$ che denota il fatto che $y$ sia una funzione di $x$ parametrizzata da $w$.
 
 \begin{figure}[h!]
 \begin{center}
@@ -137,7 +140,7 @@ Ci concentreremo su una classe particolare di modelli di reti neurali: le reti a
 \end{figure}
 \subsection*{Modello di McCulloch-Pitts}
 
-Un semplice modello matematico di un singolo neurone è quello rappresentato in Figura~\ref{fig:mcpitts} ed è stato proposto da McCulloch e Pitts ~\cite{McCulloch:1943aa} alle origini delle reti neurali. Esso può essere visto come una funzione non lineare che trasforma le variabili di ingresso $x_{1}, ..., x_{d}$ nella variabile di uscita $z$. Nell’elaborato ci riferiremo a questo modello come unità di elaborazione, o semplicemente unità.
+Un semplice modello matematico di un singolo neurone è quello rappresentato in Figura~\ref{fig:mcpitts} ed è stato proposto da McCulloch e Pitts~\cite{McCulloch:1943aa} alle origini delle reti neurali. Esso può essere visto come una funzione non lineare che trasforma le variabili di ingresso $x_{1}, ..., x_{d}$ nella variabile di uscita $z$. Nell’elaborato ci riferiremo a questo modello come unità di elaborazione, o semplicemente unità.
 In questo modello, viene effettuata la somma ponderata degli ingressi, usando come pesi i valori $w_{1}, ..., w_{d}$ (che sono analoghi alle potenze delle sinapsi nella rete biologica), ottenendo così
 \begin{equation}
 a = \sum\limits_{i=1}^d w_{i}x_{i}+b
@@ -167,21 +170,22 @@ g(a)=
 \label{addestramento}
 Abbiamo detto che una rete neurale può essere rappresentata dal modello matematico $y = y(x; w)$, che è una funzione di $x$ parametrizzata dai pesi $w$. Prima di poter utilizzare questa rete, dobbiamo identificare il modello, ovvero dobbiamo determinare tutti i parametri $w$. Il processo di determinazione di questi parametri è chiamato addestramento e può essere un’azione molto intensa dal punto di vista computazionale. Tuttavia, una volta che sono stati definiti i pesi, nuovi ingressi possono essere elaborati molto rapidamente.
 Per addestrare una rete abbiamo bisogno di un insieme di esempi, chiamato insieme di addestramento (\textit{training set}), i cui elementi sono coppie $(x^{q}, t^{q})$, $q = 1, ..., n$, dove $t^{q}$ rappresenta il valore di uscita desiderato, chiamato target, in corrispondenza dell'ingresso $x^{q}$. 
-L’addestramento consiste nella ricerca dei valori per i parametri $w$ che minimizzano un’opportuna funzione di errore. Ci sono diverse forme di questa funzione, la più usata risulta essere la somma dei quadrati residui. I residui sono definiti come:
+L’addestramento consiste nella ricerca dei valori per i parametri $w$ che minimizzano un’opportuna funzione di errore. Ci sono diverse forme di questa funzione, la più usata risulta essere la somma dei quadrati residui. I residui sono definiti come
 \begin{equation}
 r_{qk} = y_{k}\left(x^{q}; w\right) - t^{q}_{k}
 \label{res}
 \end{equation}
-La funzione di errore $E$ risulta allora essere:
+dove $k$ rapppresenta l'indice dei neuroni di output.
+La funzione di errore $E$ risulta allora essere
 \begin{equation}
-E = \sum\limits_{q=1}^n \sum\limits_{k=1}^c r_{qk}^{2}
+E = \sum\limits_{q=1}^n \sum\limits_{k=1}^c r_{qk}^{2}. 
 \label{quadres}
 \end{equation}
-é facile osservare che $E$ dipende da $x^{q}$ e da $t^{q}$ che sono valori noti e da $w$ che è incognito, quindi E è in realtà una funzione dei soli pesi $w$.
+\`E facile osservare che $E$ dipende da $x^{q}$ e da $t^{q}$ che sono valori noti e da $w$ che è incognito, quindi $E$ è in realtà una funzione dei soli pesi $w$.
 
 \section{Funzioni di attivazione}
 Come già introdotto nel Paragrafo~\ref{section:retiartificiali}, le funzioni di attivazione determinano l'output di una rete neurale.
-Le funzioni utilizzate principalmente negli esperimenti di questo elaborato sono tre: \textit{sigmoid}, \textit{ReLU} (\textit{Rectified Linear Units}) e \textit{LeakyReLU} descritte in (\ref{sigmoid}-\ref{lrelu}).
+Le funzioni utilizzate principalmente negli esperimenti di questo elaborato sono tre: \textit{sigmoid}, \textit{ReLU} (\textit{Rectified Linear Units}) e \textit{LeakyReLU} descritte in (\ref{sigmoid} -\ref{lrelu}).
 Le funzioni di attivazione sono non-lineari e la loro derivata è calcolabile in modo analitico per velocizzare la computazione.
 
 \begin{equation}
@@ -206,7 +210,7 @@ a &\text{ se } a\geq0, \\
 \end{cases} \qquad
 \mathrm{LeakyReLU}'(a) = \begin{cases}
 1 &\text{ se } a\geq0, \\
-\alpha &\text{ altrimenti}.
+-\alpha &\text{ altrimenti}.
 \end{cases}
 \label{lrelu}
 \end{equation}
@@ -217,11 +221,12 @@ La scelta della funzione è guidata dal tipo di problema che si vuole affrontare
 
 
 \section{MultiLayer Perceptron}
+In questo paragrafo parleremo in dettaglio del modello mulilayer perceptron introducendo il concetto di multistrato e descriveremo il metodo di addestramento utilizzato principalmente nel Capitolo~\ref{esperimenti}. Nell’elaborato ci riferiremo a questo modello come MLP.
 \subsection{Architettura del modello MLP}
 \paragraph{Modello a uno strato}
 \def\layersep{2.5cm}
 
-\begin{figure}[h!]
+\begin{figure}
 \begin{center}
 \begin{tikzpicture}[shorten >=1pt,->,draw=black!50, node distance=\layersep]
     \tikzstyle{every pin edge}=[<-,shorten <=1pt]
@@ -264,16 +269,16 @@ La scelta della funzione è guidata dal tipo di problema che si vuole affrontare
 \caption{MLP a uno strato}
 \label{fig:MLP1}
 \end{figure}
-Nella sezione precedente abbiamo trattato la singola unità di elaborazione descritta in~\eqref{act+som}. Consideriamo ora un insieme di $m$ unità, con ingressi comuni, otteniamo una rete neurale a singolo strato come in Figura~\ref{fig:MLP1}. Le uscite di questa rete sono date da
+Nel paragrafo precedente abbiamo trattato la singola unità di elaborazione descritta in~\eqref{act+som}. Se consideriamo ora un insieme di $m$ unità, con ingressi comuni, otteniamo una rete neurale a singolo strato come in Figura~\ref{fig:MLP1}. Le uscite di questa rete sono date da
 \begin{equation}
-z_j = g\left(\sum\limits_{i=0}^d w_{ji}x_i\right), \quad
-j=1,..,m
+z_j = g\left(\sum\limits_{i=0}^d w_{ij}x_i\right), \quad
+j=1,...,m
 \label{rete1}
 \end{equation}
-dove $w_{ij}$ rappresenta il peso che connette l'ingresso $i$ con l'uscita $j$; $g()$ è una funzione di attivazione. $x_0=1$ per utilizzare l'equazione semplificata.
+dove $w_{ij}$ rappresenta il peso che connette l'ingresso $i$ con l'uscita $j$; $g$ è la funzione di attivazione e $x_0=1$ per incorporare il bias, come precedentemente spiegato.
 
 \paragraph{Modello a due strati}
-\begin{figure}[ht!]
+\begin{figure}
 \begin{center}
 \def\layersep{1.5cm}
 
@@ -359,130 +364,129 @@ dove $w_{ij}$ rappresenta il peso che connette l'ingresso $i$ con l'uscita $j$; 
 \end{figure}
 Per ottenere reti più potenti\footnote{un percettrone mono-strato non è in grado di esprimere tutte le funzioni possibili, mentre un percettrone a più strati lo è~\cite{cybenko}.} è necessario considerare reti aventi più strati chiamate \textit{multilayer perceptron} come in Figura~\ref{fig:MLP2}. Le unità centrali rappresentano lo strato nascosto (\textit{hidden}) perchè il valore di attivazione delle singole unità di questo strato non sono misurabili dall'esterno. L'attivazione di queste unità è data da~\eqref{rete1}. Le uscite della rete vengono ottenute tramite una seconda trasformazione, analoga alla prima, sui valori $z_j$ ottenendo
 \begin{equation}
-y_k = \tilde{g}\left(\sum\limits_{j=0}^m \tilde{w}_{kj}z_i\right), \quad
-k=1,..,c
+y_k = \tilde{g}\left(\sum\limits_{j=0}^m \tilde{w}_{jk}z_i\right), \quad
+k=1,\dots,c,
 \label{rete2}
 \end{equation}
-dove $\tilde{w}_{kj}$ rappresenta il peso del secondo strato che connette l'unità nascosta $j$ all'unità di uscita $k$. Sostituendo~\eqref{rete1} in~\eqref{rete2} otteniamo
+dove $\tilde{w}_{jk}$ rappresenta il peso del secondo strato che connette l'unità nascosta $j$ all'unità di uscita $k$. Sostituendo~\eqref{rete1} in~\eqref{rete2} otteniamo
 \begin{equation}
-y_k = \tilde{g}\left( \sum\limits_{j=0}^m \tilde{w}_{kj}g\left(\sum\limits_{i=0}^d w_{ji}x_i\right) \right), \quad
-k=1,..,c.
+y_k = \tilde{g}\left( \sum\limits_{j=0}^m \tilde{w}_{jk}g\left(\sum\limits_{i=0}^d w_{ij}x_i\right) \right), \quad
+k=1,\dots,c.
 \label{rete2.1}
 \end{equation}
 La funzione di attivazione $\tilde{g}$, applicata alle unità di uscita, può essere diversa dalla funzione di attivazione $g$, applicata alle unità nascoste.
 
-Per ottenere una capacità di rappresentazione universale, la funzione di attivazione $g$ delle unità nascoste deve essere scelta non lineare. Se $g$ e $\tilde{g}$ fossero entrambe lineari,~\eqref{rete2.1} diventerebbe un prodotto tra matrici, che è esso stesso una matrice. Inoltre, come vedremo più avanti, le funzioni di attivazione devono essere differenziabili.
+Per ottenere una capacità di rappresentazione universale, la funzione di attivazione $g$ delle unità nascoste deve essere non lineare~\cite{cybenko}. Se $g$ e $\tilde{g}$ fossero entrambe lineari, ~\eqref{rete2.1} diventerebbe un prodotto tra matrici, che è esso stesso una matrice. Inoltre, come vedremo più avanti, le funzioni di attivazione devono essere differenziabili.
 \subsection{Addestramento}
-L'addestramento consiste nella ricerca dei valori $\textbf{w}=(w_1,..,w_n)$ \footnote{con $\textbf{w}$ intendiamo i pesi di ogni strato} che minimizzano la funzione di errore $E(\textbf{w})$ (Capitolo~\ref{addestramento}).
+L'addestramento consiste nella ricerca dei valori $\textbf{w}=(w_1,..,w_n)$ \footnote{con $\textbf{w}$ intendiamo i pesi di ogni strato} che minimizzano la funzione di errore $E(\textbf{w})$ (vista precedentemente nel Capitolo~\ref{addestramento}).
 La ricerca del minimo avviene in modo iterativo partendo da un valore iniziale $\textbf{w}$, scelto in modo casuale o tramite un criterio. Alcuni algoritmi trovano il minimo locale più vicino al punto iniziale, mentre altri riescono a trovare il minimo globale.
 
 Diversi algoritmi di ricerca del punto minimo fanno uso delle derivate parziali della funzione di errore $E$, ovvero del suo vettore gradiente $\nabla E$. Questo vettore indica la direzione ed il verso di massima crescita di $E$ nel punto $\textbf{w}$.
 \subsection*{Error back-propagation}
 L'algoritmo di \textit{Error back-propagation}~\cite{Rumelhart20081B} confronta il valore in uscita con il valore desiderato. Sulla base della differenza calcolata, l'algoritmo modifica i pesi della rete neurale, facendo convergere progressivamente il set dei valori di uscita verso quelli desiderati.
-Consideriamo come funzione errore la somma dei quadrati residui~\eqref{quadres}. 
+Consideriamo come funzione errore la somma dei quadrati residui~\eqref{quadres}.
 \begin{equation}
 E = \sum\limits_{q=1}^n E^{q}, \qquad
 E^q = \sum\limits_{k=1}^c [y_k (x^q;w) - t_{k}^{q}]^2.
 \label{resq}
 \end{equation}
 
-Possiamo vedere $E$ come somma di $E^q$ che corrisponde alla coppia $(x^q,t^q)$. Grazie alla linearità della derivazione possiamo calcolare la derivata di $E$ come somma delle derivate dei termini $E^q$. Omettiamo l'indice $q$, i passaggi che seguiranno si riferiranno ad un singolo caso $q$ ma le operazioni sono fatte per ogni valore di $q$. Consideriamo un esempio di rete neurale MLP con 1 strato hidden.
-
+Possiamo vedere $E$ come somma di $E^q$ che corrisponde alla coppia $(x^q,t^q)$. Grazie alla linearità della derivazione possiamo calcolare la derivata di $E$ come somma delle derivate dei termini $E^q$. Nel seguito omettiamo l'indice $q$: i passaggi indicati si riferiscono ad un singolo caso $q$ ma le operazioni sono fatte per ogni valore di $q$. Consideriamo un esempio di rete neurale MLP con uno strato hidden.
 \begin{equation}
-y_k=\tilde{g}(\tilde{a}_k) \qquad
- a_k=\sum\limits_{j=0}^m \tilde{w}_{kj}z_j
+y_k=\tilde{g}(\tilde{a}_k), \qquad
+ a_k=\sum\limits_{j=0}^m \tilde{w}_{jk}z_j.
 \label{ak}
 \end{equation}
-La derivata di $E^q$ rispetto ad un generico peso $w_{kj}$ dello strato hidden:
+La derivata di $E^q$ rispetto ad un generico peso $w_{jk}$ dello strato hidden è
 \begin{equation}
-\frac{\partial E^q}{\partial \tilde{w}_{kj}}=\frac{\partial E^q}{\partial \tilde{a}_k}\frac{\partial \tilde{a}_k}{\partial w_{kj}}
+\frac{\partial E^q}{\partial \tilde{w}_{jk}}=\frac{\partial E^q}{\partial \tilde{a}_k}\frac{\partial \tilde{a}_k}{\partial w_{jk}}
 \label{chain}
 \end{equation}
-Con l'equazione~\eqref{ak} troviamo:
+e tramite~\eqref{ak} otteniamo
 \begin{equation}
-\frac{\partial \tilde{a}_k}{\partial \tilde{w}_{kj}}=z_j
+\frac{\partial \tilde{a}_k}{\partial \tilde{w}_{jk}}=z_j.
 \label{chain1}
 \end{equation}
-Dalle equazioni~\eqref{ak} e~\eqref{resq}:
+Con~\eqref{ak} e~\eqref{resq} otteniamo
 \begin{equation}
-\frac{\partial E^q}{\partial \tilde{a}_k}=\tilde{g}'(\tilde{a}_k)[y_k-t_k]
+\frac{\partial E^q}{\partial \tilde{a}_k}=\tilde{g}'(\tilde{a}_k)[y_k-t_k],
 \label{chain2}
 \end{equation}
-Otteniamo quindi:
+possiamo ora riscrivere~\eqref{chain} come
 \begin{equation}
-\frac{\partial E^q}{\partial w_{kj}}=\tilde{g}'(\tilde{a}_k)[y_k-t_k]z_j.
+\frac{\partial E^q}{\partial w_{jk}}=\tilde{g}'(\tilde{a}_k)[y_k-t_k]z_j.
 \label{chain2}
 \end{equation}
-Definendo
+Definiamo
 \begin{equation}
 \tilde{\delta}_k = \frac{\partial E^q}{\partial \tilde{a}_k}=\tilde{g}'(\tilde{a}_k)[y_k-t_k]
 \label{delta}
 \end{equation}
-otteniamo una semplice espressione per la derivata di $E^q$ rispetto a $w_{kj}$:
+ottenendo una semplice espressione per la derivata di $E^q$ rispetto a $w_{jk}$
 \begin{equation}
-\frac{\partial E^q}{\partial \tilde{w}_{kj}}=\tilde{\delta}_k z_j.
+\frac{\partial E^q}{\partial \tilde{w}_{jk}}=\tilde{\delta}_k z_j.
 \label{deltaz}
 \end{equation}
 
 
 
-Per quanto riguarda le derivate rispetto ai pesi del primo strato riscriviamo:
+Per quanto riguarda le derivate rispetto ai pesi del primo strato riscriviamo
 \begin{equation}
-z_j=g(a_j) \qquad
- a_j=\sum\limits_{i=0}^d w_{ji}x_i.
+z_j=g(a_j), \qquad
+ a_j=\sum\limits_{i=0}^d w_{ij}x_i.
 \label{aj}
 \end{equation}
 Possiamo quindi scrivere la derivata come
 \begin{equation}
-\frac{\partial E^q}{\partial w_{ji}}=\frac{\partial E^q}{\partial a_j}\frac{\partial a_j}{\partial w_{ji}}
+\frac{\partial E^q}{\partial w_{ij}}=\frac{\partial E^q}{\partial a_j}\frac{\partial a_j}{\partial w_{ij}}.
 \label{chain3}
 \end{equation}
-In modo analogo, osservando~\eqref{aj}, troviamo:
+In modo analogo, osservando~\eqref{aj}, otteniamo
 \begin{equation}
-\frac{\partial a_j}{\partial w_{ji}}=x_i
+\frac{\partial a_j}{\partial w_{ij}}=x_i.
 \label{chain4}
 \end{equation}
-Per il calcolo della derivata di $E^q$ rispetto ad $a_j$, usando la \textit{chain-rule} abbiamo che:
+Per il calcolo della derivata di $E^q$ rispetto ad $a_j$, usando la \textit{chain-rule} abbiamo
 \begin{equation}
-\frac{\partial E^q}{\partial a_j}=\sum\limits_{k=1}^c \frac{\partial E^q}{\partial \tilde{a}_k}\frac{\partial \tilde{a}_k}{\partial a_j}
+\frac{\partial E^q}{\partial a_j}=\sum\limits_{k=1}^c \frac{\partial E^q}{\partial \tilde{a}_k}\frac{\partial \tilde{a}_k}{\partial a_j},
 \label{chain5}
 \end{equation}
-dove la derivata di $E^q$ rispetto ad $\tilde{a}_k$ è data dall'equazione~\eqref{chain2}, mentre la derivata di $\tilde{a}_k$ rispetto ad $a_j$ la troviamo usando le equazioni~\eqref{ak} e~\eqref{aj}:
+dove la derivata di $E^q$ rispetto ad $\tilde{a}_k$ è data da~\eqref{chain2}, mentre la derivata di $\tilde{a}_k$ rispetto ad $a_j$ si trova usando~\eqref{ak} e~\eqref{aj}; quindi
 \begin{equation}
-\frac{\partial \tilde{a}_k}{\partial a_j}=\tilde{w}_{kj}g'(a_j).
+\frac{\partial \tilde{a}_k}{\partial a_j}=\tilde{w}_{jk}g'(a_j).
 \label{chain6}
 \end{equation}
-Usando le equazioni~\eqref{delta},~\eqref{chain5} e~\eqref{chain6}:
+Usando~\eqref{delta},~\eqref{chain5} e~\eqref{chain6} otteniamo
 \begin{equation}
-\frac{\partial E^q}{\partial a_{j}}=g'(a_j)\sum\limits_{k=1}^c \tilde{w}_{kj}\tilde{\delta}_k.
+\frac{\partial E^q}{\partial a_{j}}=g'(a_j)\sum\limits_{k=1}^c \tilde{w}_{jk}\tilde{\delta}_k.
 \label{chain7}
 \end{equation}
-Possiamo quindi riscrivere l'equazione~\eqref{chain3}:
+Possiamo quindi riscrivere~\eqref{chain3} come
 \begin{equation}
-\frac{\partial E^q}{\partial w_{ji}}=g'(a_j)x_i\sum\limits_{k=1}^c w_{kj}\delta_k
+\frac{\partial E^q}{\partial w_{ij}}=g'(a_j)x_i\sum\limits_{k=1}^c w_{jk}\delta_k
 \label{chain8}
 \end{equation}
-Come abbiamo fatto nell'equazione~\eqref{delta}, poniamo
+e, come abbiamo fatto in~\eqref{delta}, poniamo
 \begin{equation}
-\delta_j = \frac{\partial E^q}{\partial a_j}=g'(a_j)\sum\limits_{k=1}^c \tilde{w}_{kj}\tilde{\delta}_k
+\delta_j = \frac{\partial E^q}{\partial a_j}=g'(a_j)\sum\limits_{k=1}^c \tilde{w}_{jk}\tilde{\delta}_k,
 \label{delta2}
 \end{equation}
-Ottenendo infine
+ottenendo infine
 \begin{equation}
-\frac{\partial E^q}{\partial w_{ji}}=\delta_j x_i
+\frac{\partial E^q}{\partial w_{ij}}=\delta_j x_i
 \label{deltax}
 \end{equation}
-che ha la stessa semplice forma dell'equazione~\eqref{deltaz}.
-Elenchiamo quindi i passi da seguire per valutare la derivata della funzione E:
+che ha la stessa semplice forma di~\eqref{deltaz}.
+Elenchiamo quindi i passi da seguire per valutare la derivata della funzione $E$:
 \begin{itemize}
 \item Per ogni coppia $(x^q,t^q)$ valutare le attivazioni delle unità nascoste e di uscita usando le equazioni~\eqref{aj} e~\eqref{ak};
 \item Valutare il valore $\tilde{\delta}_k$ per $k=1,..,c$ usando equazione~\eqref{delta};
 \item Valutare il valore $\delta_j$ per $j=1,..,m$ usando equazione~\eqref{delta2};
 \item Valutare il valore di $E^q$ usando le equazioni~\eqref{deltax} e~\eqref{deltaz};
-\item Ripetere i passi precedenti per ogni coppia $(\textbf{x}^q,\textbf{t}^q)$ del \textit{training set} e sommare tutte le derivate per ottenere la derivata della funzione errore $E$.
+\item Ripetere i passi precedenti per ogni coppia $(x^q,t^q)$ del \textit{training set} e sommare tutte le derivate per ottenere la derivata della funzione errore $E$.
 \end{itemize}
 
-Dopo il calcolo delle derivate i pesi di ogni strato verranno aggiornati come:
+Dopo il calcolo delle derivate i pesi di ogni strato verranno aggiornati come
 \begin{equation}
 w_{ij}^{(t)}=w_{ij}^{(t-1)} + \Delta w_{ij}^{(t)},
 \label{update_w_ij}
@@ -499,13 +503,14 @@ Negli esperimenti di questo elaborato viene utilizzata la modalità \textit{mini
 Per migliorare la convergenza della rete abbiamo utilizzato la versione di discesa del gradiente con \textit{momento}~\cite{journals/nn/Qian99}.
 In questa versione l'equazione~\eqref{deltawij} diventa:
 \begin{equation}
-w_{ij}^{(t)}=- \eta \nabla E(w_{ij}^{(t)}) + \mu \Delta w_{ij}^{(t-1)}
+w_{ij}^{(t)}=- \eta \nabla E(w_{ij}^{(t)}) + \mu \Delta w_{ij}^{(t-1)},
 \label{momentum}
 \end{equation}
 dove $\mu$ è un parametro aggiuntivo nell'intervallo $[0,1)$ che valorizza quanto considerare il gradiente dell'epoca precedente. 
 Questo tipo di aggiornamento accelererà la convergenza se il verso del gradiente è lo stesso dell'epoca precedente. 
 
 \subsection*{Criteri di arresto}
+\label{stopping}
 la procedura di addestramento del paragrafo precedente viene iterata fino a che non risulta soddisfatto un prefissato criterio di arresto. Negli esperimenti descritti nel Capitolo ~\ref{esperimenti}, sono stati utilizzati diversi criteri, quali:
 
 \begin{itemize}
@@ -515,89 +520,108 @@ la procedura di addestramento del paragrafo precedente viene iterata fino a che 
 \end{itemize}
 
 \chapter{Metodi di compressione}
+In questo capitolo descriveremo nel dettaglio come funzionano gli algoritmi di compressione utilizzati nel Capitolo~\ref{esperimenti}.
 \section{Pruning}
 Il pruning consiste nel tagliare le connessioni da una rete addestrata per poi riaddestrarla senza le connessioni tagliate.
-Oltre ad un vantaggio computazionale può portare a una generalizzazione che permette di ridurre l'overfitting (ovvero imparare troppo dagli esempio di training).
+Oltre ad un vantaggio computazionale può portare a una generalizzazione che permette di ridurre l'overfitting (ovvero imparare troppo dagli esempi del training set).
 \subsection{Strutture dati necessarie}
-Dopo aver tagliato, disattivato le connessioni e riaddestrato la matrice sarà più o meno sparsa (in base a quante connessioni tagliamo). Per ridurre lo spazio viene utilizzata una rappresentazione matriciale CSC (Compressed Sparse Column).
+Dopo aver tagliato, disattivato le connessioni e riaddestrato, la matrice sarà più o meno sparsa (in base a quante connessioni tagliamo). Per ridurre lo spazio viene utilizzata una rappresentazione matriciale CSC (Compressed Sparse Column)\footnote{\url{https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csc_matrix.html}}.
 Questo tipo di matrice è una struttura basata sull'indicizzazione tramite colonne di una matrice sparsa. Viene descritta da tre vettori:
 \begin{itemize}
-\item il primo in cui vengono salvati i valori non nulli dal primo elemento in alto a destra proseguendo verso il basso e successivamente a destra
-\item il secondo corrisponde all'indice delle righe dei valori
-\item il terzo indica gli indici dei valori in cui ogni colonna inizia
+\item il primo in cui vengono salvati i valori non nulli dal primo elemento in alto a destra proseguendo verso il basso e successivamente a destra;
+\item il secondo corrisponde all'indice delle righe dei valori;
+\item il terzo indica gli indici dei valori in cui ogni colonna inizia.
 \end{itemize}
 
-Questo tipo di struttura dati richiede il salvataggio di $2a+c+1$ dove a è il numero di valori non zero e c il numero di colonne.
+Questo tipo di struttura dati richiede il salvataggio di $2a+c+1$ dove $a$ è il numero di valori non zero e $c$ il numero di colonne.
 \subsection{Tecniche implementative}
-Durante la configurazione della rete viene aggiunta una procedura che esegue il pruning sulle matrici delle connessioni addesstrate in precedenza. Identifico con $\tau$ la soglia entro cui i pesi verranno eliminati, la nuova matrice sarà definita come:
+\label{percentile}
+Durante la configurazione della rete viene aggiunta una procedura che esegue il pruning sulle matrici delle connessioni addestrate in precedenza. Identifichiamo con $\tau$ la soglia entro cui i pesi verranno eliminati, la nuova matrice sarà definita come:
 \begin{equation}
 w_{ij}=
 \begin{cases}
-0 \text{ se } |w_{ij}|<\tau \\
+0 \text{ se } |w_{ij}|<\tau, \\
 w_{ij} \text{ altrimenti}.
 \end{cases}
 \label{pruning}
 \end{equation}
-Per comodità abbiamo scelto $\tau$ come il quantile q della distribuzione del valore assoluto dei pesi, dove q assume i valori in [0,1].
+Abbiamo scelto $\tau$ come il quantile $q$ della distribuzione del valore assoluto dei pesi, dove $q$ assume i valori in [0,1].
 
 \subsection{Tasso di compressione}
-
+\label{sectassopr}
+Il tasso di compressione $r_1$ sarà calcolato come
+\begin{equation}
+r_1=\frac{s'}{s},
+\label{tassopr}
+\end{equation}
+dove $s'$ rappresenta lo spazio occupato dalle connessioni della rete compressa utilizzando la rappresentazione matriciale CSC e $s$ lo spazio occupato occupato dalle connessioni della rete senza compressione.
+Come ci accorgeremo nel Paragrafo~\ref{prpred} la compressione avviene effettivamente raggiungendo una certa sparsità\footnote{percentuale di elementi uguali a 0 nelle matrici}.
 
 \section{Weight Sharing}
-La tecnica del weight sharing viene utilizzata per ridurre lo spazio occupato per salvare le matrici dei pesi della rete neurale. Questa procedura consiste nel raggruppamento dei pesi simili, presi da una rete precedentemente addestrata, attraverso un algoritmo di clustering. Dopo per aver definito un centroide per ogni cluster tutti i pesi vengono sostituiti nella rete con i centroidi più vicini.
+La tecnica del weight sharing viene utilizzata per ridurre lo spazio occupato per salvare le matrici dei pesi della rete neurale. Questa procedura consiste nel raggruppamento dei pesi simili, presi da una rete precedentemente addestrata, attraverso un algoritmo di clustering. Dopo per aver definito un centroide per ogni cluster, tutti i pesi vengono sostituiti nella rete con i centroidi più vicini.
 
 \subsection{Strutture dati necessarie}
 Per la gestione di questa procedura viene salvato un array che contine i valori dei centroidi e una matrice per salvare la corrispondenza peso-centroide (per ogni strato).
-Denotiamo con C il vettore dei centroidi e con N la matrice delle corrispondenze.
+Denotiamo con $C$ il vettore dei centroidi e con $N$ la matrice delle corrispondenze, quindi
 \begin{equation}
-N_{ij} = \text{arg}\min\limits_{k}|C_{k}-w_{ij}|
+N_{ij} = \text{arg}\min\limits_{k}|C_{k}-w_{ij}|.
 \label{ws}
 \end{equation}
 \subsection{Tecniche implementative}
-Alla rete neurale base vengono aggiunte 2 procedure:
+Alla rete neurale base vengono aggiunte due procedure:
 \begin{itemize}
-\item procedura che crea i vettori contenenti i $k$ centroidi dove $k$ è il numero di cluster scelti (per ogni strato)
-\item procedura che crea la matrice $N$ definita in~\eqref{ws}
+\item una procedura che crea i vettori contenenti i $k$ centroidi, dove $k$ è il numero di cluster scelti (per ogni strato);
+\item una procedura che crea la matrice $N$ definita in~\eqref{ws}.
 \end{itemize}
-Alla normale fase di training vengono aggiunte 2 procedure:
+Alla normale fase di training vengono aggiunte due procedure:
 \begin{itemize}
-\item costruisce la matrice dei pesi effettiva per il feed forward con i valori dei centroidi invece dei valori originali:
+\item una procedura che costruisce la matrice dei pesi effettiva per il feedforward con i valori dei centroidi invece dei valori originali
 \begin{equation}
-W'_{ij} = C_{N_{ij}}
+W'_{ij} = C_{N_{ij}};
 \label{wprimo}
 \end{equation}
-\item calcolare il gradiente dei centroidi tramite il \textit{cumulative gradient descent}. Denotato con $\mathcal{L}$ il delta relativo alla funzione di loss, con $N$ la matrice degli indici dei cluster e con $C$ il vettore dei centroidi; il gradiente dei centroidi è calcolato come:
+\item una procedura per calcolare il gradiente dei centroidi tramite il \textit{cumulative gradient descent}~\cite{han2015compression}. Denotato con $\mathcal{L}$ il delta relativo alla funzione di errore, con $N$ la matrice degli indici dei cluster e con $C$ il vettore dei centroidi; il gradiente dei centroidi è calcolato come
 \begin{equation}
-\frac{\partial \mathcal{L}}{\partial c_{k}}=\sum\limits_{i,j}\frac{\partial \mathcal{L}}{\partial W_{ij}}1(N_{ij}=k)
+\frac{\partial \mathcal{L}}{\partial c_{k}}=\sum\limits_{i,j}\frac{\partial \mathcal{L}}{\partial W_{ij}}1(N_{ij}=k).
 \label{gradientews}
 \end{equation}
-
-%double struck 1%
-
 \end{itemize}
-%\begin{equation}
-%0=1
-%\tag{NTC 1.2.3}\label{ntc123}
-%\end{equation}
 
-%Come si vede nell'equazione~\eqref{ntc123}, le cose non sono come si pensa.
+\subsection{Tasso di compressione}
+\label{sec:tassows}
+Il tasso di compressione di questa tecnica dipende dal numero di cluster e dal numero di bit con cui vengono rappresentati
+gli elementi delle matrici delle connessioni e i centroidi dei cluster. Denotiamo con $b$ il numero di bit con cui viene rappresentato un peso della rete e con $s$ il numero di connessioni nella rete, il tasso di compressione teorico $r_2 \in [0, 1]$ viene calcolato come
+\begin{equation}
+r_2=\frac{s\log_2 k+kb}{sb}.
+\label{tassowsteo}
+\end{equation}
+$r_2$ rappresenta la percentuale di spazio occupato dalla rete compressa rispetto a quello originario.
+Il linguaggio di programmazione utilizzato negli esperimenti permette di rappresentare numeri interi senza segno con 8 o 16 bit, per questo motivo il tasso di compressione effettivo diventa
+\begin{equation}
+r_2=\frac{s f(s) +32k}{32s}, \quad
+f(s)=\begin{cases}
+16 &\text{ se } s\geq255, \\
+8 &\text{ altrimenti}.
+\end{cases}
+\label{tassows}
+\end{equation}
 
 \chapter{Esperimenti}
 \label{esperimenti}
-In questo capitolo spiegheremo gli espereminti eseguiti su due dataset differenti.
+In questo capitolo spiegheremo gli esperimenti eseguiti su due problemi differenti:
 \begin{itemize}
-\item MNIST: problema di classificazione, il dataset è composto da un insieme di immagini che rappresentano cifre scritte a mano
-\item Sequenze ordinate di numeri: problema di regressione, il dataset è composto da sequenze di numeri rappresentati in 64 bit
+\item Cifre di MNIST: problema di classificazione, il dataset è composto da un insieme di immagini che rappresentano cifre scritte a mano,
+\item Problema del predecessore: problema di regressione, i dataset sono composti da sequenze di numeri rappresentati in 64 bit.
 \end{itemize}
 \paragraph*{Classificazione e Regressione}
 I classificatori separano i dati in due o più classi, nel caso di questo elaborato negli esperimenti con MNIST abbiamo 10 classi (le cifre tra 0 e 9).
 I regressori invece si basano sull'interpolazione dei dati per associare tra loro due o più caratteristiche (\textit{feature}). Simile alla classificazione con la differenza che l'output ha un dominio continuo.
-Entrambe le categorie sono affrontate, in questo elaborato, con apprendimento \textit{supervisionato} in cui si ha un insieme di input di esempio e il corrispettivo output desiderato con lo scopo di apprendere una regola generale in grado di mappare gli input negli output.
+Entrambe le categorie sono affrontate, in questo elaborato, con apprendimento \textit{supervisionato}: si ha un insieme di input di esempio e il corrispettivo output desiderato con lo scopo di apprendere una regola generale in grado di mappare gli input negli output.
 
 \section{MNIST}
 Il dataset è una vasta base di dati di cifre scritte a mano, spesso impiegata nel campo dell'apprendimento automatico (\textit{machine learning}).
-Il dataset contiene 60000 immagini di training e 10000 immagini di testing, nella Figura~\ref{fig:mnist} sono presenti alcuni esempi.
-\begin{figure}[h!]
+Il dataset contiene 60000 immagini di training e 10000 immagini di testing, nella Figura~\ref{fig:mnist} vengono mostrati alcuni esempi.
+\begin{figure}
 \begin{center}
 \includegraphics[width=200pt]{MnistExamples.png}
 \caption{Esempi MNIST~\cite{pict_mnist}}
@@ -606,158 +630,62 @@ Il dataset contiene 60000 immagini di training e 10000 immagini di testing, nell
 \end{figure}
 
 \subsection{Addestramento e Tuning Parametri}
-Per trovare una buona configurazione abbiamo svolto una \textit{K-Fold Cross Validation}~\cite{Refaeilzadeh2009}.
+Per trovare una buona configurazione della rete abbiamo svolto una \textit{K-Fold Cross Validation}~\cite{Refaeilzadeh2009} con $k=3$.
 \paragraph*{K-Fold Cross Validation}
-Il \textit{training set} viene diviso in \textit{k} subset, a rotazione vengono usati come \textit{training set} $k-1$ subset mentre il rimanente con \textit{validation set} (un \textit{test set} fittizio).
-
-\begin{figure}[h!]
+Il \textit{training set} viene diviso in \textit{k} subset, a rotazione vengono usati come \textit{training set} $k-1$ subset, il rimanente subset viene usato come \textit{validation set} (un \textit{test set} fittizio).
+In questa procedura il \textit{test set} non viene utilizzato perchè comprometterebbe la scelta del modello.
+\begin{figure}
 \begin{center}
 \includegraphics[width=300pt]{K-fold_cross_validation_EN.jpg}
-\caption{Esempio k-fold con k=4~\cite{pict_kfold}}
+\caption{k-fold}\label{fig:kfold}
 \end{center}
-\label{fig:kfold}
 \end{figure}
-
-Negli esperiamenti abbiamo fissato i seguenti parametri:
+Nella Figura~\ref{fig:kfold} possiamo vedere un esempio di splitting del \textit{training set} con $k=4$.\\
+Negli esperimenti abbiamo fissato i seguenti parametri:
 \begin{itemize}
-\item $\eta=0.003$
-\item Funzione errore = Errore quadratico medio
-\item Funzione di attivazione degli strati \textit{hidden} = \textit{ReLU}
-\item Funzione di attivazione dello strato di output = \textit{softmax}
-\item Dimensione dei minibatch = 100 elementi
-\item Funzione di stop = 100 epoche
-\item Inizializzazione pesi = $\matr{W^l}= \matr{randn}\sqrt{\frac{2}{size^{l-1}}}$  (He et al initialization~\cite{he2015delving}) dove $\matr{randn}$ è una matrice di numeri casuali estratti da una distribuzione normale standard, $l$ rappresenta lo strato e $size^{l-1}$ il numero di neuroni dello strato precedente.
+\item $\eta=3\times 10^{-3}$;
+\item funzione errore = errore quadratico medio;
+\item metodo di apprendimento = discesa del gradiente con momentum ($\mu=0.99$);
+\item funzione di attivazione degli strati \textit{hidden} = \textit{ReLU};
+\item funzione di attivazione dello strato di output = \textit{softmax}\footnote{$\text{Softmax}(a_{i}) = \frac{\exp^{a_i}}{\sum_j \exp^{a_j}}$};
+\item dimensione dei minibatch = 100 elementi;
+\item criterio di arresto = 100 epoche;
+\item inizializzazione pesi = $\matr{W^l}= \matr{randn}\sqrt{\frac{2}{size^{l-1}}}$  (He et al initialization~\cite{he2015delving}) dove $\matr{randn}$ è una matrice di numeri casuali estratti da una distribuzione normale standard, $l$ rappresenta lo strato e $size^{l-1}$ il numero di neuroni dello strato precedente.
 \end{itemize}
 
 I parametri di cui vogliamo trovare la configurazione migliore sono invece:
 \begin{itemize}
-\item Modello (ovvero quanti neuroni e quanti neuroni per ogni strato hidden)
-\item Dropout (\% di neuroni negli strati hidden non utilizzati nella fase di training)
+\item architettura della rete (ovvero quanti strati hidden e quanti neuroni per ogni strato hidden);
+\item dropout (percentuale di neuroni negli strati hidden non utilizzati nella fase di training).
 \end{itemize}
 
 \paragraph*{Dropout}
-\begin{figure}[h!]
+\begin{figure}
 \begin{center}
 \includegraphics[width=200pt]{dropout.jpeg}
-\caption{Esempio dropout~\cite{10.5555/2627435.2670313}} 
+\caption{dropout~\cite{10.5555/2627435.2670313}} \label{fig:dropout}
 \end{center}
-\label{fig:dropout}
 \end{figure}
-Il \textit{dropout}~\cite{10.5555/2627435.2670313} è una tecnica utilizzata per evitare l'overfitting (ovvero imparare troppo dagli esempi del \textit{training set} senza imparare a generalizzare) mediante l'eliminazione di alcuni neuroni casuali in ogni strato ad eccezione dello strato di output. I neuroni da eliminare cambiamo ogni epoca, durante la fase di predizione invece sono attivi tutti i neuroni.
+Il \textit{dropout}~\cite{10.5555/2627435.2670313} è una tecnica utilizzata per evitare l'overfitting (ovvero imparare troppo dagli esempi del \textit{training set} senza imparare a generalizzare) mediante l'eliminazione di alcuni neuroni casuali in ogni strato ad eccezione dello strato di output. I neuroni da eliminare cambiano ad ogni epoca, durante la fase di predizione invece sono tutti attivi. Nella Figura~\ref{fig:dropout} possiamo vedere un esempio di questa tecnica.
 Nell'elaborato è stata utilizzata la versione chiamata \textit{inverted dropout}
 \begin{equation}
-\matr{drop_l}=(\matr{rand} < p)/p  \qquad
-\matr{output_l}=\matr{output_l} * \matr{drop_l}
+\matr{drop_l}=(\matr{rand} < p)/p,  \qquad
+\matr{output_l}=\matr{output_l} * \matr{drop_l},
 \label{drop}
 \end{equation}
-dove $\matr{output_l}$ rappresenta l'output di un generico strato $l$, mentre \textbf{rand} rappresenta una matrice di numeri casuali estratti da una distribuzione uniforme nell'intervallo $[0,1)$ della stessa dimensione di \textbf{$output_l$}. $p$ invece è un parametro che rappresenta la probabilità di tenere attivo un neurone.
+dove $\matr{output_l}$ rappresenta l'output di un generico strato $l$, mentre \textbf{rand} rappresenta una matrice di numeri casuali estratti da una distribuzione uniforme nell'intervallo $[0,1)$ della stessa dimensione di $\matr{output_l}$. $p$ invece è un parametro che rappresenta la probabilità di tenere attivo un neurone.
 
-\vspace*{\fill}
-\begin{center}
-
-\begin{table}[]
-  \small
-  \caption{MLP con uno strato hidden}\label{tab:tab1}
-\begin{center}
-\begin{tabular}{@{}cc|cc@{}}
-
-\hline\\[-11pt]
-\hline\\[-6.5pt]
-\multicolumn{2}{c}{\bf $p=0.75$} & \multicolumn{2}{c}{\bf $p=1$ } \\[5pt]
-\hline\\[-11pt]
-\texttt{neuroni} & \texttt{accuratezza} & \texttt{neuroni} & \texttt{accuratezza} \\[1pt]
-$100$ & $97.64$ & $100$ & $97.38$ \\ [1pt]
-$125$ & $97.63$ & $125$ & $97.57$ \\ [1pt]
-$150$ & $97.72$ & $150$ & $94.41$ \\ [1pt]
-$175$ & $97.75$ & $175$ & $97.81$ \\ [1pt]
-$200$ & $97.83$ & $200$ & $94.29$ \\ [1pt]
-$225$ & $97.82$ & $225$ & $94.75$ \\ [1pt]
-$250$ & $97.82$ & $250$ & $94.88$ \\ [1pt]
-$275$ & $97.84$ & $275$ & $95.25$ \\ [1pt]
-$300$ & $97.86$ & $\textbf{300}$ & $\textbf{98.08}$ \\ [1pt]
-\hline\\[-11pt]
-\hline\\[-8pt]
-\end{tabular}\\[5pt]
-\end{center}
-\normalsize
-\end{table}
-\end{center}
-
-\vspace*{\fill}
-\begin{center}
-
-\begin{table}[]
-  \small
-  \caption{MLP con due strati hidden}\label{tab:tab1}
-\begin{center}
-\begin{tabular}{@{}cc|cc@{}}
-
-\hline\\[-11pt]
-\hline\\[-6.5pt]
-\multicolumn{2}{c}{\bf $p=0.75$} & \multicolumn{2}{c}{\bf $p=1$ } \\[5pt]
-\hline\\[-11pt]
-\texttt{neuroni} & \texttt{accuratezza} & \texttt{neuroni} & \texttt{accuratezza} \\[1pt]
-$50$ - $25$ & $97.14$ & $50$ - $25$ & $97.08$ \\ [1pt]
-$50$ - $50$ & $97.26$ & $50$ - $50$ & $96.82$ \\ [1pt]
-$75$ - $25$ & $97.43$ & $75$ - $25$ & $97.43$ \\ [1pt]
-$75$ - $50$ & $97.52$ & $75$ - $50$ & $97.51$ \\ [1pt]
-$75$ - $75$ & $97.51$ & $75$ - $75$ & $97.49$ \\ [1pt]
-$100$ - $25$ & $97.53$  &  $100$ - $25$ & $97.54$ \\ [1pt]
-$100$ - $50$ & $97.66$  &  $100$ - $50$ & $97.62$ \\ [1pt]
-$100$ - $75$ & $97.62$  &  $100$ - $75$ & $97.63$ \\ [1pt]
-$100$ - $100$ & $97.67$  & $100$ - $100$ & $97.67$ \\ [1pt]
-$125$ - $25$ & $97.68$  &  $125$ - $25$ & $97.62$ \\ [1pt]
-$125$ - $50$ & $97.77$ &  $125$ - $50$ & $97.7$ \\ [1pt]
-$125$ - $75$ & $97.72$  &  $125$ - $75$ & $97.68$ \\ [1pt]
-$125$ - $100$ & $97.73$  & $125$ - $100$ & $97.74$ \\ [1pt]
-$125$ - $125$ & $97.74$  & $125$ - $125$ & $97.77$ \\ [1pt]
-$150$ - $25$ & $97.76$  &  $150$ - $25$ & $97.59$ \\ [1pt]
-$150$ - $50$ & $97.71$ &  $150$ - $50$ & $97.8$ \\ [1pt]
-$150$ - $75$ & $97.76$  &  $150$ - $75$ & $97.76$ \\ [1pt]
-$150$ - $100$ & $97.75$  & $150$ - $100$ & $97.85$ \\ [1pt]
-$150$ - $125$ & $97.78$  & $150$ - $125$ & $97.74$ \\ [1pt]
-$150$ - $150$ & $97.75$  &  $150$ - $150$ & $97.8$ \\ [1pt]
-$175$ - $50$ & $97.85$ &  $175$ - $50$ & $97.8$ \\ [1pt]
-$175$ - $75$ & $97.8$ &  $175$ - $75$ & $97.8$ \\ [1pt]
-$175$ - $100$ & $97.83$  &  $175$ - $100$ & $97.8$ \\ [1pt]
-$175$ - $125$ & $97.85$  &  $175$ - $125$ & $97.8$ \\ [1pt]
-$175$ - $150$ & $97.82$  & $175$ - $150$ & $97.86$ \\ [1pt]
-$175$ - $175$ & $97.85$  & $175$ - $175$ & $97.84$ \\ [1pt]
-$200$ - $50$ & $97.83$  &  $200$ - $50$ & $97.83$ \\ [1pt]
-$200$ - $75$ & $97.83$ &  $200$ - $75$ & $97.9$ \\ [1pt]
-$200$ - $100$ & $97.88$  & $200$ - $100$ & $97.89$ \\ [1pt]
-$200$ - $125$ & $97.91$  & $200$ - $125$ & $97.85$ \\ [1pt]
-$200$ - $150$ & $97.84$  & $200$ - $150$ & $97.85$ \\ [1pt]
-$200$ - $175$ & $97.84$  & $200$ - $175$ & $97.89$ \\ [1pt]
-$200$ - $200$ & $97.86$  & $200$ - $200$ & $97.83$ \\ [1pt]
-$225$ - $75$ & $97.92$ &  $225$ - $75$ & $97.9$ \\ [1pt]
-$225$ - $100$ & $97.86$  & $225$ - $100$ & $97.79$ \\ [1pt]
-$225$ - $125$ & $97.85$  & $225$ - $125$ & $97.85$ \\ [1pt]
-$225$ - $150$ & $97.94$  & $225$ - $150$ & $97.94$ \\ [1pt]
-$225$ - $175$ & $97.88$  & $225$ - $175$ & $97.89$ \\ [1pt]
-$225$ - $200$ & $97.91$  &  $225$ - $200$ & $97.9$ \\ [1pt]
-$250$ - $75$ & $97.86$  &  $250$ - $75$ & $97.88$ \\ [1pt]
-$250$ - $100$ & $97.91$  & $250$ - $100$ & $97.91$ \\ [1pt]
-$250$ - $125$ & $97.93$  & $250$ - $125$ & $97.94$ \\ [1pt]
-$250$ - $150$ & $97.93$  &  $250$ - $150$ & $97.9$ \\ [1pt]
-$250$ - $175$ & $97.86$  &  $250$ - $175$ & $97.9$ \\ [1pt]
-$250$ - $200$ & $97.89$  & $250$ - $200$ & $97.92$ \\ [1pt]
-\hline\\[-11pt]
-\hline\\[-8pt]
-\end{tabular}\\[5pt]
-\end{center}
-\normalsize
-\end{table}
-\end{center}
-
+Nella Tabella~\ref{tab:modselmnist} e nella Tabella~\ref{tab:modselmnist2} la colonna accuratezza rappresenta la media delle accuratezze sui tre \textit{validation set}. Negli esperimenti effettuati abbiamo trovato come configurazione ottimale una rete MLP con uno strato hidden da 300 neuroni senza dropout (indicato nell'intestazione della tabella come $p=1$).
+\input{modselmnist}
 \subsection{Pruning}
-
+\label{pruningmnist}
+In questo paragrafo abbiamo applicato il pruning sulla rete scelta nella model selection, nella Tabella~\ref{tab:tabprmnist} sono riportati i risultati. 
+Abbiamo applicato un pruning dal $10\%$ al $95\%$ a passi di $5\%$. Nella prima riga della Tabella~\ref{tab:tabprmnist} abbiamo riportato l'accuratezza sul \textit{test set} del modello scelto nel paragrafo precedente senza compressioni. L'accuratezza non varia di molto nei vari tagli, questi risultati sono dovuti al fatto che abbiamo usato un grande numero di neuroni nello strato hidden.
 \vspace*{\fill}
 \begin{center}
-
 \begin{table}[]
   \small
-  \caption{Pruning su MNIST}\label{tab:tabws}
+  \caption{Pruning su MNIST}\label{tab:tabprmnist}
 \begin{center}
 \begin{tabular}{cc}
 
@@ -792,17 +720,13 @@ $95\%$ & $98.28$ \\
 \normalsize
 \end{table}
 \end{center}
-
-
-
 \subsection{Weight Sharing}
-
+In questo paragrafo abbiamo applicato il Weight Sharing sulla rete scelta nella model selection, nella Tabella~\ref{tab:tabwsmnist} sono riportati i risultati. La prima colonna rappresenta il numero di centroidi utilizzati per la compressione, prendendo per esempio $16$ - $8$: $16$ rappresenta il numero di centroidi nella matrice dei pesi tra lo strato di input e lo strato hidden; $8$ rappresenta il numero di centroidi nella matrice dei pesi tra lo strato hidden lo strato di output. Nella prima riga della Tabella~\ref{tab:tabwsmnist} abbiamo riportato l'accuratezza sul \textit{test set} del modello scelto senza compressioni. Come con il pruning possiamo notare che l'accuratezza, anche con un numero di centroidi abbastanza piccoli, (per esempio $16$ - $8$) rimane sopra il $98\%$.
 \vspace*{\fill}
 \begin{center}
-
 \begin{table}[]
   \small
-  \caption{Weight Sharing su MNIST}\label{tab:tabws}
+  \caption{Weight Sharing su MNIST}\label{tab:tabwsmnist}
 \begin{center}
 \begin{tabular}{cc}
 
@@ -841,8 +765,6 @@ $8192$ - $64$ & $98.34$ \\
 \end{table}
 \end{center}
 
-
-
 \section{Problema del predecessore}
 Sia $X$ un sottoinsieme delle parti di un universo $U$, ordinato in base all'ordine $\leq$ definito su $U$. Partiamo dal presupposto che ogni elemento di $U$ può essere rappresentato da $d$ bit. Supponiamo anche che l'ordinamento lessicografico della rappresentazione binaria di ogni elemento in $U$ mantiene la relazione d'ordine $\leq$. Il problema di ricerca del predecessore consiste nel trovare la posizione della chiave più grande in $X$ non maggiore di una data in input $x$, indichiamo con $pos(x)$ la posizione di $x$ appartenente a $X$ nella sequenza ordinata, il problema è determinare $pred(x)=pos(z)$ con $z = \max y \in X$ dove $y \leq x$.
 \begin{equation}
@@ -850,172 +772,96 @@ x=\{2,3,4,5,12,15,18\}
 \tag{Esempio}
 \end{equation}
 Assumiamo che 7 è la chiave da cercare. La ricerca del predecessore dovrebbe restituire la posizione 4.
-Dato $|X|=n$, sia $F_{X}$ la distribuzione cumulativa empirica degli elementi di $U$ rispetto a $X$, per ogni $x\in U$, $F_X(x)$ = ${\frac{|y \in X | y \leq z|}{n}}$. Per semplificare la notazione denotiamo $F_{X}$ con $F$. Nell'esempio sopra, $F(2)=\frac{1}{7}$, $F(5)=\frac{4}{7}$, $F(6)=\frac{4}{7}$, $F(18)=1$. La conoscenza di $F$ ci da una soluzione al nostro problema, dato un elemento di $x$ appartenente a U, una sola valutazione di $F$ fornisce $pred(x)=\ceil{(F(z)*n)}$. Il nostro obiettivo è trovare una buona approssimazione $\tilde{F}$  di $F$.
-La risoluzione di questo problema potrebbe consentire di trovare un elemento all'interno di una lista ordinata in tempo $O(1)$ invece che $O(\log n)$ degli alberi di ricerca.
-La rete neurale però può compiere un errore nel dare la posizione di un elemento, per questo motivo teniamo traccia dell'errore massimo ($\epsilon$) che la rete compie. Questo perchè durante la ricerca dopo che il modello ci ha dato la posizione dobbiamo effettuare una ricerca di $\epsilon$ a destra e sinistra della posizione restituita dal modello. Per questo motivo negli esperimenti abbiamo provato a minimizzare una funzione che approssima il massimo convessa, ovvero la \textit{Log Sum Exp}.
-Diversamente da MNIST il modello MLP cerchera di risolvere un problema di regressione. La rete neurale dovrà imparare a restituire, data una chiave, $\tilde{F}$.
+Dato $|X|=n$, sia $F_{X}$ la distribuzione cumulativa empirica degli elementi di $U$ rispetto a $X$, per ogni $x\in U$, $F_X(x)$ = ${\frac{|y \in X | y \leq z|}{n}}$. Per semplificare la notazione denotiamo $F_{X}$ con $F$. Nell'esempio sopra, $F(2)=\frac{1}{7}$, $F(5)=\frac{4}{7}$, $F(6)=\frac{4}{7}$, $F(18)=1$. La conoscenza di $F$ ci dà una soluzione al nostro problema, dato un elemento di $x$ appartenente a U, una sola valutazione di $F$ fornisce $pred(x)=\ceil{(F(z)*n)}$. Il nostro obiettivo è trovare una buona approssimazione $\tilde{F}$ di $F$.
+La risoluzione di questo problema potrebbe consentire di trovare un elemento all'interno di una lista ordinata in tempo $O(1)$ invece che $O(\log n)$ degli alberi binari di ricerca.
+La rete neurale però può compiere un errore nel dare la posizione di un elemento, per questo motivo teniamo traccia dell'errore massimo, indicato con $\epsilon$, che la rete compie. Questo perchè durante la ricerca, dopo che il modello ci ha dato la posizione, dobbiamo effettuare una ricerca di $\epsilon$ a destra e sinistra della posizione restituita dal modello. Per questo motivo negli esperimenti abbiamo provato a minimizzare una funzione convessa che approssima il massimo, ovvero la \textit{Log Sum Exp}, nel Paragrafo~\ref{seclse}.
 
-\subsection{Addestramento e Tuning Parametri}
-Diversamente da MNIST il modello MLP cerchera di risolvere un problema di regressione. La rete neurale dovrà imparare a restituire, data una chiave, $\tilde{F}$.
-I parametri soggetti al tuning sono la funzione di errore, il learning rate ($\eta$), la taglia dei minibatch, le funzioni di attivazione.
-Per quanto riguarda la loss ho effettuato dei confronti tra MSE (Mean Square Error), MAE (Mean Absolute Error) e LSE (log sum exp). 
-
-\subsection{Applicazione degli algoritmi di compressione}
-\subsection{Splitting in N modelli}
-L'idea usata in questa sezione è quella di dividere il dataset ordinato in sottosequenze ordinate e usare una rete neurale senza strati hidden per ogni sottosequenza con l'obiettivo di ridurre l'errore massimo $\epsilon$ che sarà quindi il massimo degli errori massimi di ogni modello.
-
+Per questo problema sono stati utilizzati tre dataset, rispettivamente con $512$, $8192$ e $1048576$ esempi.
+Diversamente da MNIST il modello MLP cercherà di risolvere un problema di regressione. La rete neurale dovrà imparare a restituire, data una chiave, $\tilde{F}$.
+Sono state usate tre reti differenti:
 \begin{itemize}
-		\item Split = Numero di split sul dataset (e di conseguenza numero di modelli NN0 usati)
-		\item $\epsilon$ = Massimodegli errori massimi di ogni NN0
-		\item $\mu$ = Media degli errpri massimi di ogni NN0
-		\item SpaceOVH =  spazio dei modelli in KB rispetto al dataset
+\item{rete 1 con 0 strati hidden};
+\item{rete 2 con 1 strato hidden di 256 neuroni};
+\item{rete 3 con 2 strati hidden di 256 neuroni}.
+\end{itemize}
+Per tutte e tre le reti, dove non indicato esplicitamente, i parametri utilizzati sono:
+\begin{itemize}
+\item funzione errore = errore quadratico medio;
+\item metodo di apprendimento = discesa del gradiente con momentum ($\mu=0.9$);
+\item funzione di attivazione dei neuroni = \textit{LeakyReLU} ($\alpha=0.05$);
+\item{$\lambda$} = $10^{-5}$ \footnote{usato per nella regolarizzazione l2, valore aggiunto alla funzione di errore che penalizza i pesi più grandi, riducendo così il problema di overfitting ~\cite{L2}.};
+\item{dimensione dei minibatch} = $64$;
+\item{epoche} = $20000$;
+\item{criterio di arresto} = l'apprendimento termina se non si hanno miglioramenti di performance con $\textit{patience}=4$ come spiegato nel Paragrafo~\ref{stopping};
+\item inizializzazione dei pesi = numeri casuali estratti da una distribuzione normale standard con $\mu=0$ e $\sigma= 0.05$. 
+\end{itemize}
+Ci riferiremo a queste reti con \textbf{NNX}, dove X indica il numero di strati.
+Per NN1 è stato usato $\eta=5 \times 10^{-4}$, per NN2 e NN3 invece $\eta=3 \times 10^{-3}$; questi valori sono stati trovati eseguendo un tuning su $\eta$.
+
+
+Le colonne delle tabelle dei paragrafi successivi sono:
+\begin{itemize}
+\item pruning \% = percentuale di connessioni eliminate, calcolate con il quantile come viene spiegato nel Paragrafo~\ref{percentile}, 0 indica la rete non compressa;
+\item $r_2$ = proporzione dello spazio originario occupato da quella compressa, 1 indica la rete non compressa;
+\item cluster: indica, per ogni matrice dei pesi della rete, il numero di cluster utilizzati;
+\item Space Overhead (KB) =  spazio del modello in KB rispetto al dataset;
+\item training time = tempo in secondi impiegato dalla rete per il training, compreso il tempo iniziale di applicazione della compressione;
+\item $\epsilon$ = errore massimo sugli esempi di training;
+\item error \% = errore massimo rispetto alla dimensione del dataset considerato;
+\item mean error = errore medio.
+\end{itemize}
+
+\subsection{Pruning}
+\label{prpred}
+In questo paragrafo abbiamo applicato il pruning e i risultati sono nelle Tabelle~\ref{pr13} -~\ref{pr310}. Come dicevamo in precedenza nel Paragrafo~\ref{sectassopr} prima di raggiungere una certa sparsità il modello compresso occupa più spazio del modello originario. I modelli compressi occupano meno spazio a partire da una percentuale di pruning compresa tra il 50\% e il 60\%.
+Nei risultati di questi esperimenti possiamo notare una scarsa efficacia del pruning in reti con pochi neuroni (NN1), mentre (come già visto con MNIST nel Paragrafo~\ref{pruningmnist}) con molti neuroni (NN2 e NN3) il pruning a percentuali molto elevate mantiene errori medi ed errori massimi equivalenti alla rete non compressa se non migliori. 
+\input{pruning}
+\clearpage
+\subsection{Weight Sharing}
+In questo paragrafo abbiamo applicato il weight sharing e i risultati sono nelle Tabelle~\ref{ws13} -~\ref{ws310}.
+Il numero di centroidi è calcolato come
+\begin{equation}
+\mathrm{cluster}=\left(\frac{r_2 \times32s -sb}{32}\right)
+\label{cluster}
+\end{equation}
+dove $r_2$ è il tasso di compressione (Paragrafo~\ref{sec:tassows}), $s$ è il numero di connessioni e $b$ è il numero di byte utilizzati per rappresentare i centroidi.
+Per~\eqref{cluster} e~\eqref{tassows} non possiamo raggiungere valori di $r_2$ inferiori a quelli mostrati nelle tabelle.
+Come ci si aspetta, al crescere del numero di centroidi le reti hanno una performance crescente ed in alcuni casi migliore della rete non compressa. 
+\input{ws}
+\subsection{MSE vs MAE}
+\label{secmsemae}
+In questo paragrafo abbiamo provato a trovare una configurazione migliore per la rete NN1 confrontanto i risultati tra le funzioni errore Mean Squared Error (MSE) e Mean Absolute Error (MAE) descritte in~\eqref{msemae}.
+\begin{equation}
+\mathrm{MSE}=\frac{1}{n}\sum\limits^n_{i=1}{\left(t_i-y_i\right)}^2, \qquad
+\mathrm{MAE}=\frac{1}{n}\sum\limits^n_{i=1}|t_i-y_i|.
+\label{msemae}
+\end{equation}
+I risultati sono riportati nelle Tabelle~\ref{tab:mae1} -~\ref{tab:mae3}.
+Dai risultati ottenuti si può vedere come tra le due diverse funzioni di errore non ci sia molta differenza di performance.
+\input{mae}
+
+\subsection{MSE vs LSE}
+\label{seclse}
+In questo paragrafo abbiamo provato a trovare una configurazione migliore per la rete NN1 confrontanto i risultati tra le funzioni errore Mean Squared Error (MSE, vista nel Paragrafo~\eqref{msemae}) e LogSumExp (LSE, descritta in~\eqref{LSE}).
+I risultati sono riportati nelle Tabelle~\ref{tab:lse1} -~\ref{tab:lse3}.
+Anche in questo confronto non abbiamo trovato molta differenza di performance.
+\begin{equation}
+\mathrm{LSE}(t_1-y_1,\dots ,t_n-y_n)=\log \left(\exp(t_1-y_1)+\cdots +\exp(t_n-y_n)\right)
+\label{LSE}
+\end{equation}
+\input{lse}
+
+\subsection{Splitting in N modelli}
+L'idea applicata in questo paragrafo è quella di dividere il dataset ordinato in sottosequenze ordinate e usare una rete neurale senza strati hidden (\textbf{NN1}) per ogni sottosequenza con l'obiettivo di ridurre l'errore massimo $\epsilon$ che sarà quindi il massimo degli errori massimi di ogni modello.
+I risultati sono riportati nelle Tabelle~\ref{tab:n1} -~\ref{tab:n3}, le intestazioni delle colonne sono:
+\begin{itemize}
+		\item Split = numero di split sul dataset (e di conseguenza numero di modelli NN1 usati);
+		\item $\epsilon$ = massimo degli errori massimi di ogni NN1;
+		\item $\mu$ = media degli errori massimi di ogni NN1;
+		\item Space Overhead (KB) = somma dello spazio di ogni NN1 in KB rispetto al dataset.
 	\end{itemize}
-	
-		\begin{tabular}{| c | c | c | l |}
-		
-		\multicolumn{4}{c}{NN0 file 3} \\
-		\hline
-		Split & $\epsilon$ & $\mu$ & SpaceOVH \\ \hline
-		
-		\hline
-		$1$ & $8$ & $8.0$ & $4.96\times 10^{-2}$ \\ 
-		$2$ & $8$ & $6.5$ & $9.92\times 10^{-2}$ \\ 
-		$3$ & $7$ & $5.0$ & $1.49\times 10^{-1}$ \\ 
-		$4$ & $9$ & $6.0$ & $1.98\times 10^{-1}$ \\ 
-		$5$ & $6$ & $4.4$ & $2.48\times 10^{-1}$ \\ 
-		$6$ & $5$ & $3.5$ & $2.98\times 10^{-1}$ \\ 
-		$7$ & $5$ & $3.14$ & $3.47\times 10^{-1}$ \\ 
-		$8$ & $5$ & $3.25$ & $3.97\times 10^{-1}$ \\ 
-		$9$ & $3$ & $2.33$ & $4.46\times 10^{-1}$ \\ 
-		$10$ & $4$ & $2.8$ & $4.96\times 10^{-1}$ \\ 
-		$11$ & $4$ & $2.45$ & $5.45\times 10^{-1}$ \\ 
-		$12$ & $3$ & $1.92$ & $5.95\times 10^{-1}$ \\ 
-		$13$ & $3$ & $1.85$ & $6.45\times 10^{-1}$ \\ 
-		$14$ & $2$ & $1.57$ & $6.94\times 10^{-1}$ \\ 
-		$15$ & $4$ & $1.67$ & $7.44\times 10^{-1}$ \\ 
-		$16$ & $2$ & $1.19$ & $7.93\times 10^{-1}$ \\ 
-		$17$ & $2$ & $1.12$ & $8.43\times 10^{-1}$ \\ 
-		$18$ & $2$ & $1.17$ & $8.93\times 10^{-1}$ \\ 
-		$19$ & $4$ & $1.16$ & $9.42\times 10^{-1}$ \\ 
-		$20$ & $1$ & $1.0$ & $9.92\times 10^{-1}$ \\ 
-		$21$ & $2$ & $1.1$ & $1.04$ \\ 
-		$22$ & $2$ & $1.05$ & $1.09$ \\ 
-		$26$ & $1$ & $1.0$ & $1.29$ \\ 
-		$30$ & $2$ & $1.07$ & $1.49$ \\ 
-		 
-		
-		\hline  
-		
-		\end{tabular}
-	
-		
-		\vspace*{0.5 cm}
-	\begin{table}
-		\begin{tabular}{|c | c | c | l |}
-			
-			\multicolumn{4}{c}{NN0 file 7} \\
-			\hline
-			Split & $\epsilon$ & $\mu$ & SpaceOVH \\ \hline
-			$1$ & $41$ & $41.0$ & $3.1\times 10^{-3}$ \\ 
-			$2$ & $36$ & $29.0$ & $6.2\times 10^{-3}$ \\ 
-			$3$ & $33$ & $27.67$ & $9.3\times 10^{-3}$ \\ 
-			$4$ & $43$ & $30.5$ & $1.24\times 10^{-2}$ \\ 
-			$5$ & $27$ & $20.2$ & $1.55\times 10^{-2}$ \\ 
-			$6$ & $31$ & $22.17$ & $1.86\times 10^{-2}$ \\ 
-			$7$ & $32$ & $19.86$ & $2.17\times 10^{-2}$ \\ 
-			$8$ & $29$ & $21.5$ & $2.48\times 10^{-2}$ \\ 
-			$9$ & $33$ & $19.0$ & $2.79\times 10^{-2}$ \\ 
-			$10$ & $24$ & $15.6$ & $3.1\times 10^{-2}$ \\ 
-			$11$ & $25$ & $15.09$ & $3.41\times 10^{-2}$ \\ 
-			$12$ & $28$ & $14.92$ & $3.72\times 10^{-2}$ \\ 
-			$13$ & $24$ & $14.46$ & $4.03\times 10^{-2}$ \\ 
-			$14$ & $26$ & $13.64$ & $4.34\times 10^{-2}$ \\ 
-			$15$ & $24$ & $12.4$ & $4.65\times 10^{-2}$ \\ 
-			$16$ & $21$ & $13.25$ & $4.96\times 10^{-2}$ \\ 
-			$17$ & $23$ & $12.65$ & $5.27\times 10^{-2}$ \\ 
-			$18$ & $21$ & $12.44$ & $5.58\times 10^{-2}$ \\ 
-			$19$ & $19$ & $10.79$ & $5.89\times 10^{-2}$ \\ 
-			$20$ & $27$ & $11.55$ & $6.2\times 10^{-2}$ \\ 
-			$21$ & $20$ & $11.05$ & $6.51\times 10^{-2}$ \\ 
-			$22$ & $20$ & $10.77$ & $6.82\times 10^{-2}$ \\ 
-			$26$ & $13$ & $9.35$ & $8.06\times 10^{-2}$ \\ 
-			$30$ & $17$ & $9.3$ & $9.3\times 10^{-2}$ \\ 
-			$34$ & $16$ & $8.53$ & $1.05\times 10^{-1}$ \\ 
-			$38$ & $13$ & $7.39$ & $1.18\times 10^{-1}$ \\ 
-			$42$ & $11$ & $7.14$ & $1.3\times 10^{-1}$ \\ 
-			$46$ & $13$ & $7.13$ & $1.43\times 10^{-1}$ \\ 
-			$50$ & $12$ & $6.8$ & $1.55\times 10^{-1}$ \\ 
-			$54$ & $13$ & $6.57$ & $1.67\times 10^{-1}$ \\ 
-			$58$ & $12$ & $6.24$ & $1.8\times 10^{-1}$ \\ 
-			$62$ & $11$ & $6.02$ & $1.92\times 10^{-1}$ \\ 
-			$64$ & $21$ & $6.0$ & $1.98\times 10^{-1}$ \\ 
-			$72$ & $9$ & $5.24$ & $2.23\times 10^{-1}$ \\ 
-			$80$ & $9$ & $4.92$ & $2.48\times 10^{-1}$ \\ 
-			$88$ & $10$ & $4.65$ & $2.73\times 10^{-1}$ \\ 
-			$96$ & $9$ & $4.38$ & $2.98\times 10^{-1}$ \\ 
-			$104$ & $8$ & $4.13$ & $3.22\times 10^{-1}$ \\ 
-			$112$ & $7$ & $3.83$ & $3.47\times 10^{-1}$ \\ 
-			$120$ & $10$ & $3.75$ & $3.72\times 10^{-1}$ \\ 
-			$128$ & $6$ & $3.52$ & $3.97\times 10^{-1}$ \\  
-			\hline  
-		\end{tabular}
-	\end{table}
-	\vspace*{0.5 cm}
-	\begin{table}
-
-	
-	\begin{tabular}{|c | c | c | l |}
-		
-		\multicolumn{4}{c}{NN0 file 10} \\
-		\hline
-		Split & $\epsilon$ & $\mu$ & SpaceOVH \\ \hline
-		$1$ & $714$ & $714.0$ & $2.42\times 10^{-5}$ \\ 
-		$2$ & $593$ & $557.5$ & $4.84\times 10^{-5}$ \\ 
-		$3$ & $494$ & $420.33$ & $7.26\times 10^{-5}$ \\ 
-		$4$ & $515$ & $428.75$ & $9.69\times 10^{-5}$ \\ 
-		$5$ & $545$ & $360.0$ & $1.21\times 10^{-4}$ \\ 
-		$6$ & $561$ & $319.17$ & $1.45\times 10^{-4}$ \\ 
-		$7$ & $538$ & $292.57$ & $1.69\times 10^{-4}$ \\ 
-		$8$ & $465$ & $298.5$ & $1.94\times 10^{-4}$ \\ 
-		$9$ & $453$ & $240.33$ & $2.18\times 10^{-4}$ \\ 
-		$10$ & $425$ & $228.6$ & $2.42\times 10^{-4}$ \\ 
-		$11$ & $338$ & $222.64$ & $2.66\times 10^{-4}$ \\ 
-		$12$ & $311$ & $200.08$ & $2.91\times 10^{-4}$ \\ 
-		$13$ & $207$ & $183.85$ & $3.15\times 10^{-4}$ \\ 
-		$14$ & $238$ & $175.07$ & $3.39\times 10^{-4}$ \\ 
-		$15$ & $254$ & $176.53$ & $3.63\times 10^{-4}$ \\ 
-		$16$ & $305$ & $196.75$ & $3.87\times 10^{-4}$ \\ 
-		$17$ & $266$ & $169.53$ & $4.12\times 10^{-4}$ \\ 
-		$18$ & $246$ & $154.06$ & $4.36\times 10^{-4}$ \\ 
-		$19$ & $193$ & $147.79$ & $4.6\times 10^{-4}$ \\ 
-		$20$ & $233$ & $144.3$ & $4.84\times 10^{-4}$ \\ 
-		$21$ & $277$ & $150.67$ & $5.08\times 10^{-4}$ \\ 
-		$22$ & $357$ & $143.0$ & $5.33\times 10^{-4}$ \\ 
-		$26$ & $209$ & $131.85$ & $6.3\times 10^{-4}$ \\ 
-		$30$ & $233$ & $116.7$ & $7.26\times 10^{-4}$ \\ 
-		$34$ & $196$ & $106.15$ & $8.23\times 10^{-4}$ \\ 
-		$38$ & $177$ & $104.55$ & $9.2\times 10^{-4}$ \\ 
-		$42$ & $214$ & $101.38$ & $1.02\times 10^{-3}$ \\ 
-		$46$ & $153$ & $88.57$ & $1.11\times 10^{-3}$ \\ 
-		$50$ & $143$ & $84.88$ & $1.21\times 10^{-3}$ \\ 
-		$54$ & $145$ & $85.07$ & $1.31\times 10^{-3}$ \\ 
-		$58$ & $133$ & $82.4$ & $1.4\times 10^{-3}$ \\ 
-		$62$ & $143$ & $80.34$ & $1.5\times 10^{-3}$ \\ 
-		$64$ & $142$ & $79.77$ & $1.55\times 10^{-3}$ \\ 
-		$72$ & $121$ & $69.71$ & $1.74\times 10^{-3}$ \\ 
-		$80$ & $134$ & $66.75$ & $1.94\times 10^{-3}$ \\ 
-		$88$ & $153$ & $65.88$ & $2.13\times 10^{-3}$ \\ 
-		$96$ & $109$ & $60.6$ & $2.32\times 10^{-3}$ \\ 
-		$104$ & $107$ & $59.13$ & $2.52\times 10^{-3}$ \\ 
-		$112$ & $99$ & $56.11$ & $2.71\times 10^{-3}$ \\ 
-		$120$ & $118$ & $54.53$ & $2.91\times 10^{-3}$ \\ 
-		$128$ & $302$ & $56.22$ & $3.1\times 10^{-3}$ \\  
-		\hline  
-	\end{tabular}
-\end{table}
-
-
-
+Come ci si aspetta, ad eccezione di alcuni casi, al crescere del numero di Split le performance migliorano occupando meno delle reti compresse precedenti. 
+	\input{netofnets}
 \bibliography{mybib}{}
 \bibliographystyle{plain}
 \end{document}

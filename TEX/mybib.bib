@@ -153,5 +153,46 @@ url="https://doi.org/10.1007/978-0-387-39940-9_565"
   year = 1989
 }
 
+@article{han2015compression,
+  abstract = {Neural networks are both computationally intensive and memory intensive,
+making them difficult to deploy on embedded systems with limited hardware
+resources. To address this limitation, we introduce "deep compression", a three
+stage pipeline: pruning, trained quantization and Huffman coding, that work
+together to reduce the storage requirement of neural networks by 35x to 49x
+without affecting their accuracy. Our method first prunes the network by
+learning only the important connections. Next, we quantize the weights to
+enforce weight sharing, finally, we apply Huffman coding. After the first two
+steps we retrain the network to fine tune the remaining connections and the
+quantized centroids. Pruning, reduces the number of connections by 9x to 13x;
+Quantization then reduces the number of bits that represent each connection
+from 32 to 5. On the ImageNet dataset, our method reduced the storage required
+by AlexNet by 35x, from 240MB to 6.9MB, without loss of accuracy. Our method
+reduced the size of VGG-16 by 49x from 552MB to 11.3MB, again with no loss of
+accuracy. This allows fitting the model into on-chip SRAM cache rather than
+off-chip DRAM memory. Our compression method also facilitates the use of
+complex neural networks in mobile applications where application size and
+download bandwidth are constrained. Benchmarked on CPU, GPU and mobile GPU,
+compressed network has 3x to 4x layerwise speedup and 3x to 7x better energy
+efficiency.},
+  added-at = {2017-06-03T00:10:05.000+0200},
+  author = {Han, Song and Mao, Huizi and Dally, William J.},
+  biburl = {https://www.bibsonomy.org/bibtex/20a862efa8c33bda34d56dbe23a07a8e1/hprop},
+  description = {[1510.00149] Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding},
+  interhash = {2ba770eb4cda1bfa599aecfc6fdd2914},
+  intrahash = {0a862efa8c33bda34d56dbe23a07a8e1},
+  keywords = {compression distillation machine-learning},
+  note = {cite arxiv:1510.00149Comment: Published as a conference paper at ICLR 2016 (oral)},
+  timestamp = {2017-06-03T00:10:05.000+0200},
+  title = {Deep Compression: Compressing Deep Neural Networks with Pruning, Trained
+  Quantization and Huffman Coding},
+  url = {http://arxiv.org/abs/1510.00149},
+  year = 2015
+}
 
+@article{L2,
+	title={L2 Regularization versus Batch and Weight Normalization},
+	author={Twan van Laarhoven},
+	journal={ArXiv},
+	year={2017},
+	volume={abs/1706.05350}}
 
