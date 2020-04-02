@@ -93,14 +93,14 @@ Blablabla said Nobody ~\cite{Nobody06}.
 I neuroni sono delle celle elettricamente attive e il sistema nervoso centrale ne contiene circa $10^{11}$. La maggior parte di essi ha la forma indicata in Figura~\ref{fig:neurbio}. I dendriti rappresentano gli ingressi del neurone mentre l’assone ne rappresenta l’uscita. La comunicazione tra i neuroni avviene alle giunzioni, chiamate sinapsi. Ogni neurone è tipicamente connesso ad un migliaio di altri neuroni e, di conseguenza, il numero di sinapsi nel cervello supera $10^{14}$.
 \begin{figure}[h!]
 \begin{center}
-\includegraphics[width=200pt]{BioNeuron.png}
+\includegraphics[width=280pt]{BioNeuron.png}
 \caption{Neurone Biologico~\cite{pict_neur}}
 \end{center}
 \label{fig:neurbio}
 \end{figure}
 
-Ogni neurone si può trovare principalmente in 2 stati: attivo o a riposo. Quando il neurone si attiva, esso produce un potenziale di azione (impulso elettrico) che viene trasportato lungo l’assone. Una volta che il segnale raggiunge la sinapsi esso provoca il rilascio di sostanze chimiche (neurotrasmettitori) che attraversano la giunzione ed entrano nel corpo di altri neuroni. In base al tipo di sinapsi, che possono essere eccitatori o inibitori, queste sostanze aumentano o diminuiscono rispettivamente la probabilità che il successivo neurone si attivi. Ad ogni sinapsi è associato un peso che ne determina il tipo e l’ampiezza dell’effetto eccitatore o inibitore. Quindi, in poche parole, ogni neurone effettua una somma pesata degli ingressi provenienti dagli altri neuroni e, se questa somma supera una certa soglia, il neurone si attiva.\\
-Ogni neurone, operando ad un ordine temporale del millisecondo, rappresenta un sistema di elaborazione relativamente lento; tuttavia, l’intera rete ha un numero molto elevato di neuroni e sinapsi che possono operare in modo parallelo e simultaneo, rendendo l’effettiva potenza di elaborazione molto elevata. Inoltre la rete neurale biologica ha un’alta tolleranza ad informazioni poco precise (o sbagliate), ha la facoltà di apprendimento e generalizzazione.
+Ogni neurone si può trovare principalmente in 2 stati: attivo o a riposo. Quando il neurone si attiva, esso produce un potenziale di azione (impulso elettrico) che viene trasportato lungo l’assone. Una volta che il segnale raggiunge la sinapsi esso provoca il rilascio di sostanze chimiche (neurotrasmettitori) che attraversano la giunzione ed entrano nel corpo di altri neuroni. In base al tipo di sinapsi, che possono essere eccitatori o inibitori, queste sostanze aumentano o diminuiscono rispettivamente le possibilità che il successivo neurone si attivi. Ad ogni sinapsi è associato un peso che ne determina il tipo e l’ampiezza dell’effetto eccitatore o inibitore. Quindi, semplificando, si può dire che ogni neurone effettua una somma pesata degli ingressi provenienti dagli altri neuroni e, se questa somma supera una certa soglia, il neurone si attiva.\\
+Ogni neurone, operando ad un ordine temporale del millisecondo, rappresenta un sistema di elaborazione relativamente lento; tuttavia, l’intera rete ha un numero molto elevato di neuroni e sinapsi che possono operare in modo parallelo e simultaneo, rendendo l’effettiva potenza di elaborazione molto elevata. Inoltre, la rete neurale biologica ha un’alta tolleranza ad informazioni poco precise (o sbagliate), ha la facoltà di apprendimento e generalizzazione.
 
 \section{Reti Neurali Artificiali}
 \label{section:retiartificiali}
@@ -140,7 +140,7 @@ Ci concentreremo su una classe particolare di modelli di reti neurali: le reti a
 \end{figure}
 \subsection*{Modello di McCulloch-Pitts}
 
-Un semplice modello matematico di un singolo neurone è quello rappresentato in Figura~\ref{fig:mcpitts} ed è stato proposto da McCulloch e Pitts~\cite{McCulloch:1943aa} alle origini delle reti neurali. Esso può essere visto come una funzione non lineare che trasforma le variabili di ingresso $x_{1}, ..., x_{d}$ nella variabile di uscita $z$. Nell’elaborato ci riferiremo a questo modello come unità di elaborazione, o semplicemente unità.
+Un semplice modello matematico di un singolo neurone è quello rappresentato in Figura~\ref{fig:mcpitts} ed è stato proposto da McCulloch e Pitts~\cite{McCulloch:1943aa} alle origini delle reti neurali artificiali. Esso può essere visto come una funzione non lineare che trasforma le variabili di ingresso $x_{1}, ..., x_{d}$ nella variabile di uscita $z$. Nell’elaborato ci riferiremo a questo modello come unità di elaborazione, o semplicemente unità.
 In questo modello, viene effettuata la somma ponderata degli ingressi, usando come pesi i valori $w_{1}, ..., w_{d}$ (che sono analoghi alle potenze delle sinapsi nella rete biologica), ottenendo così
 \begin{equation}
 a = \sum\limits_{i=1}^d w_{i}x_{i}+b
@@ -184,9 +184,9 @@ E = \sum\limits_{q=1}^n \sum\limits_{k=1}^c r_{qk}^{2}.
 \`E facile osservare che $E$ dipende da $x^{q}$ e da $t^{q}$ che sono valori noti e da $w$ che è incognito, quindi $E$ è in realtà una funzione dei soli pesi $w$.
 
 \section{Funzioni di attivazione}
-Come già introdotto nel Paragrafo~\ref{section:retiartificiali}, le funzioni di attivazione determinano l'output di una rete neurale.
+Come già introdotto nel Paragrafo~\ref{section:retiartificiali}, le funzioni di attivazione determinano l'output di ciascun neurone della rete neurale.
 Le funzioni utilizzate principalmente negli esperimenti di questo elaborato sono tre: \textit{sigmoid}, \textit{ReLU} (\textit{Rectified Linear Units}) e \textit{LeakyReLU} descritte in (\ref{sigmoid} -\ref{lrelu}).
-Le funzioni di attivazione sono non-lineari e la loro derivata è calcolabile in modo analitico per velocizzare la computazione.
+Di solito sono funzioni non-lineari e la loro derivata è calcolabile in modo analitico per velocizzare la computazione.
 
 \begin{equation}
 \mathrm{sigmoid}(a) = \frac{1}{1+e^{-a}}, \qquad
@@ -364,7 +364,7 @@ dove $w_{ij}$ rappresenta il peso che connette l'ingresso $i$ con l'uscita $j$; 
 \end{figure}
 Per ottenere reti più potenti\footnote{un percettrone mono-strato non è in grado di esprimere tutte le funzioni possibili, mentre un percettrone a più strati lo è~\cite{cybenko}.} è necessario considerare reti aventi più strati chiamate \textit{multilayer perceptron} come in Figura~\ref{fig:MLP2}. Le unità centrali rappresentano lo strato nascosto (\textit{hidden}) perchè il valore di attivazione delle singole unità di questo strato non sono misurabili dall'esterno. L'attivazione di queste unità è data da~\eqref{rete1}. Le uscite della rete vengono ottenute tramite una seconda trasformazione, analoga alla prima, sui valori $z_j$ ottenendo
 \begin{equation}
-y_k = \tilde{g}\left(\sum\limits_{j=0}^m \tilde{w}_{jk}z_i\right), \quad
+y_k = \tilde{g}\left(\sum\limits_{j=0}^m \tilde{w}_{jk}z_j\right), \quad
 k=1,\dots,c,
 \label{rete2}
 \end{equation}
@@ -394,7 +394,7 @@ E^q = \sum\limits_{k=1}^c [y_k (x^q;w) - t_{k}^{q}]^2.
 Possiamo vedere $E$ come somma di $E^q$ che corrisponde alla coppia $(x^q,t^q)$. Grazie alla linearità della derivazione possiamo calcolare la derivata di $E$ come somma delle derivate dei termini $E^q$. Nel seguito omettiamo l'indice $q$: i passaggi indicati si riferiscono ad un singolo caso $q$ ma le operazioni sono fatte per ogni valore di $q$. Consideriamo un esempio di rete neurale MLP con uno strato hidden.
 \begin{equation}
 y_k=\tilde{g}(\tilde{a}_k), \qquad
- a_k=\sum\limits_{j=0}^m \tilde{w}_{jk}z_j.
+ \tilde{a}_k=\sum\limits_{j=0}^m \tilde{w}_{jk}z_j.
 \label{ak}
 \end{equation}
 La derivata di $E^q$ rispetto ad un generico peso $w_{jk}$ dello strato hidden è
