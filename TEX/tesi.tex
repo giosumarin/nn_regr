@@ -87,13 +87,13 @@ openright]{book}
 \tableofcontents
 
 \chapter*{Introduzione}
-Le reti neurali offrono un insieme di strumenti molto potente che permette di risolvere problemi nell’ambito della classificazione, della regressione e del
-controllo non-lineare. Un semplice esempio è l’analisi di un’immagine per verificare la presenza di determinati oggetti oppure di testi, ed eventualmente
+Le reti neurali offrono un insieme di strumenti molto potente che permette di risolvere problemi nell'ambito della classificazione, della regressione e del
+controllo non-lineare. Un semplice esempio è l'analisi di un'immagine per verificare la presenza di determinati oggetti oppure di testi, ed eventualmente
 riconoscerli.
-Oltre ad avere un’elevata velocità di elaborazione, le reti neurali hanno la capacità di imparare la soluzione da un determinato insieme di esempi. In molte applicazioni questo permette di raggirare il bisogno di sviluppare un modello dei processi fisici alla base del problema, che spesso può essere difficile, se non impossibile, da trovare.
-L’ispirazione per le reti neurali deriva dagli studi sui meccanismi di elaborazione dell’informazione nel sistema nervoso biologico, in particolare il cervello umano; infatti, gran parte della ricerca sulle reti ha proprio lo scopo di capire più a fondo questi meccanismi. Daremo nel seguito un quadro semplificato del funzionamento delle reti neurali biologiche in modo da trovare una corrispondenza pratica dei concetti riguardanti le reti neurali artificiali.
+Oltre ad avere un'elevata velocità di elaborazione, le reti neurali hanno la capacità di imparare la soluzione da un determinato insieme di esempi. In molte applicazioni questo permette di raggirare il bisogno di sviluppare un modello dei processi fisici alla base del problema, che spesso può essere difficile, se non impossibile, da trovare.
+L'ispirazione per le reti neurali deriva dagli studi sui meccanismi di elaborazione dell'informazione nel sistema nervoso biologico, in particolare il cervello umano; infatti, gran parte della ricerca sulle reti ha proprio lo scopo di capire più a fondo questi meccanismi. Daremo nel seguito un quadro semplificato del funzionamento delle reti neurali biologiche in modo da trovare una corrispondenza pratica dei concetti riguardanti le reti neurali artificiali.
 In questo elaborato le reti neurali artificiali verranno applicate a due problemi: classificazione e regressione.
-Due dei principali problemi delle reti neurali sono il tempo di addestramento e lo spazio occupato dalle strutture per l’implementazione; entrambi dovuti a numerosi fattori quali numero di parametri, specifiche della macchina, complessità e dimensione degli input. Per quest’ultimo fattore, la ricerca di metodi di compressione è fondamentale per cercare di ridurre l’impatto degli svantaggi di una rete su un sistema. 
+Due dei principali problemi delle reti neurali sono il tempo di addestramento e lo spazio occupato dalle strutture per l'implementazione; entrambi dovuti a numerosi fattori quali numero di parametri, specifiche della macchina, complessità e dimensione degli input. Per quest'ultimo fattore, la ricerca di metodi di compressione è fondamentale per cercare di ridurre l'impatto degli svantaggi di una rete su un sistema. 
 Per provare a ridurre lo spazio occupato dalle reti neurali, cercando di mantenere il più possibile le performance, verrano esplicati due algoritmi di compressione. Infine, riporteremo i risultati dell'applicazione delle tecniche di compressione su diversi dataset.
 \chapter{Reti Neurali}
 In questo capitolo descriveremo le reti neurali artificiale, partendo dall'analogia con il sistema nervoso. Successivamente vengono descritti i modelli multilayer-perceptron e un metodo di apprendimento di questo modello.
@@ -520,7 +520,7 @@ Questo tipo di aggiornamento accelererà la convergenza se il verso del gradient
 
 \subsection*{Criteri di arresto}
 \label{stopping}
-la procedura di addestramento del paragrafo precedente viene iterata fino a che non risulta soddisfatto un prefissato criterio di arresto. Negli esperimenti descritti nel Capitolo~\ref{esperimenti}, sono stati utilizzati diversi criteri, quali:
+La procedura di addestramento del paragrafo precedente viene iterata fino a che non risulta soddisfatto un prefissato criterio di arresto. Negli esperimenti descritti nel Capitolo~\ref{esperimenti}, sono stati utilizzati diversi criteri, quali:
 
 \begin{itemize}
 \item Stop dopo un numero prefissato di epoche;
@@ -578,7 +578,7 @@ Abbiamo scelto $\tau$ come il quantile $q$  distribuzione del valore assoluto de
 
 \subsection{Tasso di compressione}
 \label{sectassopr}
-il tasso di compressione serve a quantificare il risparmio in termini di spazio di memoria che si ottiene applicando la compressione della matrice dei pesi.
+Il tasso di compressione serve a quantificare il risparmio in termini di spazio di memoria che si ottiene applicando la compressione della matrice dei pesi.
 Il tasso di compressione $r_1$ sarà calcolato come
 \begin{equation}
 r_1=\frac{s'}{s},
@@ -846,13 +846,13 @@ Dato $|X|=n$, sia $F_X: U \mapsto [0, 1]$ la distribuzione cumulativa empirica d
 La risoluzione di questo problema potrebbe consentire di trovare un elemento all'interno di una lista ordinata in tempo $O(1)$ invece che $O(\log n)$ tipico degli alberi binari di ricerca.
 La rete neurale però può compiere un errore nel dare la posizione di un elemento, per questo motivo teniamo traccia dell'errore massimo, indicato con $\epsilon$, che la rete compie. Pertanto durante la ricerca, dopo che il modello ha predetto la posizione, dovremo effettuare una ricerca che coinvolgerà al più $\epsilon$ posizioni a destra e a sinistra rispetto a quanto indicato dal modello. Per questo motivo, dopo aver utilizzato delle funzioni di errore standard (come l'errore quadratico medio) che minimizzano l'errore medio, negli esperimenti abbiamo provato ad allenare la rete neurale minimizzando una funzione convessa che approssima il massimo. Tale funzione prende il nome di $\mathrm{LogSumExp}$ è descritta nel Paragrafo~\ref{seclse}.
 
-Per questo problema sono stati utilizzati tre dataset, rispettivamente con $512$, $8192$ e $1048576$ esempi. Questi dataset saranno successivamente indicati rispettivamente come file 3, file 7 e file 10.
+Per questo problema sono stati utilizzati tre dataset, rispettivamente con $512$, $8192$ e $1048576$ esempi. Questi dataset saranno successivamente indicati rispettivamente come dataset 3, dataset 7 e dataset 10.
 Diversamente da MNIST, il modello MLP cercherà di risolvere un problema di regressione: la rete neurale dovrà imparare a restituire, data una chiave, il corrispondente valore di $\tilde{F}$.
 Sono state usate tre reti differenti:
 \begin{itemize}
-\item{rete 1 con 0 strati hidden};
-\item{rete 2 con 1 strato hidden di 256 neuroni};
-\item{rete 3 con 2 strati hidden di 256 neuroni}.
+\item{rete 1 con zero strati hidden};
+\item{rete 2 con uno strato hidden di 256 neuroni};
+\item{rete 3 con due strati hidden di 256 neuroni}.
 \end{itemize}
 Per tutte e tre le reti, dove non indicato esplicitamente, i parametri utilizzati sono:
 \begin{itemize}
@@ -869,7 +869,6 @@ Ci riferiremo a queste reti con NNX, dove X indica il numero totale di strati (c
 Per NN1 è stato usato un learning rate $\eta=5 \times 10^{-4}$, mentre per NN2 e NN3 si ha $\eta=3 \times 10^{-3}$. Questi valori sono stati trovati eseguendo un tuning su $\eta$.
 
 I risultati ottenuti sono indicati nelle Tabelle~\ref{pr13} -~\ref{ws310}, che riportano le seguenti colonne:
-Le colonne delle tabelle dei paragrafi successivi sono:
 \begin{itemize}
 \item Pruning \%: percentuale di connessioni eliminate (calcolate sulla base di quantili come indicato nel Paragrafo\ref{percentile}); in particolare, 0 indica la rete non compressa;
 \item $r_2$: proporzione dello spazio originario occupato da quella compressa (1 indica la rete non compressa);
