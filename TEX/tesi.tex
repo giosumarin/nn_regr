@@ -18,6 +18,7 @@ openright]{book}
 \usepackage{changepage}
 \usepackage{booktabs}
 \usepackage{url}
+\usepackage{dcolumn}
 
 \usetikzlibrary{decorations.pathreplacing}
 \usetikzlibrary{fadings}
@@ -86,9 +87,16 @@ openright]{book}
 \tableofcontents
 
 \chapter*{Introduzione}
-BLABLA
-Blablabla said Nobody ~\cite{Nobody06}.
+Le reti neurali offrono un insieme di strumenti molto potente che permette di risolvere problemi nell’ambito della classificazione, della regressione e del
+controllo non-lineare. Un semplice esempio è l’analisi di un’immagine per verificare la presenza di determinati oggetti oppure di testi, ed eventualmente
+riconoscerli.
+Oltre ad avere un’elevata velocità di elaborazione, le reti neurali hanno la capacità di imparare la soluzione da un determinato insieme di esempi. In molte applicazioni questo permette di raggirare il bisogno di sviluppare un modello dei processi fisici alla base del problema, che spesso può essere difficile, se non impossibile, da trovare.
+L’ispirazione per le reti neurali deriva dagli studi sui meccanismi di elaborazione dell’informazione nel sistema nervoso biologico, in particolare il cervello umano; infatti, gran parte della ricerca sulle reti ha proprio lo scopo di capire più a fondo questi meccanismi. Daremo nel seguito un quadro semplificato del funzionamento delle reti neurali biologiche in modo da trovare una corrispondenza pratica dei concetti riguardanti le reti neurali artificiali.
+In questo elaborato le reti neurali artificiali verranno applicate a due problemi: classificazione e regressione.
+Due dei principali problemi delle reti neurali sono il tempo di addestramento e lo spazio occupato dalle strutture per l’implementazione; entrambi dovuti a numerosi fattori quali numero di parametri, specifiche della macchina, complessità e dimensione degli input. Per quest’ultimo fattore, la ricerca di metodi di compressione è fondamentale per cercare di ridurre l’impatto degli svantaggi di una rete su un sistema. 
+Per provare a ridurre lo spazio occupato dalle reti neurali, cercando di mantenere il più possibile le performance, verrano esplicati due algoritmi di compressione. Infine, riporteremo i risultati dell'applicazione delle tecniche di compressione su diversi dataset.
 \chapter{Reti Neurali}
+In questo capitolo descriveremo le reti neurali artificiale, partendo dall'analogia con il sistema nervoso. Successivamente vengono descritti i modelli multilayer-perceptron e un metodo di apprendimento di questo modello.
 \section{Reti Neurali Biologiche}
 I neuroni sono delle celle elettricamente attive e il sistema nervoso centrale ne contiene circa $10^{11}$. La maggior parte di essi ha la forma indicata in Figura~\ref{fig:neurbio}. I dendriti rappresentano gli ingressi del neurone mentre l’assone ne rappresenta l’uscita. La comunicazione tra i neuroni avviene alle giunzioni, chiamate sinapsi. Ogni neurone è tipicamente connesso ad un migliaio di altri neuroni e, di conseguenza, il numero di sinapsi nel cervello supera $10^{14}$.
 \begin{figure}[h!]
@@ -223,6 +231,7 @@ La scelta della funzione è guidata dal tipo di problema che si vuole affrontare
 \section{MultiLayer Perceptron}
 In questo paragrafo parleremo in dettaglio del modello mulilayer perceptron introducendo il concetto di multistrato e descriveremo il metodo di addestramento utilizzato principalmente nel Capitolo~\ref{esperimenti}. Nell’elaborato ci riferiremo a questo modello come MLP.
 \subsection{Architettura del modello MLP}
+\label{archmlp}
 \paragraph{Modello a uno strato}
 \def\layersep{2.5cm}
 
@@ -511,7 +520,7 @@ Questo tipo di aggiornamento accelererà la convergenza se il verso del gradient
 
 \subsection*{Criteri di arresto}
 \label{stopping}
-la procedura di addestramento del paragrafo precedente viene iterata fino a che non risulta soddisfatto un prefissato criterio di arresto. Negli esperimenti descritti nel Capitolo ~\ref{esperimenti}, sono stati utilizzati diversi criteri, quali:
+la procedura di addestramento del paragrafo precedente viene iterata fino a che non risulta soddisfatto un prefissato criterio di arresto. Negli esperimenti descritti nel Capitolo~\ref{esperimenti}, sono stati utilizzati diversi criteri, quali:
 
 \begin{itemize}
 \item Stop dopo un numero prefissato di epoche;
@@ -523,104 +532,182 @@ la procedura di addestramento del paragrafo precedente viene iterata fino a che 
 In questo capitolo descriveremo nel dettaglio come funzionano gli algoritmi di compressione utilizzati nel Capitolo~\ref{esperimenti}.
 \section{Pruning}
 Il pruning consiste nel tagliare le connessioni da una rete addestrata per poi riaddestrarla senza le connessioni tagliate.
-Oltre ad un vantaggio computazionale può portare a una generalizzazione che permette di ridurre l'overfitting (ovvero imparare troppo dagli esempi del training set).
+Oltre a un vantaggio computazionale può portare a una generalizzazione che permette di ridurre l'overfitting (ovvero imparare l'associazione tra oggetti ed etichette solo per gli esempi del training set ma non per nuovi oggetti).
 \subsection{Strutture dati necessarie}
 Dopo aver tagliato, disattivato le connessioni e riaddestrato, la matrice sarà più o meno sparsa (in base a quante connessioni tagliamo). Per ridurre lo spazio viene utilizzata una rappresentazione matriciale CSC (Compressed Sparse Column)\footnote{\url{https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csc_matrix.html}}.
 Questo tipo di matrice è una struttura basata sull'indicizzazione tramite colonne di una matrice sparsa. Viene descritta da tre vettori:
 \begin{itemize}
-\item il primo in cui vengono salvati i valori non nulli dal primo elemento in alto a destra proseguendo verso il basso e successivamente a destra;
+\item il primo in cui vengono salvati i valori non nulli dal primo elemento in alto a sinistra proseguendo verso il basso e successivamente a destra;
 \item il secondo corrisponde all'indice delle righe dei valori;
 \item il terzo indica gli indici dei valori in cui ogni colonna inizia.
 \end{itemize}
-
+\begin{equation}
+\begin{pmatrix} 
+   2 & 0 & 0 & 1 & 0 & 0 & 3 \\
+   0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+   0 & 0 & 5 & 1 & 0 & 0 & 0 \\
+   0 & 0 & 0 & 0 & 0 & 4 & 0 \\
+   3 & 0 & 0 & 0 & 0 & 0 & 3 \\
+   0 & 0 & 9 & 0 & 0 & 0 & 0 \\
+   1 & 0 & 0 & 0 & 0 & 0 & 0 
+\end{pmatrix}
+\label{matr}
+\end{equation}
+La matrice illustrata in~\ref{matr}, utilizzando la rappresentazione CSC, diventa 
+\begin{equation}
+\begin{matrix} 
+	[2 & 3 & 1 & 5 & 9 & 1 & 1 & 4 & 3 & 3], \\
+	[0 & 4 & 6 & 2 & 5 & 0 & 2 & 3 & 0 & 4], \\
+	   &[0 & 3 & 3 & 5 & 7 & 7 & 8 & 10].
+\end{matrix}
+\label{csc}
+\end{equation}
 Questo tipo di struttura dati richiede il salvataggio di $2a+c+1$ dove $a$ è il numero di valori non zero e $c$ il numero di colonne.
 \subsection{Tecniche implementative}
 \label{percentile}
-Durante la configurazione della rete viene aggiunta una procedura che esegue il pruning sulle matrici delle connessioni addestrate in precedenza. Identifichiamo con $\tau$ la soglia entro cui i pesi verranno eliminati, la nuova matrice sarà definita come:
+Durante la configurazione della rete viene aggiunta una procedura che esegue il pruning sulle matrici delle connessioni addestrate in precedenza. L'idea di base è quella di annullare le connessioni i cui pesi sono relativamente vicini a zero, nell'ipotesi che il loro contributo all'attivazione dei neuroni sia trascurabile. Se identifichiamo con $\tau$ la soglia entro cui i pesi verranno eliminati, la nuova matrice sarà definita come
 \begin{equation}
-w_{ij}=
+\bar{w}_{ij}=
 \begin{cases}
 0 \text{ se } |w_{ij}|<\tau, \\
 w_{ij} \text{ altrimenti}.
 \end{cases}
 \label{pruning}
 \end{equation}
-Abbiamo scelto $\tau$ come il quantile $q$ della distribuzione del valore assoluto dei pesi, dove $q$ assume i valori in [0,1].
+Abbiamo scelto $\tau$ come il quantile $q$  distribuzione del valore assoluto dei pesi, dove $q$ assume valori in [0,1].
 
 \subsection{Tasso di compressione}
 \label{sectassopr}
+il tasso di compressione serve a quantificare il risparmio in termini di spazio di memoria che si ottiene applicando la compressione della matrice dei pesi.
 Il tasso di compressione $r_1$ sarà calcolato come
 \begin{equation}
 r_1=\frac{s'}{s},
 \label{tassopr}
 \end{equation}
-dove $s'$ rappresenta lo spazio occupato dalle connessioni della rete compressa utilizzando la rappresentazione matriciale CSC e $s$ lo spazio occupato occupato dalle connessioni della rete senza compressione.
-Come ci accorgeremo nel Paragrafo~\ref{prpred} la compressione avviene effettivamente raggiungendo una certa sparsità\footnote{percentuale di elementi uguali a 0 nelle matrici}.
+dove $s'$ rappresenta lo spazio occupato dalle connessioni della rete compressa utilizzando la rappresentazione matriciale CSC e $s$ lo spazio occupato dalle connessioni della rete senza compressione.
+Come ci accorgeremo nel Paragrafo~\ref{prpred}, si ottiene $r_1<1$ raggiungendo una certa sparsità\footnote{percentuale di elementi uguali a zero nelle matrici}.
+
+Per calcolare lo spazio occupato da una matrice espansa utilizziamo la formula $s=\mathrm{\#righe} \cdot \mathrm{\#colonne} \cdot b$, dove $b$ è il numero di bit utilizzati per rappresentare un numero in binario.
+Invece, per calcolare lo spazio occupato dalla rappresentazione matriciale CSC utilizziamo la formula citata nel paragrafo precedente moltiplicata per $b$, ovvero $(2a+c+1)\cdot b$.
+La matrice~\ref{matr} occupa, quindi, $7 \cdot 7 \cdot 32 = 1568 \mathrm{bit}$ mentre la sua rappresentazione matriciale $(2\cdot10+7+1)\cdot32=896\mathrm{bit}$. Il tasso di compressione è $r_1=\frac{896\mathrm{bit}}{1658\mathrm{bit}}=0.54$.
+
 
 \section{Weight Sharing}
-La tecnica del weight sharing viene utilizzata per ridurre lo spazio occupato per salvare le matrici dei pesi della rete neurale. Questa procedura consiste nel raggruppamento dei pesi simili, presi da una rete precedentemente addestrata, attraverso un algoritmo di clustering. Dopo per aver definito un centroide per ogni cluster, tutti i pesi vengono sostituiti nella rete con i centroidi più vicini.
+In modo analogo a quanto visto per il pruning, la tecnica del weight sharing~\cite{han2015compression} viene utilizzata per ridurre lo spazio occupato per salvare le matrici dei pesi della rete neurale. Questa procedura consiste nel raggruppamento dei pesi simili, presi da una rete precedentemente addestrata, attraverso un algoritmo di clustering. Dopo aver suddiviso i pesi in cluster e definito un centroide per ogni cluster, tutti i pesi vengono sostituiti nella rete. Infine si riaddestrano i pesi mediante una variante dell'algoritmo di back propagation che aggiorna solo i centroidi, come descritto in dettaglio nel Paragrafo~\ref{implws}.
 
 \subsection{Strutture dati necessarie}
 Per la gestione di questa procedura viene salvato un array che contine i valori dei centroidi e una matrice per salvare la corrispondenza peso-centroide (per ogni strato).
 Denotiamo con $C$ il vettore dei centroidi e con $N$ la matrice delle corrispondenze, quindi
 \begin{equation}
-N_{ij} = \text{arg}\min\limits_{k}|C_{k}-w_{ij}|.
+n_{ij} = \text{arg}\min\limits_{k}|c_{k}-w_{ij}|.
 \label{ws}
 \end{equation}
-\subsection{Tecniche implementative}
-Alla rete neurale base vengono aggiunte due procedure:
-\begin{itemize}
-\item una procedura che crea i vettori contenenti i $k$ centroidi, dove $k$ è il numero di cluster scelti (per ogni strato);
-\item una procedura che crea la matrice $N$ definita in~\eqref{ws}.
-\end{itemize}
-Alla normale fase di training vengono aggiunte due procedure:
-\begin{itemize}
-\item una procedura che costruisce la matrice dei pesi effettiva per il feedforward con i valori dei centroidi invece dei valori originali
 \begin{equation}
-W'_{ij} = C_{N_{ij}};
-\label{wprimo}
+\begin{pmatrix} 
+3.1 & 7.1 & 6.9 & 2.6 & 12.3\\
+2.9 & 0.1 & 0.0 & 4.5 & 0.0\\
+21.0 & 21.7 & 5.0 & 3.4 & 0.2\\
+4.4 & 0.0 & 4.6 & 0.3 & 0.0\\
+1.0 & 0.2 & 22 & 5.1 & 12.4 
+\end{pmatrix}
+\label{matrws}
 \end{equation}
-\item una procedura per calcolare il gradiente dei centroidi tramite il \textit{cumulative gradient descent}~\cite{han2015compression}. Denotato con $\mathcal{L}$ il delta relativo alla funzione di errore, con $N$ la matrice degli indici dei cluster e con $C$ il vettore dei centroidi; il gradiente dei centroidi è calcolato come
+Prendendo come esempio la matrice~\ref{matrws} e impostando $k=6$, C e N risulterebbero
 \begin{equation}
-\frac{\partial \mathcal{L}}{\partial c_{k}}=\sum\limits_{i,j}\frac{\partial \mathcal{L}}{\partial W_{ij}}1(N_{ij}=k).
+C=
+\begin{bmatrix} 
+	0  \\
+	3  \\
+	5  \\
+	7  \\
+	12 \\
+	22 \\
+\end{bmatrix}, \qquad
+N=
+\begin{pmatrix} 
+1 & 3 & 3 & 1 & 4\\
+1 & 0 & 0 & 2 & 0\\
+5 & 5 & 5 & 3 & 0\\
+2 & 0 & 2 & 0 & 0\\
+0 & 0 & 5 & 2 & 5 
+\end{pmatrix}.
+\label{NC}
+\end{equation}
+
+
+
+
+
+\subsection{Tecniche implementative}
+\label{implws}
+Alla rete neurale base vengono aggiunte due procedure, applicate a casciuno strato separatamente:
+\begin{itemize}
+\item una procedura che crea il vettore $C$ contenente i $k$ centroidi, dove $k$ è il numero di cluster scelti;
+\item una procedura che crea la matrice $N$, i cui elementi sono definiti in~\eqref{ws}.
+\end{itemize}
+Alla normale fase di training vengono aggiunte quindi due procedure:
+\begin{itemize}
+\item una procedura che costruisce la matrice dei pesi effettiva $\bar{W}$ per il calcolo degli output della rete (vedi Paragrafo~\ref{archmlp}) con i valori dei centroidi invece dei valori originali $\bar{w}_{ij} = c_{n_{ij}}$;
+\item una procedura per riaddestrare i centroidi ottenuti tramite il \textit{cumulative gradient descent}~\cite{han2015compression} che consiste nel calolare il gradiente della funzione di errore $\mathcal{L}$ rispetto a ciascun centroide e non più rispetto ai singoli pesi. Specificatamente, il gradiente è calcolato come
+\begin{equation}
+\frac{\partial \mathcal{L}}{\partial c_{k}}=\sum\limits_{i,j}\frac{\partial \mathcal{L}}{\partial w_{ij}}1(n_{ij}=k).
 \label{gradientews}
 \end{equation}
 \end{itemize}
+Per la matrice~\ref{matrws}
+\begin{equation}
+W'=
+\begin{pmatrix} 
+3 & 7 & 7 & 3 & 12\\
+3 & 0 & 0 & 5 & 0\\
+22 & 22 & 5 & 3 & 0\\
+5 & 0 & 5 & 0 & 0\\
+0 & 0 & 22 & 5 & 12 
+\end{pmatrix}
+\label{wprimoes}
+\end{equation}
 
 \subsection{Tasso di compressione}
 \label{sec:tassows}
-Il tasso di compressione di questa tecnica dipende dal numero di cluster e dal numero di bit con cui vengono rappresentati
-gli elementi delle matrici delle connessioni e i centroidi dei cluster. Denotiamo con $b$ il numero di bit con cui viene rappresentato un peso della rete e con $s$ il numero di connessioni nella rete, il tasso di compressione teorico $r_2 \in [0, 1]$ viene calcolato come
+Quantificare la compressione apportata dalla tecnica di weight sharing risulta meno immediato rispetto a quanto indicato per il pruning. Bisogna infatti prendere in considerazione il numero di cluster e il numero di bit
+gli elementi delle matrici delle connessioni e i centroidi dei cluster. Se denotiamo con $b$ il numero di bit con cui viene rappresentato un peso della rete e con $s$ il numero di connessioni nella rete, il tasso di compressione teorico $r_2 \in [0, 1]$ viene calcolato come
 \begin{equation}
-r_2=\frac{s\log_2 k+kb}{sb}.
+r_2=\frac{s\ceil{\log_2 k}+kb}{sb}.
 \label{tassowsteo}
 \end{equation}
-$r_2$ rappresenta la percentuale di spazio occupato dalla rete compressa rispetto a quello originario.
-Il linguaggio di programmazione utilizzato negli esperimenti permette di rappresentare numeri interi senza segno con 8 o 16 bit, per questo motivo il tasso di compressione effettivo diventa
+In analogia con $r_1$, $r_2$ rappresenta la percentuale di spazio occupato dalla rete compressa rispetto a quello originario.
+Gli esperimenti descritti nel Capitolo~\ref{esperimenti} fanno rifierimento a una codifica che utilizza 8 o 16 bit per i numeri interi senza segno e 32 bit per i valori a virgola mobile, e in questa configurazione il tasso di compressione effettivo diventa 
 \begin{equation}
 r_2=\frac{s f(s) +32k}{32s}, \quad
 f(s)=\begin{cases}
-16 &\text{ se } s\geq255, \\
+16 &\text{ se } s\geq256, \\
 8 &\text{ altrimenti}.
 \end{cases}
 \label{tassows}
 \end{equation}
-
+Il tasso di compressione della matrice~\ref{matrws} risulta essere
+\begin{equation}
+s=5	\cdot 5 = 25, \quad
+f(s)=8 \quad
+\text{quindi }
+r_2=\frac{25\cdot8+32\cdot6}{32\cdot25}=0.49
+\label{r2esempio}
+\end{equation}
 \chapter{Esperimenti}
 \label{esperimenti}
-In questo capitolo spiegheremo gli esperimenti eseguiti su due problemi differenti:
+In questo capitolo illustreremo gli esperimenti eseguiti su due problemi differenti:
 \begin{itemize}
-\item Cifre di MNIST: problema di classificazione, il dataset è composto da un insieme di immagini che rappresentano cifre scritte a mano,
-\item Problema del predecessore: problema di regressione, i dataset sono composti da sequenze di numeri rappresentati in 64 bit.
+\item cifre MNIST: problema di classificazione in cui il dataset è composto da un insieme di immagini che rappresentano cifre scritte a mano,
+\item problema del predecessore: problema di regressione in cui i dataset sono composti da sequenze di numeri rappresentati in 64 bit.
 \end{itemize}
-\paragraph*{Classificazione e Regressione}
-I classificatori separano i dati in due o più classi, nel caso di questo elaborato negli esperimenti con MNIST abbiamo 10 classi (le cifre tra 0 e 9).
-I regressori invece si basano sull'interpolazione dei dati per associare tra loro due o più caratteristiche (\textit{feature}). Simile alla classificazione con la differenza che l'output ha un dominio continuo.
-Entrambe le categorie sono affrontate, in questo elaborato, con apprendimento \textit{supervisionato}: si ha un insieme di input di esempio e il corrispettivo output desiderato con lo scopo di apprendere una regola generale in grado di mappare gli input negli output.
+%\paragraph*{Classificazione e Regressione}
+%I classificatori separano i dati in due o più classi, nel caso di questo elaborato negli esperimenti con MNIST abbiamo 10 classi (le cifre tra 0 e 9).
+%I regressori invece si basano sull'interpolazione dei dati per associare tra loro due o più caratteristiche (\textit{feature}). Simile alla classificazione con la differenza che l'output ha un dominio continuo.
+%Entrambe le categorie sono affrontate, in questo elaborato, con apprendimento \textit{supervisionato}: si ha un insieme di input di esempio e il corrispettivo output desiderato con lo scopo di apprendere una regola generale in grado di mappare gli input negli output.
 
 \section{MNIST}
 Il dataset è una vasta base di dati di cifre scritte a mano, spesso impiegata nel campo dell'apprendimento automatico (\textit{machine learning}).
-Il dataset contiene 60000 immagini di training e 10000 immagini di testing, nella Figura~\ref{fig:mnist} vengono mostrati alcuni esempi.
+Il dataset contiene 60000 immagini di training e 10000 immagini di testing delle quali nella Figura~\ref{fig:mnist} vengono mostrati alcuni esempi.
 \begin{figure}
 \begin{center}
 \includegraphics[width=200pt]{MnistExamples.png}
@@ -629,31 +716,32 @@ Il dataset contiene 60000 immagini di training e 10000 immagini di testing, nell
 \label{fig:mnist}
 \end{figure}
 
-\subsection{Addestramento e Tuning Parametri}
-Per trovare una buona configurazione della rete abbiamo svolto una \textit{K-Fold Cross Validation}~\cite{Refaeilzadeh2009} con $k=3$.
+\subsection{Addestramento e tuning parametri}
+\label{modselmnist}
+Per trovare una buona configurazione della rete abbiamo effettuato una \textit{k-Fold Cross Validation}~\cite{Refaeilzadeh2009} con $k=3$. Abbiamo inoltre utilizzato la tecnica di dropout per mitigare gli effetti di un possibile overfitting durante il processo di apprendimento.svolto
 \paragraph*{K-Fold Cross Validation}
-Il \textit{training set} viene diviso in \textit{k} subset, a rotazione vengono usati come \textit{training set} $k-1$ subset, il rimanente subset viene usato come \textit{validation set} (un \textit{test set} fittizio).
-In questa procedura il \textit{test set} non viene utilizzato perchè comprometterebbe la scelta del modello.
+Il \textit{training set} viene diviso in \textit{k} sottoinsiemi, e a rotazione vengono usati come \textit{training set} $k-1$ sottoinsiemi, il rimanente sottoinsiemi viene usato come \textit{validation set}. Quest'ultimo serve per misurare la bontà della rete ottenuta fissando una configurazione dei parametri e addestrando sul training set. Alla fine si sceglie la rete che ha la bontà più alta e si usa il test set per valutare la capacità di generalizzazione.
 \begin{figure}
 \begin{center}
 \includegraphics[width=300pt]{K-fold_cross_validation_EN.jpg}
-\caption{k-fold}\label{fig:kfold}
+\caption{Suddivisione di un dataset in un processo di cross validation a quattro fold}\label{fig:kfold}
 \end{center}
 \end{figure}
 Nella Figura~\ref{fig:kfold} possiamo vedere un esempio di splitting del \textit{training set} con $k=4$.\\
 Negli esperimenti abbiamo fissato i seguenti parametri:
 \begin{itemize}
-\item $\eta=3\times 10^{-3}$;
-\item funzione errore = errore quadratico medio;
-\item metodo di apprendimento = discesa del gradiente con momentum ($\mu=0.99$);
-\item funzione di attivazione degli strati \textit{hidden} = \textit{ReLU};
-\item funzione di attivazione dello strato di output = \textit{softmax}\footnote{$\text{Softmax}(a_{i}) = \frac{\exp^{a_i}}{\sum_j \exp^{a_j}}$};
-\item dimensione dei minibatch = 100 elementi;
-\item criterio di arresto = 100 epoche;
-\item inizializzazione pesi = $\matr{W^l}= \matr{randn}\sqrt{\frac{2}{size^{l-1}}}$  (He et al initialization~\cite{he2015delving}) dove $\matr{randn}$ è una matrice di numeri casuali estratti da una distribuzione normale standard, $l$ rappresenta lo strato e $size^{l-1}$ il numero di neuroni dello strato precedente.
+\item learning rate $\eta=3\times 10^{-3}$;
+\item funzione errore: errore quadratico medio\footnote{$\frac{1}{n}\sum\limits^n_{i=1}{\left(t_i-y_i\right)}^2$, abbreviata negli ultimi esperimenti di questo capitolo con MSE};
+\item metodo di apprendimento: discesa del gradiente con momentum ($\mu=0.99$);
+\item funzione di attivazione degli strati \textit{hidden}: \textit{ReLU};
+\item funzione di attivazione dello strato di output: \textit{softmax}\footnote{La funzione softmax è definita come $\text{softmax}(a_{i}) = \frac{\exp^{a_i}}{\sum_j \exp^{a_j}}$};
+\item dimensione dei minibatch: 100 elementi;
+\item criterio di arresto: 100 epoche;
+\item inizializzazione dei pesi: generazione di numeri casuali (in particolare, ogni peso dello strato $l$ è impostato a $z \sqrt{2 / \mathrm{size}^{l-1}}$, dove $z$ è un valore pseudocasuale estratto da una distribuzione normale standard e $\mathrm{size}^{l-1}$ indica il numero di neuroni nello strato precedente\footnote{He et al initialization~\cite{he2015delving}}. 
+
 \end{itemize}
 
-I parametri di cui vogliamo trovare la configurazione migliore sono invece:
+I parametri di cui vogliamo trovare i valori migliori sono invece:
 \begin{itemize}
 \item architettura della rete (ovvero quanti strati hidden e quanti neuroni per ogni strato hidden);
 \item dropout (percentuale di neuroni negli strati hidden non utilizzati nella fase di training).
@@ -663,56 +751,51 @@ I parametri di cui vogliamo trovare la configurazione migliore sono invece:
 \begin{figure}
 \begin{center}
 \includegraphics[width=200pt]{dropout.jpeg}
-\caption{dropout~\cite{10.5555/2627435.2670313}} \label{fig:dropout}
+\caption{Visualizzazione della tecnica di dropout. (a) struttura di una rete neurale a tre strati. (b) modifica temporanea della struttura della rete durante un'iterazione dell'algoritmo di apprendimento, in cui i neuroni indicati con una croce non concorrono all'aggiornamento dei pesi della rete.~\cite{10.5555/2627435.2670313}} \label{fig:dropout}
 \end{center}
 \end{figure}
-Il \textit{dropout}~\cite{10.5555/2627435.2670313} è una tecnica utilizzata per evitare l'overfitting (ovvero imparare troppo dagli esempi del \textit{training set} senza imparare a generalizzare) mediante l'eliminazione di alcuni neuroni casuali in ogni strato ad eccezione dello strato di output. I neuroni da eliminare cambiano ad ogni epoca, durante la fase di predizione invece sono tutti attivi. Nella Figura~\ref{fig:dropout} possiamo vedere un esempio di questa tecnica.
+Il \textit{dropout}~\cite{10.5555/2627435.2670313} è una tecnica utilizzata per evitare l'overfitting mediante l'eliminazione casuale di alcuni neuroni in ogni strato, a eccezione di quello di output. I neuroni da eliminare cambiano a ogni epoca, durante la fase di predizione invece sono tutti attivi. Nella Figura~\ref{fig:dropout} possiamo vedere un esempio di questa tecnica.
 Nell'elaborato è stata utilizzata la versione chiamata \textit{inverted dropout}
 \begin{equation}
-\matr{drop_l}=(\matr{rand} < p)/p,  \qquad
-\matr{output_l}=\matr{output_l} * \matr{drop_l},
+\mathrm{drop_l}=(\mathrm{rand} < p)/p,  \qquad
+\mathrm{output_l}=\mathrm{output_l} * \mathrm{drop_l},
 \label{drop}
 \end{equation}
-dove $\matr{output_l}$ rappresenta l'output di un generico strato $l$, mentre \textbf{rand} rappresenta una matrice di numeri casuali estratti da una distribuzione uniforme nell'intervallo $[0,1)$ della stessa dimensione di $\matr{output_l}$. $p$ invece è un parametro che rappresenta la probabilità di tenere attivo un neurone.
-
-Nella Tabella~\ref{tab:modselmnist} e nella Tabella~\ref{tab:modselmnist2} la colonna accuratezza rappresenta la media delle accuratezze sui tre \textit{validation set}. Negli esperimenti effettuati abbiamo trovato come configurazione ottimale una rete MLP con uno strato hidden da 300 neuroni senza dropout (indicato nell'intestazione della tabella come $p=1$).
+dove:
+\begin{itemize}
+\item $\mathrm{output_l}$ rappresenta l'output di un generico strato $l$
+\item $\mathrm{rand}$ denota una matrice di numeri casuali estratti da una distribuzione uniforme nell'intervallo $[0,1)$ delle stesse dimensioni di $\mathrm{output_l}$,
+\item $p$ rappresenta la probabilità di tenere attivo un neurone,
+\item $*$ indica l'operatore di prodotto componente per componente tra due vettori.
+\end{itemize} 
+Nelle Tabelle~\ref{tab:modselmnist} e~\ref{tab:modselmnist2} sono indicati i risultati. Negli esperimenti effettuati abbiamo trovato come configurazione ottimale una rete MLP con uno strato hidden da 300 neuroni senza dropout (indicato nell'intestazione della tabella come $p=1$) che è anche la configurazione che abbiamo adottato negli esperimenti descritti di seguito.
 \input{modselmnist}
 \subsection{Pruning}
 \label{pruningmnist}
-In questo paragrafo abbiamo applicato il pruning sulla rete scelta nella model selection, nella Tabella~\ref{tab:tabprmnist} sono riportati i risultati. 
-Abbiamo applicato un pruning dal $10\%$ al $95\%$ a passi di $5\%$. Nella prima riga della Tabella~\ref{tab:tabprmnist} abbiamo riportato l'accuratezza sul \textit{test set} del modello scelto nel paragrafo precedente senza compressioni. L'accuratezza non varia di molto nei vari tagli, questi risultati sono dovuti al fatto che abbiamo usato un grande numero di neuroni nello strato hidden.
+Applicando la tecnica di pruning alla rete ottenuta dopo la procedura di model selection descritta nel paragrafo precedente abbiamo ottenuto i risultati descritti nella Tabella~\ref{tab:tabprmnist}. In particolare abbiamo applicato un pruning dal $10\%$ al $95\%$ a passi di $5\%$. Nella prima riga della Tabella~\ref{tab:tabprmnist} abbiamo riportato l'accuratezza sul \textit{test set} del modello scelto nel paragrafo precedente senza compressioni. Questi risultati da un lato mostrano come nonostante la rimozione di numerose connessioni (fino al 80\%) la rete appresa sia in grado di raggiungere accuratezze maggiori rispetto a quella della rete che le usa tutte; dall'altro lato, che la rete iniziale era sovradimensionata per il problema.
 \vspace*{\fill}
 \begin{center}
 \begin{table}[]
   \small
-  \caption{Pruning su MNIST}\label{tab:tabprmnist}
+  \caption{Variazione dell'accuratezza della rete che ha appreso a classificare le cifre MNIST applicando la tecnica di pruning}\label{tab:tabprmnist}
 \begin{center}
-\begin{tabular}{cc}
+\begin{tabular}{ccc|ccc}
 
 \hline\\[-11pt]
 
 \hline\\[-11pt]
-\texttt{\%Pruning} & \texttt{accuratezza} \\[1pt]
+\texttt{pruning \%} & \texttt{accuratezza} & $r_1$ & \texttt{pruning \%} & \texttt{accuratezza} & $r_1$ \\[1pt]
 \hline\\[-6.5pt]
-ALL & $98.34$ \\ 
-$10\%$ & $98.34$ \\ 
-$15\%$ & $98.34$ \\ 
-$20\%$ & $98.34$ \\ 
-$25\%$ & $98.35$ \\ 
-$30\%$ & $98.36$ \\ 
-$35\%$ & $98.35$ \\ 
-$40\%$ & $98.36$ \\ 
-$45\%$ & $98.36$ \\ 
-$50\%$ & $98.36$ \\ 
-$55\%$ & $98.32$ \\ 
-$60\%$ & $98.3$ \\ 
-$65\%$ & $98.33$ \\ 
-$70\%$ & $98.34$ \\ 
-$75\%$ & $98.34$ \\ 
-$80\%$ & $98.38$ \\ 
-$85\%$ & $98.31$ \\ 
-$90\%$ & $98.27$ \\ 
-$95\%$ & $98.28$ \\   
+ALL    & $98.34$ &    & $55\%$ & $98.32$ & 0.9\\ 
+$10\%$ & $98.34$ &$1.8$ & $60\%$ & $98.30$ & $0.8$\\ 
+$15\%$ & $98.34$ &$1.7$ & $65\%$ & $98.33$ & $0.7$\\ 
+$20\%$ & $98.34$ &$1.6$ & $70\%$ & $98.34$ & $0.6$\\ 
+$25\%$ & $98.35$ &$1.5$ & $75\%$ & $98.34$ & $0.5$\\ 
+$30\%$ & $98.36$ &$1.4$ & $80\%$ & $98.38$ & $0.4$\\ 
+$35\%$ & $98.35$ &$1.3$ & $85\%$ & $98.31$ & $0.3$\\ 
+$40\%$ & $98.36$ &$1.2$ & $90\%$ & $98.27$ & $0.2$\\ 
+$45\%$ & $98.36$ &$1.1$ & $95\%$ & $98.28$ & $0.1$\\ 
+$50\%$ & $98.36$ &$1.0$&&&\\  
 \hline\\[-11pt]
 \hline\\[-8pt]
 \end{tabular}\\[5pt]
@@ -720,43 +803,33 @@ $95\%$ & $98.28$ \\
 \normalsize
 \end{table}
 \end{center}
-\subsection{Weight Sharing}
-In questo paragrafo abbiamo applicato il Weight Sharing sulla rete scelta nella model selection, nella Tabella~\ref{tab:tabwsmnist} sono riportati i risultati. La prima colonna rappresenta il numero di centroidi utilizzati per la compressione, prendendo per esempio $16$ - $8$: $16$ rappresenta il numero di centroidi nella matrice dei pesi tra lo strato di input e lo strato hidden; $8$ rappresenta il numero di centroidi nella matrice dei pesi tra lo strato hidden lo strato di output. Nella prima riga della Tabella~\ref{tab:tabwsmnist} abbiamo riportato l'accuratezza sul \textit{test set} del modello scelto senza compressioni. Come con il pruning possiamo notare che l'accuratezza, anche con un numero di centroidi abbastanza piccoli, (per esempio $16$ - $8$) rimane sopra il $98\%$.
+\subsection{Weight sharing}
+La Tabella~\ref{tab:tabwsmnist} riporta i risultati dell'applicazione della tecnica di weight sharing alla rete ottenuta nel Paragrafo~\ref{modselmnist}. La prima colonna rappresenta il numero di centroidi utilizzati per la compressione, specificati separatamente per i due strati della rete. Nella prima riga della Tabella~\ref{tab:tabwsmnist} abbiamo riportato l'accuratezza sul \textit{test set} del modello scelto senza compressioni. Come avvenuto con il pruning, possiamo notare che l'accuratezza rimane sopra il 98\% anche considerando un numero abbastanza piccolo di centroidi.
+Nella colonna $r_2$ possiamo notare valori molto vicini al variare dei cluster, riprendendo~\eqref{tassows}: $s$ (che ricordiamo essere il prodotto delle dimensioni della matrice) è sempre maggiore di 256, quindi $f(s)=16$; semplificando la formula troviamo $$\displaystyle{\frac{1}{2}+\frac{k}{s}},$$ per questo motivo $r_2$ non può essere minore di $0.5$.
 \vspace*{\fill}
 \begin{center}
 \begin{table}[]
   \small
-  \caption{Weight Sharing su MNIST}\label{tab:tabwsmnist}
+  \caption{Variazione dell'accuratezza della rete che ha appreso a classificare le cifre MNIST applicando la tecnica di weight sharing}\label{tab:tabwsmnist}
 \begin{center}
-\begin{tabular}{cc}
+\begin{tabular}{ccc|ccc}
 
 \hline\\[-11pt]
 
 \hline\\[-11pt]
-\texttt{Centroidi} & \texttt{accuratezza} \\[1pt]
+\texttt{centroidi} & \texttt{accuratezza} & $r_2$ & \texttt{centroidi} & \texttt{accuratezza} & $r_2$ \\[1pt]
 \hline\\[-6.5pt]
-ALL & $98.34$ \\ 
-$4$ - $2$ & $94.0$ \\ 
-$16$ - $8$ & $98.14$ \\ 
-$32$ - $8$ & $98.32$ \\ 
-$32$ - $16$ & $98.25$ \\ 
-$64$ - $16$ & $98.29$ \\ 
-$64$ - $32$ & $98.34$ \\
-$128$ - $32$ & $98.38$ \\ 
-$192$ - $32$ & $98.38$ \\  
-$192$ - $64$ & $98.36$ \\
-$256$ - $32$ & $98.31$ \\ 
-$256$ - $64$ & $98.36$ \\
-$512$ - $32$ & $98.38$ \\  
-$512$ - $64$ & $98.35$ \\
-$1024$ - $32$ & $98.37$ \\  
-$1024$ - $64$ & $98.37$ \\
-$2048$ - $32$ & $98.36$ \\  
-$2048$ - $64$ & $98.36$ \\ 
-$4096$ - $32$ & $98.35$ \\ 
-$4096$ - $64$ & $98.37$ \\
-$8192$ - $32$ & $98.43$ \\
-$8192$ - $64$ & $98.34$ \\  
+ALL          & $98.34$ &       & $256$ - $64$  & $98.36$ & $0.5$\\ 
+$4$ - $2$    & $94.00$ & $0.5$ & $512$ - $32$  & $98.38$ & $0.5$\\   
+$16$ - $8$   & $98.14$ & $0.5$ & $512$ - $64$  & $98.35$ & $0.5$\\ 
+$32$ - $8$   & $98.32$ & $0.5$ & $1024$ - $32$ & $98.37$ & $0.5$\\   
+$32$ - $16$  & $98.25$ & $0.5$ & $1024$ - $64$ & $98.37$ & $0.5$\\ 
+$64$ - $16$  & $98.29$ & $0.5$ & $2048$ - $32$ & $98.36$ & $0.51$\\   
+$64$ - $32$  & $98.34$ & $0.5$ & $2048$ - $64$ & $98.36$ & $0.51$\\ 
+$128$ - $32$ & $98.38$ & $0.5$ & $4096$ - $32$ & $98.35$ & $0.52$\\  
+$192$ - $32$ & $98.38$ & $0.5$ & $4096$ - $64$ & $98.37$ & $0.52$\\  
+$192$ - $64$ & $98.36$ & $0.5$ & $8192$ - $32$ & $98.43$ & $0.53$\\
+$256$ - $32$ & $98.31$ & $0.5$ & $8192$ - $64$ & $98.34$ & $0.53$\\  
 \hline\\[-11pt]
 \hline\\[-8pt]
 \end{tabular}\\[5pt]
@@ -766,18 +839,15 @@ $8192$ - $64$ & $98.34$ \\
 \end{center}
 
 \section{Problema del predecessore}
-Sia $X$ un sottoinsieme delle parti di un universo $U$, ordinato in base all'ordine $\leq$ definito su $U$. Partiamo dal presupposto che ogni elemento di $U$ può essere rappresentato da $d$ bit. Supponiamo anche che l'ordinamento lessicografico della rappresentazione binaria di ogni elemento in $U$ mantiene la relazione d'ordine $\leq$. Il problema di ricerca del predecessore consiste nel trovare la posizione della chiave più grande in $X$ non maggiore di una data in input $x$, indichiamo con $pos(x)$ la posizione di $x$ appartenente a $X$ nella sequenza ordinata, il problema è determinare $pred(x)=pos(z)$ con $z = \max y \in X$ dove $y \leq x$.
-\begin{equation}
-x=\{2,3,4,5,12,15,18\}
-\tag{Esempio}
-\end{equation}
-Assumiamo che 7 è la chiave da cercare. La ricerca del predecessore dovrebbe restituire la posizione 4.
-Dato $|X|=n$, sia $F_{X}$ la distribuzione cumulativa empirica degli elementi di $U$ rispetto a $X$, per ogni $x\in U$, $F_X(x)$ = ${\frac{|y \in X | y \leq z|}{n}}$. Per semplificare la notazione denotiamo $F_{X}$ con $F$. Nell'esempio sopra, $F(2)=\frac{1}{7}$, $F(5)=\frac{4}{7}$, $F(6)=\frac{4}{7}$, $F(18)=1$. La conoscenza di $F$ ci dà una soluzione al nostro problema, dato un elemento di $x$ appartenente a U, una sola valutazione di $F$ fornisce $pred(x)=\ceil{(F(z)*n)}$. Il nostro obiettivo è trovare una buona approssimazione $\tilde{F}$ di $F$.
-La risoluzione di questo problema potrebbe consentire di trovare un elemento all'interno di una lista ordinata in tempo $O(1)$ invece che $O(\log n)$ degli alberi binari di ricerca.
-La rete neurale però può compiere un errore nel dare la posizione di un elemento, per questo motivo teniamo traccia dell'errore massimo, indicato con $\epsilon$, che la rete compie. Questo perchè durante la ricerca, dopo che il modello ci ha dato la posizione, dobbiamo effettuare una ricerca di $\epsilon$ a destra e sinistra della posizione restituita dal modello. Per questo motivo negli esperimenti abbiamo provato a minimizzare una funzione convessa che approssima il massimo, ovvero la \textit{Log Sum Exp}, nel Paragrafo~\ref{seclse}.
+Fissato un universo $U$, sul quale è definita una relazione di ordine totale $\leq$, consideriamo un sottoinsieme $X \subseteq U$ i cui elementi chiameremo \emph{chiavi}. Il problema di ricerca del predecessore consiste nel trovare la posizione della chiave più grande in $X$ che non sia maggiore di un valore $x$ dato in input. Se per ogni $x \in X$ indichiamo con $\mathrm{pos}(x)$ la posizione di $x$ nella sequenza ottenuta ordinando gli elementi di $X$, il problema equivale a determinare il valore $\mathrm{pred}(x) = \mathrm{pos}(z)$, dove $z = arg max{y \in X} \{ y \leq x\}$.
+Se per esempio consideriamo l'insieme $$\displaystyle{ X=\{2,3,4,5,12,15,18\}}$$ e assumiamo $x=7$, la ricerca del predecessore dovrebbe restituire la posizione 4.
 
-Per questo problema sono stati utilizzati tre dataset, rispettivamente con $512$, $8192$ e $1048576$ esempi.
-Diversamente da MNIST il modello MLP cercherà di risolvere un problema di regressione. La rete neurale dovrà imparare a restituire, data una chiave, $\tilde{F}$.
+Dato $|X|=n$, sia $F_X: U \mapsto [0, 1]$ la distribuzione cumulativa empirica degli elementi di $U$ rispetto a $X$, per ogni $x\in U$, $F_X(x) = \frac{| \{x' \in X \text{ tale che }x' \leq x\} |}{n}$. Per semplificare la notazione, denotiamo $F_{X}$ con $F$. Nell'esempio sopra indicato, si avrà dunque $F(2)=\frac{1}{7}$, $F(5)=\frac{4}{7}$, $F(6)=\frac{4}{7}$, $F(18)=1$. La conoscenza di $F$ ci dà una soluzione al nostro problema, in quanto dato un generico $x \in U$, una sola valutazione di $F$ fornisce $\mathrm{pred}(x) = \ceil{(F(z)\cdot n)}$. Il nostro obiettivo è quindi quello di trovare una rete neurale che calcoli una buona approssimazione $\tilde{F}$ di $F$.
+La risoluzione di questo problema potrebbe consentire di trovare un elemento all'interno di una lista ordinata in tempo $O(1)$ invece che $O(\log n)$ tipico degli alberi binari di ricerca.
+La rete neurale però può compiere un errore nel dare la posizione di un elemento, per questo motivo teniamo traccia dell'errore massimo, indicato con $\epsilon$, che la rete compie. Pertanto durante la ricerca, dopo che il modello ha predetto la posizione, dovremo effettuare una ricerca che coinvolgerà al più $\epsilon$ posizioni a destra e a sinistra rispetto a quanto indicato dal modello. Per questo motivo, dopo aver utilizzato delle funzioni di errore standard (come l'errore quadratico medio) che minimizzano l'errore medio, negli esperimenti abbiamo provato ad allenare la rete neurale minimizzando una funzione convessa che approssima il massimo. Tale funzione prende il nome di $\mathrm{LogSumExp}$ è descritta nel Paragrafo~\ref{seclse}.
+
+Per questo problema sono stati utilizzati tre dataset, rispettivamente con $512$, $8192$ e $1048576$ esempi. Questi dataset saranno successivamente indicati rispettivamente come file 3, file 7 e file 10.
+Diversamente da MNIST, il modello MLP cercherà di risolvere un problema di regressione: la rete neurale dovrà imparare a restituire, data una chiave, il corrispondente valore di $\tilde{F}$.
 Sono state usate tre reti differenti:
 \begin{itemize}
 \item{rete 1 con 0 strati hidden};
@@ -786,82 +856,98 @@ Sono state usate tre reti differenti:
 \end{itemize}
 Per tutte e tre le reti, dove non indicato esplicitamente, i parametri utilizzati sono:
 \begin{itemize}
-\item funzione errore = errore quadratico medio;
-\item metodo di apprendimento = discesa del gradiente con momentum ($\mu=0.9$);
-\item funzione di attivazione dei neuroni = \textit{LeakyReLU} ($\alpha=0.05$);
+\item funzione errore: errore quadratico medio;
+\item metodo di apprendimento: discesa del gradiente con momentum ($\mu=0.9$);
+\item funzione di attivazione dei neuroni: \textit{LeakyReLU} ($\alpha=0.05$);
 \item{$\lambda$} = $10^{-5}$ \footnote{usato per nella regolarizzazione l2, valore aggiunto alla funzione di errore che penalizza i pesi più grandi, riducendo così il problema di overfitting ~\cite{L2}.};
-\item{dimensione dei minibatch} = $64$;
-\item{epoche} = $20000$;
-\item{criterio di arresto} = l'apprendimento termina se non si hanno miglioramenti di performance con $\textit{patience}=4$ come spiegato nel Paragrafo~\ref{stopping};
-\item inizializzazione dei pesi = numeri casuali estratti da una distribuzione normale standard con $\mu=0$ e $\sigma= 0.05$. 
+\item{dimensione dei minibatch}: $64$;
+\item{epoche}: $20000$;
+\item{criterio di arresto}: l'apprendimento termina se non si hanno miglioramenti di performance con $\textit{patience}=4$ (vedi Paragrafo~\ref{stopping});
+\item inizializzazione dei pesi = numeri casuali estratti da una distribuzione normale con $\mu=0$ e $\sigma= 0.05$. 
 \end{itemize}
-Ci riferiremo a queste reti con \textbf{NNX}, dove X indica il numero di strati.
-Per NN1 è stato usato $\eta=5 \times 10^{-4}$, per NN2 e NN3 invece $\eta=3 \times 10^{-3}$; questi valori sono stati trovati eseguendo un tuning su $\eta$.
+Ci riferiremo a queste reti con NNX, dove X indica il numero totale di strati (compreso quello di output).
+Per NN1 è stato usato un learning rate $\eta=5 \times 10^{-4}$, mentre per NN2 e NN3 si ha $\eta=3 \times 10^{-3}$. Questi valori sono stati trovati eseguendo un tuning su $\eta$.
 
-
+I risultati ottenuti sono indicati nelle Tabelle~\ref{pr13} -~\ref{ws310}, che riportano le seguenti colonne:
 Le colonne delle tabelle dei paragrafi successivi sono:
 \begin{itemize}
-\item pruning \% = percentuale di connessioni eliminate, calcolate con il quantile come viene spiegato nel Paragrafo~\ref{percentile}, 0 indica la rete non compressa;
-\item $r_2$ = proporzione dello spazio originario occupato da quella compressa, 1 indica la rete non compressa;
-\item cluster: indica, per ogni matrice dei pesi della rete, il numero di cluster utilizzati;
-\item Space Overhead (KB) =  spazio del modello in KB rispetto al dataset;
-\item training time = tempo in secondi impiegato dalla rete per il training, compreso il tempo iniziale di applicazione della compressione;
+\item Pruning \% = percentuale di connessioni eliminate (calcolate sulla base di quantili come indicato nel Paragrafo\ref{percentile}); in particolare, 0 indica la rete non compressa;
+\item $r_2$ = proporzione dello spazio originario occupato da quella compressa (1 indica la rete non compressa);
+\item Clusters: numero di cluster utilizzati per ogni matrice dei pesi;
+\item Space Overhead (KB) =  spazio del modello (in KB) rispetto al dataset, calcolata come $$\displaystyle{\frac{\sum\limits_{i=1}^n \left(|\mathrm{strato}_i|\right) \cdot \mathrm{bytes} \cdot 100}{1024 \cdot \left| \mathrm{dataset} \right|}}$$ dove per $\mathrm{strato}_i$ viene preso in considerazione il prodotto delle dimensioni della matrice delle connessioni per memorizzare i pesi per l'$i$-esimo strato, bytes rappresenta il numero di bytes utilizzato per rappresentare i pesi;
+\item Training Time (s) = tempo (in secondi) impiegato dalla rete per il training, compreso il tempo iniziale di applicazione della compressione (nella rete non compressa non viene indicato questo tempo, questi casi sono indicati con -);
 \item $\epsilon$ = errore massimo sugli esempi di training;
-\item error \% = errore massimo rispetto alla dimensione del dataset considerato;
-\item mean error = errore medio.
+\item Error \% = errore massimo rispetto alla dimensione del dataset considerato;
+\item Mean Error = errore medio.
 \end{itemize}
 
 \subsection{Pruning}
 \label{prpred}
-In questo paragrafo abbiamo applicato il pruning e i risultati sono nelle Tabelle~\ref{pr13} -~\ref{pr310}. Come dicevamo in precedenza nel Paragrafo~\ref{sectassopr} prima di raggiungere una certa sparsità il modello compresso occupa più spazio del modello originario. I modelli compressi occupano meno spazio a partire da una percentuale di pruning compresa tra il 50\% e il 60\%.
-Nei risultati di questi esperimenti possiamo notare una scarsa efficacia del pruning in reti con pochi neuroni (NN1), mentre (come già visto con MNIST nel Paragrafo~\ref{pruningmnist}) con molti neuroni (NN2 e NN3) il pruning a percentuali molto elevate mantiene errori medi ed errori massimi equivalenti alla rete non compressa se non migliori. 
+Le Tabelle~\ref{pr13} -~\ref{pr310} mostrano i risultati dell'applicazione della tecnica di pruning alle reti ottenute per il problema del predecessore. Come accennato nel Paragrafo~\ref{sectassopr} prima di raggiungere una certa sparsità il modello compresso occupa più spazio del modello originario. I modelli compressi occupano meno spazio a partire da una percentuale di pruning compresa tra il 50\% e il 60\%.
+Nei risultati di questi esperimenti possiamo notare una scarsa efficacia del pruning in reti con pochi neuroni (NN1), mentre (come già visto con MNIST nel Paragrafo~\ref{pruningmnist}) con molti neuroni (NN2 e NN3) il pruning a percentuali molto elevate mantiene errori medi ed errori massimi equivalenti alla rete non compressa, se non migliori. 
+Infatti sul dataset 10 si riesce ad arrivare a tassi di compressione maggiori, fino a 80\%, migliorando l'errore. Possiamo osservare che, per la natura del problema (le posizioni rapprentano una successione monotona non decrescente), la rete NN1 risulta milgiore per questo problema (il rapporto prestazioni/spazio è sempre a suo favore).
 \input{pruning}
-\clearpage
 \subsection{Weight Sharing}
-In questo paragrafo abbiamo applicato il weight sharing e i risultati sono nelle Tabelle~\ref{ws13} -~\ref{ws310}.
+Le Tabelle~\ref{ws13} -~\ref{ws310} mostrano i risultati dell'applicazione della tecnica di weight sharing alle reti ottenute per il problema del predecessore.
 Il numero di centroidi è calcolato come
 \begin{equation}
 \mathrm{cluster}=\left(\frac{r_2 \times32s -sb}{32}\right)
 \label{cluster}
 \end{equation}
-dove $r_2$ è il tasso di compressione (Paragrafo~\ref{sec:tassows}), $s$ è il numero di connessioni e $b$ è il numero di byte utilizzati per rappresentare i centroidi.
+dove $r_2$ è il tasso di compressione (vedi Paragrafo~\ref{sec:tassows}), $s$ è il numero di connessioni e $b$ è il numero di byte utilizzati per rappresentare i centroidi.
 Per~\eqref{cluster} e~\eqref{tassows} non possiamo raggiungere valori di $r_2$ inferiori a quelli mostrati nelle tabelle.
-Come ci si aspetta, al crescere del numero di centroidi le reti hanno una performance crescente ed in alcuni casi migliore della rete non compressa. 
+Come ci si aspetta, al crescere del numero di centroidi le reti hanno una performance crescente e in alcuni casi migliore della rete non compressa. Anche da questi esperimenti NN1 si fa preferire per prestazioni e spazio occupato.
 \input{ws}
 \subsection{MSE vs MAE}
 \label{secmsemae}
-In questo paragrafo abbiamo provato a trovare una configurazione migliore per la rete NN1 confrontanto i risultati tra le funzioni errore Mean Squared Error (MSE) e Mean Absolute Error (MAE) descritte in~\eqref{msemae}.
+Le Tabelle~\ref{tab:mae1} -~\ref{tab:mae3} descrivono i risultati di alcuni esperimenti volti a confrontare le performance della rete neurale NN1 ottenute basandosi sulle funzioni di errore MSE (utilizzata in tutti i precedenti esperimenti) e Mean Absolute Error (MAE), quest'ultima è descritta in seguito:
 \begin{equation}
-\mathrm{MSE}=\frac{1}{n}\sum\limits^n_{i=1}{\left(t_i-y_i\right)}^2, \qquad
-\mathrm{MAE}=\frac{1}{n}\sum\limits^n_{i=1}|t_i-y_i|.
+\mathrm{MAE}=\frac{1}{n}\sum\limits^n_{i=1}|t_i-y_i|,
 \label{msemae}
 \end{equation}
-I risultati sono riportati nelle Tabelle~\ref{tab:mae1} -~\ref{tab:mae3}.
-Dai risultati ottenuti si può vedere come tra le due diverse funzioni di errore non ci sia molta differenza di performance.
+la cui derivata è
+\begin{equation}
+\dfrac{\partial \text{MAE}}{\partial (t_i-y_i)} = 
+\begin{cases}
+  +1& \text{ se } t_i-y_i > 0,\\
+  -1& \text{ altrimenti}.
+\end{cases}
+\end{equation}
+La colonna \texttt{mb} indica diverse dimensioni dei minibatch. Dai risultati ottenuti si può vedere come tra le due diverse funzioni di errore non ci sia molta differenza di performance.
 \input{mae}
 
 \subsection{MSE vs LSE}
 \label{seclse}
-In questo paragrafo abbiamo provato a trovare una configurazione migliore per la rete NN1 confrontanto i risultati tra le funzioni errore Mean Squared Error (MSE, vista nel Paragrafo~\eqref{msemae}) e LogSumExp (LSE, descritta in~\eqref{LSE}).
-I risultati sono riportati nelle Tabelle~\ref{tab:lse1} -~\ref{tab:lse3}.
-Anche in questo confronto non abbiamo trovato molta differenza di performance.
+La Tabella~\ref{tab:lse1} descrive i risultati della rete neurale NN1 di alcuni esperimenti volti ad apprendere i pesi in modo da minimizzare l'errore massimo, e non quello medio. In tal proposito abbiamo provato ad effettuare un confronto tra le funzioni errore MSE e LogSumExp (LSE) descritta in seguito:
 \begin{equation}
-\mathrm{LSE}(t_1-y_1,\dots ,t_n-y_n)=\log \left(\exp(t_1-y_1)+\cdots +\exp(t_n-y_n)\right)
+\mathrm{LSE}(t_1-y_1,\dots ,t_n-y_n)=\log \left(\exp(t_1-y_1)+\cdots +\exp(t_n-y_n)\right),
 \label{LSE}
 \end{equation}
+la cui derivata è
+\begin{equation}
+\frac{\partial \mathrm{LSE}(t_1-y_1,\dots ,t_n-y_n)}{\partial (t_i-y_i)} = \frac{\exp{(t_i-y_i)}}{\sum\limits_j (t_j-y_j)}.
+\label{LSEd}
+\end{equation}
+Da~\eqref{LSEd} possiamo notare come la derivata di LSE sia lo softmax (la funzione di attivazione utilizzata nel Paragrafo~\ref{modselmnist}): questo permetterà, durante l'addestramento, di modificare in modo più marcato i pesi che causano l'errore maggiore.
+Dai risultati LSE sembra farsi preferire, anche se non in maniera significativa. Sembra avere la caratteristica di convergere prima, rispetto al MSE, e lo si nota soprattutto con i learning rate più bassi, dove la convergenza è più lenta.
 \input{lse}
 
 \subsection{Splitting in N modelli}
-L'idea applicata in questo paragrafo è quella di dividere il dataset ordinato in sottosequenze ordinate e usare una rete neurale senza strati hidden (\textbf{NN1}) per ogni sottosequenza con l'obiettivo di ridurre l'errore massimo $\epsilon$ che sarà quindi il massimo degli errori massimi di ogni modello.
-I risultati sono riportati nelle Tabelle~\ref{tab:n1} -~\ref{tab:n3}, le intestazioni delle colonne sono:
+L'ultimo esperimento considerato è consistito nel dividere il dataset ordinato in sottosequenze ordinate e usare una rete neurale senza strati hidden (NN1) per ogni sottosequenza, con l'obiettivo di ridurre l'errore massimo $\epsilon$ che sarà quindi il più grande degli errori massimi di ogni modello.
+I risultati sono riportati nella Tabella~\ref{tab:n1}, in cui le intestazioni delle colonne sono:
 \begin{itemize}
-		\item Split = numero di split sul dataset (e di conseguenza numero di modelli NN1 usati);
-		\item $\epsilon$ = massimo degli errori massimi di ogni NN1;
-		\item $\mu$ = media degli errori massimi di ogni NN1;
-		\item Space Overhead (KB) = somma dello spazio di ogni NN1 in KB rispetto al dataset.
+		\item Split: numero di split sul dataset (e di conseguenza numero di modelli NN1 usati);
+		\item $\epsilon$: il più grande degli errori massimi di ogni NN1;
+		\item $\mu$: media degli errori massimi di ogni NN1;
+		\item SpaceOvh: somma dello spazio (in KB) di ogni NN1 rispetto al dataset.
 	\end{itemize}
-Come ci si aspetta, ad eccezione di alcuni casi, al crescere del numero di Split le performance migliorano occupando meno delle reti compresse precedenti. 
+Come ci si aspetta, a eccezione di alcuni casi, al crescere del numero di split le performance migliorano occupando meno delle reti compresse precedenti, facendo un confronto performance/spazio occupato con le compressioni precedenti troviamo: dataset 7, NN2, pruning 80\% ed errore massimo 33 (vedi Tabella~\ref{pr27}); dataset 10, NN2, pruning 90\% ed errore massimo 699 (vedi Tabella~\ref{pr210}). Nella Tabella~\ref{tab:n1} sono evidenziati i modelli con lo stesso spazio occupato delle reti precedenti, a parità (o poco meno) di spazio occupato abbiamo un errore massimo nettamente più basso.
+
 	\input{netofnets}
+	
+	
+\chapter*{Conclusioni}
+In questo elaborato si sono studiati due metodi di compressione di reti neurali artificiali per valutarne l’efficacia in un problema di classificazione e in un problema di regressione. In particolare, si voleva valutare la capacità di tali tecniche di non degradare le performance. Dai risultati ottenuti durante i numerosi esperimenti si è riscontrato che le connessioni della rete neurale, sono spesso molte di più di quelle che realmente servono per ottenere ottimi risultati; per questo motivo l’elaborato conferma che gli algoritmi di compressione ricoprono un ruolo fondamentale in questo ambito. L’obiettivo di mantenere le performance ai livelli di una rete neurale senza compressione è stato raggiunto con successo, a discapito di altri fattori  quali la complessità dell’implementazione e il tempo di esecuzione dell’apprendimento. Siccome i parametri della rete presentata sono numerosi, abbiamo ottenuto una vasta gamma di risultati, in cui si può notare come diverse configurazioni ottengono risultati simili: un numero maggiore di neuroni risultano in un’accuratezza ottimale con un pruning alto, a discapito del tempo di esecuzione; al contrario, un numero minore di neuroni portano ad avere un tempo di esecuzione più basso, a discapito di un pruning non troppo significativo, e talvolta l’impossibilità di eseguire un clustering adeguato per mancanza di sufficienti connessioni. Come si nota negli ultimi esperimenti riguardanti il problema del predecessore (in cui vogliamo approssimare una funzione monotona non decrescente) è conveniente non sovradimensionare la rete neurale, reti come NN1 in molti casi hanno dato performance migliori di reti neurali molto più grandi. In conclusione, si può constatare, dai dati ottenuti, che la compressione di una rete, con gli algoritmi utilizzati in questo lavoro, ha molteplici vantaggi e permette a dispositivi meno prestanti di far uso di reti neurali artificiali a uno spazio di memoria ridotto rispetto alla versione tradizionale.
 \bibliography{mybib}{}
 \bibliographystyle{plain}
 \end{document}
