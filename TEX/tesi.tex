@@ -718,7 +718,7 @@ Il dataset contiene 60000 immagini di training e 10000 immagini di testing delle
 
 \subsection{Addestramento e tuning parametri}
 \label{modselmnist}
-Per trovare una buona configurazione della rete abbiamo effettuato una \textit{k-Fold Cross Validation}~\cite{Refaeilzadeh2009} con $k=3$. Abbiamo inoltre utilizzato la tecnica di dropout per mitigare gli effetti di un possibile overfitting durante il processo di apprendimento.svolto
+Per trovare una buona configurazione della rete abbiamo effettuato una \textit{k-Fold Cross Validation}~\cite{Refaeilzadeh2009} con $k=3$. Abbiamo inoltre utilizzato la tecnica di dropout per mitigare gli effetti di un possibile overfitting durante il processo di apprendimento.
 \paragraph*{K-Fold Cross Validation}
 Il \textit{training set} viene diviso in \textit{k} sottoinsiemi, e a rotazione vengono usati come \textit{training set} $k-1$ sottoinsiemi, il rimanente sottoinsiemi viene usato come \textit{validation set}. Quest'ultimo serve per misurare la bontà della rete ottenuta fissando una configurazione dei parametri e addestrando sul training set. Alla fine si sceglie la rete che ha la bontà più alta e si usa il test set per valutare la capacità di generalizzazione.
 \begin{figure}
@@ -871,14 +871,14 @@ Per NN1 è stato usato un learning rate $\eta=5 \times 10^{-4}$, mentre per NN2 
 I risultati ottenuti sono indicati nelle Tabelle~\ref{pr13} -~\ref{ws310}, che riportano le seguenti colonne:
 Le colonne delle tabelle dei paragrafi successivi sono:
 \begin{itemize}
-\item Pruning \% = percentuale di connessioni eliminate (calcolate sulla base di quantili come indicato nel Paragrafo\ref{percentile}); in particolare, 0 indica la rete non compressa;
-\item $r_2$ = proporzione dello spazio originario occupato da quella compressa (1 indica la rete non compressa);
+\item Pruning \%: percentuale di connessioni eliminate (calcolate sulla base di quantili come indicato nel Paragrafo\ref{percentile}); in particolare, 0 indica la rete non compressa;
+\item $r_2$: proporzione dello spazio originario occupato da quella compressa (1 indica la rete non compressa);
 \item Clusters: numero di cluster utilizzati per ogni matrice dei pesi;
-\item Space Overhead (KB) =  spazio del modello (in KB) rispetto al dataset, calcolata come $$\displaystyle{\frac{\sum\limits_{i=1}^n \left(|\mathrm{strato}_i|\right) \cdot \mathrm{bytes} \cdot 100}{1024 \cdot \left| \mathrm{dataset} \right|}}$$ dove per $\mathrm{strato}_i$ viene preso in considerazione il prodotto delle dimensioni della matrice delle connessioni per memorizzare i pesi per l'$i$-esimo strato, bytes rappresenta il numero di bytes utilizzato per rappresentare i pesi;
-\item Training Time (s) = tempo (in secondi) impiegato dalla rete per il training, compreso il tempo iniziale di applicazione della compressione (nella rete non compressa non viene indicato questo tempo, questi casi sono indicati con -);
-\item $\epsilon$ = errore massimo sugli esempi di training;
-\item Error \% = errore massimo rispetto alla dimensione del dataset considerato;
-\item Mean Error = errore medio.
+\item Space Overhead (KB):  spazio del modello (in KB) rispetto al dataset, calcolata come $$\displaystyle{\frac{\sum\limits_{i=1}^n \left(|\mathrm{strato}_i|\right) \cdot \mathrm{bytes} \cdot 100}{1024 \cdot \left| \mathrm{dataset} \right|}}$$ dove per $\mathrm{strato}_i$ viene preso in considerazione il prodotto delle dimensioni della matrice delle connessioni per memorizzare i pesi per l'$i$-esimo strato, bytes rappresenta il numero di bytes utilizzato per rappresentare i pesi;
+\item Training Time (s): tempo (in secondi) impiegato dalla rete per il training, compreso il tempo iniziale di applicazione della compressione (nella rete non compressa non viene indicato questo tempo, questi casi sono indicati con -);
+\item $\epsilon$: errore massimo sugli esempi di training;
+\item Error \%: errore massimo rispetto alla dimensione del dataset considerato;
+\item Mean Error: errore medio.
 \end{itemize}
 
 \subsection{Pruning}
@@ -928,7 +928,7 @@ la cui derivata è
 \frac{\partial \mathrm{LSE}(t_1-y_1,\dots ,t_n-y_n)}{\partial (t_i-y_i)} = \frac{\exp{(t_i-y_i)}}{\sum\limits_j (t_j-y_j)}.
 \label{LSEd}
 \end{equation}
-Da~\eqref{LSEd} possiamo notare come la derivata di LSE sia lo softmax (la funzione di attivazione utilizzata nel Paragrafo~\ref{modselmnist}): questo permetterà, durante l'addestramento, di modificare in modo più marcato i pesi che causano l'errore maggiore.
+Da~\eqref{LSEd} possiamo notare come la derivata di LSE sia la softmax (la funzione di attivazione utilizzata nel Paragrafo~\ref{modselmnist}): questo permetterà, durante l'addestramento, di modificare in modo più marcato i pesi che causano l'errore maggiore.
 Dai risultati LSE sembra farsi preferire, anche se non in maniera significativa. Sembra avere la caratteristica di convergere prima, rispetto al MSE, e lo si nota soprattutto con i learning rate più bassi, dove la convergenza è più lenta.
 \input{lse}
 
