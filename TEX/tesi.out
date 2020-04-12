@@ -1,22 +1,28 @@
-\BOOKMARK [0][-]{chapter.1}{Reti Neurali}{}% 1
-\BOOKMARK [1][-]{section.1.1}{Reti Neurali Biologiche}{chapter.1}% 2
-\BOOKMARK [1][-]{section.1.2}{Reti Neurali Artificiali}{chapter.1}% 3
-\BOOKMARK [1][-]{section.1.3}{Addestramento della rete}{chapter.1}% 4
-\BOOKMARK [1][-]{section.1.4}{Funzioni di attivazione}{chapter.1}% 5
-\BOOKMARK [1][-]{section.1.5}{MultiLayer Perceptron}{chapter.1}% 6
-\BOOKMARK [2][-]{subsection.1.5.1}{Addestramento}{section.1.5}% 7
-\BOOKMARK [0][-]{chapter.2}{Metodi di compressione}{}% 8
-\BOOKMARK [1][-]{subsection.2.0.1}{Tecniche implementative}{chapter.2}% 9
-\BOOKMARK [2][-]{subsection.2.0.2}{Tasso di compressione}{subsection.2.0.1}% 10
-\BOOKMARK [1][-]{section.2.1}{Weight Sharing}{chapter.2}% 11
-\BOOKMARK [2][-]{subsection.2.1.1}{Strutture dati necessarie}{section.2.1}% 12
-\BOOKMARK [2][-]{subsection.2.1.2}{Tecniche implementative}{section.2.1}% 13
-\BOOKMARK [2][-]{subsection.2.1.3}{Tasso di compressione}{section.2.1}% 14
-\BOOKMARK [0][-]{chapter.3}{Esperimenti}{}% 15
-\BOOKMARK [1][-]{section.3.1}{MNIST}{chapter.3}% 16
-\BOOKMARK [2][-]{subsection.3.1.1}{Addestramento e Tuning Parametri}{section.3.1}% 17
-\BOOKMARK [2][-]{subsection.3.1.2}{Weight Sharing}{section.3.1}% 18
-\BOOKMARK [1][-]{section.3.2}{Problema del predecessore}{chapter.3}% 19
-\BOOKMARK [2][-]{subsection.3.2.1}{Pruning}{section.3.2}% 20
-\BOOKMARK [2][-]{subsection.3.2.2}{MSE vs LSE}{section.3.2}% 21
-\BOOKMARK [2][-]{subsection.3.2.3}{Splitting in N modelli}{section.3.2}% 22
+\BOOKMARK [0][-]{chapter.1}{Reti\040Neurali}{}% 1
+\BOOKMARK [1][-]{section.1.1}{Reti\040Neurali\040Biologiche}{chapter.1}% 2
+\BOOKMARK [1][-]{section.1.2}{Reti\040Neurali\040Artificiali}{chapter.1}% 3
+\BOOKMARK [1][-]{section.1.3}{Addestramento\040della\040rete}{chapter.1}% 4
+\BOOKMARK [1][-]{section.1.4}{Funzioni\040di\040attivazione}{chapter.1}% 5
+\BOOKMARK [1][-]{section.1.5}{MultiLayer\040Perceptron}{chapter.1}% 6
+\BOOKMARK [2][-]{subsection.1.5.1}{Architettura\040del\040modello\040MLP}{section.1.5}% 7
+\BOOKMARK [2][-]{subsection.1.5.2}{Addestramento}{section.1.5}% 8
+\BOOKMARK [0][-]{chapter.2}{Metodi\040di\040compressione}{}% 9
+\BOOKMARK [1][-]{section.2.1}{Pruning}{chapter.2}% 10
+\BOOKMARK [2][-]{subsection.2.1.1}{Strutture\040dati\040necessarie}{section.2.1}% 11
+\BOOKMARK [2][-]{subsection.2.1.2}{Tecniche\040implementative}{section.2.1}% 12
+\BOOKMARK [2][-]{subsection.2.1.3}{Tasso\040di\040compressione}{section.2.1}% 13
+\BOOKMARK [1][-]{section.2.2}{Weight\040sharing}{chapter.2}% 14
+\BOOKMARK [2][-]{subsection.2.2.1}{Strutture\040dati\040necessarie}{section.2.2}% 15
+\BOOKMARK [2][-]{subsection.2.2.2}{Tecniche\040implementative}{section.2.2}% 16
+\BOOKMARK [2][-]{subsection.2.2.3}{Tasso\040di\040compressione}{section.2.2}% 17
+\BOOKMARK [0][-]{chapter.3}{Esperimenti}{}% 18
+\BOOKMARK [1][-]{section.3.1}{MNIST}{chapter.3}% 19
+\BOOKMARK [2][-]{subsection.3.1.1}{Addestramento\040e\040tuning\040parametri}{section.3.1}% 20
+\BOOKMARK [2][-]{subsection.3.1.2}{Pruning}{section.3.1}% 21
+\BOOKMARK [2][-]{subsection.3.1.3}{Weight\040sharing}{section.3.1}% 22
+\BOOKMARK [1][-]{section.3.2}{Problema\040del\040predecessore}{chapter.3}% 23
+\BOOKMARK [2][-]{subsection.3.2.1}{Pruning}{section.3.2}% 24
+\BOOKMARK [2][-]{subsection.3.2.2}{Weight\040Sharing}{section.3.2}% 25
+\BOOKMARK [2][-]{subsection.3.2.3}{MSE\040vs\040MAE}{section.3.2}% 26
+\BOOKMARK [2][-]{subsection.3.2.4}{MSE\040vs\040LSE}{section.3.2}% 27
+\BOOKMARK [2][-]{subsection.3.2.5}{Splitting\040in\040N\040modelli}{section.3.2}% 28

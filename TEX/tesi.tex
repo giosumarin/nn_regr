@@ -19,6 +19,7 @@ openright]{book}
 \usepackage{booktabs}
 \usepackage{url}
 \usepackage{dcolumn}
+\usepackage[a-1a,mathxmp]{pdfx}
 
 \usetikzlibrary{decorations.pathreplacing}
 \usetikzlibrary{fadings}
@@ -87,19 +88,18 @@ openright]{book}
 \tableofcontents
 
 \chapter*{Introduzione}
-Le reti neurali offrono un insieme di strumenti molto potente che permette di risolvere problemi nell'ambito della classificazione, della regressione e del controllo non-lineare. Un semplice esempio è l'analisi di un'immagine riconoscendo il tipo e la posizione degli oggetti nel primo caso e convertendo l'immagine in testo scritto nel secondo.
-Oltre ad avere un'elevata velocità di elaborazione, le reti neurali hanno la capacità di imparare la soluzione di un problema a partire da un insieme di sue istanze. In molte applicazioni questo permette di raggirare il bisogno di sviluppare un modello dei processi fisici alla base del problema, che spesso può essere difficile, se non impossibile, da trovare.
-L'ispirazione per le reti neurali deriva dagli studi sui meccanismi di elaborazione dell'informazione nel sistema nervoso biologico, in particolare il cervello umano; infatti, gran parte della ricerca sulle reti ha proprio lo scopo di capire più a fondo questi meccanismi.
-Dalle loro origini ad oggi, sono stati sviluppati numerosi modelli di reti neurali per risolvere problemi di diversa natura, tuttavia qui sarà presentato il modello conosciuto come multilayer perceptron. Esso fa parte di una classe di modelli di reti
-generica conosciuta come reti feedforward, ovvero reti in cui l'informazione si muove in un'unica direzione e in cui non ci sono cicli.
-Due dei principali problemi delle reti neurali sono il tempo di addestramento e lo spazio necessario per memorizzare le strutture dati; entrambi questi problemi sono dovuti a numerosi fattori  quali specifiche della macchina, complessità, dimensione degli input e numero di parametri. Per quest'ultimo fattore, la ricerca di metodi di compressione è fondamentale per cercare di ridurre l'impatto degli svantaggi di una rete su un sistema. 
-In questo elaborato si analizza l'impatto di due algoritmi di compressione sulla performance di reti neurali, analizzando in particolare la variazione della loro accuratezza per un problema di classificazione e un problema di regressione, considerando diversi dataset.
-L'elaborato è strutturato nel modo seguente: nel Capitolo 1 viene fornito un quadro semplificato del funzionamento delle reti neurali biologiche, in modo da trovare una corrispondenza pratica dei concetti riguardanti le reti neurali artificiali; oltre a descrivere la struttura del modello MLP in dettaglio, parleremo di una tecnica usata per addestrarla. Nel Capitolo 2 vengono descritte due tecniche di compressione per le reti neurali, spiegandone il funzionamento, le strutture dati necessarie e il loro tasso di compressione.
-Nel Capitolo 3 vengono applicate le tecniche di compressione esplicate nel capitolo precedente mostrando confronti tra diverse reti. Il lavoro è chiuso con alcune considerazioni finali.
+Le reti neurali offrono un insieme di strumenti molto potente che permette di risolvere problemi nell'ambito della classificazione, della regressione e del controllo non-lineare. Un semplice esempio è l'analisi di un'immagine riconoscendo il tipo e la posizione degli oggetti in essa contenuti o convertendo le scritte in formato testuale.
+Oltre ad avere un'elevata velocità di elaborazione, le reti neurali hanno la capacità di imparare a risolvere un problema generale a partire da un insieme di sue istanze. In molte applicazioni questo permette di aggirare il bisogno di sviluppare un modello dei processi fisici alla base del problema, che spesso può essere difficile, se non impossibile, da trovare.
+L'ispirazione per le reti neurali deriva dagli studi sui meccanismi di elaborazione dell'informazione nel sistema nervoso degli esseri viventi, in particolare di quello umano; infatti, gran parte della ricerca sulle reti ha anche lo scopo di capire più a fondo questi meccanismi.
+Dalle loro origini a oggi, sono stati sviluppati numerosi modelli di reti neurali per risolvere, in maniera esatta o approssimata, problemi di diversa natura, tuttavia qui sarà presentato il modello conosciuto come multilayer perceptron (MLP). Esso fa parte di una classe di modelli di reti generiche conosciute come reti feedforward, ovvero reti in cui l'informazione si muove in un flusso unidirezionale in cui non ci sono cicli.
+Due degli aspetti principali delle reti neurali sono il tempo di addestramento e lo spazio necessario per memorizzare le strutture dati; entrambi questi problemi sono dovuti a numerosi fattori  quali specifiche della macchina, complessità del problema, dimensione degli input e numero di parametri. Per quest'ultimo fattore, la ricerca di metodi di compressione è fondamentale per cercare di ridurre l'impatto degli svantaggi di una rete su un sistema. 
+In questo elaborato si propone un'analisi dell'impatto che due algoritmi di compressione spaziale hanno sulle capacità predittive delle reti neurali artificiali, analizzando in particolare la variazione della loro accuratezza per un problema di classificazione e un problema di regressione, considerando diverse istanze del problema.
+L'elaborato è strutturato nel modo seguente: nel Capitolo 1 viene fornito un quadro semplificato del funzionamento delle reti neurali biologiche, in modo da trovare una corrispondenza pratica dei concetti riguardanti le reti neurali artificiali; oltre a descrivere la struttura del modello MLP in dettaglio, viene anche descritta una tecnica usata per addestrarlo. Nel Capitolo 2 vengono descritte due tecniche di compressione per le reti neurali, spiegandone il funzionamento, le strutture dati necessarie e il loro tasso di compressione.
+Nel Capitolo 3 vengono applicate le tecniche di compressione presentate nel capitolo precedente mostrando confronti tra diverse reti. Il lavoro si chiude con alcune considerazioni finali.
 \chapter{Reti Neurali}
-In questo capitolo descriveremo le reti neurali artificiale, partendo dall'analogia con il sistema nervoso. Successivamente vengono descritti i modelli multilayer-perceptron e un metodo di apprendimento di questo modello.
+In questo capitolo descriveremo le reti neurali artificiale, partendo dall'analogia con il sistema nervoso. Successivamente viene descritto il modello multilayer perceptron e un metodo di apprendimento di questo modello.
 \section{Reti Neurali Biologiche}
-I neuroni sono delle celle elettricamente attive e il sistema nervoso centrale ne contiene circa $10^{11}$. La maggior parte di essi ha la forma indicata in Figura~\ref{fig:neurbio}. I dendriti rappresentano gli ingressi del neurone mentre l’assone ne rappresenta l’uscita. La comunicazione tra i neuroni avviene alle giunzioni, chiamate sinapsi. Ogni neurone è tipicamente connesso ad un migliaio di altri neuroni e, di conseguenza, il numero di sinapsi nel cervello supera $10^{14}$.
+I neuroni sono delle celle elettricamente attive e il sistema nervoso centrale ne contiene circa $10^{11}$. La maggior parte di essi ha la forma indicata in Figura~\ref{fig:neurbio}. I dendriti rappresentano gli ingressi del neurone mentre l’assone ne rappresenta l’uscita. La comunicazione tra i neuroni avviene alle giunzioni, chiamate sinapsi. Ogni neurone è tipicamente connesso a un migliaio di altri neuroni e, di conseguenza, il numero di sinapsi nel cervello supera $10^{14}$.
 \begin{figure}[h!]
 \begin{center}
 \includegraphics[width=280pt]{BioNeuron.png}
@@ -108,12 +108,12 @@ I neuroni sono delle celle elettricamente attive e il sistema nervoso centrale n
 \label{fig:neurbio}
 \end{figure}
 
-Ogni neurone si può trovare principalmente in 2 stati: attivo o a riposo. Quando il neurone si attiva, esso produce un potenziale di azione (impulso elettrico) che viene trasportato lungo l’assone. Una volta che il segnale raggiunge la sinapsi esso provoca il rilascio di sostanze chimiche (neurotrasmettitori) che attraversano la giunzione ed entrano nel corpo di altri neuroni. In base al tipo di sinapsi, che possono essere eccitatori o inibitori, queste sostanze aumentano o diminuiscono rispettivamente le possibilità che il successivo neurone si attivi. Ad ogni sinapsi è associato un peso che ne determina il tipo e l’ampiezza dell’effetto eccitatore o inibitore. Quindi, semplificando, si può dire che ogni neurone effettua una somma pesata degli ingressi provenienti dagli altri neuroni e, se questa somma supera una certa soglia, il neurone si attiva.\\
-Ogni neurone, operando ad un ordine temporale del millisecondo, rappresenta un sistema di elaborazione relativamente lento; tuttavia, l’intera rete ha un numero molto elevato di neuroni e sinapsi che possono operare in modo parallelo e simultaneo, rendendo l’effettiva potenza di elaborazione molto elevata. Inoltre, la rete neurale biologica ha un’alta tolleranza ad informazioni poco precise (o sbagliate), ha la facoltà di apprendimento e generalizzazione.
+Ogni neurone si può trovare principalmente in due stati: attivo o a riposo. Quando il neurone si attiva, esso produce un potenziale di azione (impulso elettrico) che viene trasportato lungo l’assone. Una volta che il segnale raggiunge la sinapsi esso provoca il rilascio di sostanze chimiche (neurotrasmettitori) che attraversano la giunzione ed entrano nel corpo di altri neuroni. In base al tipo di sinapsi, che possono essere eccitatori o inibitori, queste sostanze aumentano o diminuiscono rispettivamente le possibilità che il successivo neurone si attivi. A ogni sinapsi è associato un peso che ne determina il tipo e l’ampiezza dell’effetto eccitatore o inibitore. Quindi, semplificando, si può dire che ogni neurone effettua una somma pesata degli ingressi provenienti dagli altri neuroni e, se questa somma supera una certa soglia, il neurone si attiva.\\
+Ogni neurone, operando a un ordine temporale del millisecondo, rappresenta un sistema di elaborazione relativamente lento; tuttavia, l’intera rete ha un numero molto elevato di neuroni e sinapsi che possono operare in modo parallelo e simultaneo, rendendo l’effettiva potenza di elaborazione molto elevata. Inoltre, la rete neurale biologica ha un’alta tolleranza a informazioni poco precise (o sbagliate), ha la facoltà di apprendimento e generalizzazione.
 
 \section{Reti Neurali Artificiali}
 \label{section:retiartificiali}
-Ci concentreremo su una classe particolare di modelli di reti neurali: le reti a catena aperta. Queste reti possono essere viste come funzioni matematiche non lineari che trasformano un insieme di variabili indipendenti $x = (x_{1}, ... , x_{d})$, chiamate ingressi della rete, in un insieme di variabili dipendenti $y = (y_{1}, ... , y_{c})$, chiamate uscite della rete. La precisa forma di queste funzioni dipende dalla struttura interna della rete e da un insieme di valori $w = (w_{1}, ... , w_{d})$, chiamati pesi. Possiamo quindi scrivere la funzione della rete nella forma $y = y(x; w)$ che denota il fatto che $y$ sia una funzione di $x$ parametrizzata da $w$.
+Ci concentreremo su una classe particolare di modelli di reti neurali: le reti a catena aperta. Queste reti possono essere viste come funzioni matematiche non lineari che trasformano un insieme di variabili indipendenti $x = (x_{1}, \dots , x_{d})$, chiamate ingressi della rete, in un insieme di variabili dipendenti $y = (y_{1}, \dots , y_{c})$, chiamate uscite della rete. La precisa forma di queste funzioni dipende dalla struttura interna della rete e da un insieme di valori $w = (w_{1}, \dots , w_{d})$, chiamati pesi. Possiamo quindi scrivere la funzione della rete nella forma $y = y(x; w)$ che denota il fatto che $y$ sia una funzione di $x$ parametrizzata da $w$.
 
 \begin{figure}[h!]
 \begin{center}
@@ -149,8 +149,8 @@ Ci concentreremo su una classe particolare di modelli di reti neurali: le reti a
 \end{figure}
 \subsection*{Modello di McCulloch-Pitts}
 
-Un semplice modello matematico di un singolo neurone è quello rappresentato in Figura~\ref{fig:mcpitts} ed è stato proposto da McCulloch e Pitts~\cite{McCulloch:1943aa} alle origini delle reti neurali artificiali. Esso può essere visto come una funzione non lineare che trasforma le variabili di ingresso $x_{1}, ..., x_{d}$ nella variabile di uscita $z$. Nell’elaborato ci riferiremo a questo modello come unità di elaborazione, o semplicemente unità.
-In questo modello, viene effettuata la somma ponderata degli ingressi, usando come pesi i valori $w_{1}, ..., w_{d}$ (che sono analoghi alle potenze delle sinapsi nella rete biologica), ottenendo così
+Un semplice modello matematico di un singolo neurone è quello rappresentato in Figura~\ref{fig:mcpitts} ed è stato proposto da McCulloch e Pitts~\cite{McCulloch:1943aa} alle origini delle reti neurali artificiali. Esso può essere visto come una funzione non lineare che trasforma le variabili di ingresso $x_{1}, \dots, x_{d}$ nella variabile di uscita $z$. Nell’elaborato ci riferiremo a questo modello come unità di elaborazione, o semplicemente unità.
+In questo modello, viene effettuata la somma ponderata degli ingressi, usando come pesi i valori $w_{1}, \dots, w_{d}$ (che sono analoghi alle potenze delle sinapsi nella rete biologica), ottenendo così
 \begin{equation}
 a = \sum\limits_{i=1}^d w_{i}x_{i}+b
 \label{som+b}
@@ -178,7 +178,7 @@ g(a)=
 \section{Addestramento della rete}
 \label{addestramento}
 Abbiamo detto che una rete neurale può essere rappresentata dal modello matematico $y = y(x; w)$, che è una funzione di $x$ parametrizzata dai pesi $w$. Prima di poter utilizzare questa rete, dobbiamo identificare il modello, ovvero dobbiamo determinare tutti i parametri $w$. Il processo di determinazione di questi parametri è chiamato addestramento e può essere un’azione molto intensa dal punto di vista computazionale. Tuttavia, una volta che sono stati definiti i pesi, nuovi ingressi possono essere elaborati molto rapidamente.
-Per addestrare una rete abbiamo bisogno di un insieme di esempi, chiamato insieme di addestramento (\textit{training set}), i cui elementi sono coppie $(x^{q}, t^{q})$, $q = 1, ..., n$, dove $t^{q}$ rappresenta il valore di uscita desiderato, chiamato target, in corrispondenza dell'ingresso $x^{q}$. 
+Per addestrare una rete abbiamo bisogno di un insieme di esempi, chiamato insieme di addestramento (\textit{training set}), i cui elementi sono coppie $(x^{q}, t^{q})$, $q = 1, \dots, n$, dove $t^{q}$ rappresenta il valore di uscita desiderato, chiamato target, in corrispondenza dell'ingresso $x^{q}$. 
 L’addestramento consiste nella ricerca dei valori per i parametri $w$ che minimizzano un’opportuna funzione di errore. Ci sono diverse forme di questa funzione, la più usata risulta essere la somma dei quadrati residui. I residui sono definiti come
 \begin{equation}
 r_{qk} = y_{k}\left(x^{q}; w\right) - t^{q}_{k}
@@ -205,7 +205,7 @@ Di solito sono funzioni non-lineari e la loro derivata è calcolabile in modo an
 
 \begin{equation}
 \mathrm{ReLU}(a) = \max(0,a), \qquad
-ReLU'(a) = \begin{cases}
+\mathrm{ReLU}'(a) = \begin{cases}
 1 &\text{ se } a\geq0, \\
 0 &\text{ altrimenti}.
 \end{cases}
@@ -282,7 +282,7 @@ In questo paragrafo parleremo in dettaglio del modello mulilayer perceptron intr
 Nel paragrafo precedente abbiamo trattato la singola unità di elaborazione descritta in~\eqref{act+som}. Se consideriamo ora un insieme di $m$ unità, con ingressi comuni, otteniamo una rete neurale a singolo strato come in Figura~\ref{fig:MLP1}. Le uscite di questa rete sono date da
 \begin{equation}
 z_j = g\left(\sum\limits_{i=0}^d w_{ij}x_i\right), \quad
-j=1,...,m
+j=1,\dots,m
 \label{rete1}
 \end{equation}
 dove $w_{ij}$ rappresenta il peso che connette l'ingresso $i$ con l'uscita $j$; $g$ è la funzione di attivazione e $x_0=1$ per incorporare il bias, come precedentemente spiegato.
@@ -388,7 +388,7 @@ La funzione di attivazione $\tilde{g}$, applicata alle unità di uscita, può es
 
 Per ottenere una capacità di rappresentazione universale, la funzione di attivazione $g$ delle unità nascoste deve essere non lineare~\cite{cybenko}. Se $g$ e $\tilde{g}$ fossero entrambe lineari, ~\eqref{rete2.1} diventerebbe un prodotto tra matrici, che è esso stesso una matrice. Inoltre, come vedremo più avanti, le funzioni di attivazione devono essere differenziabili.
 \subsection{Addestramento}
-L'addestramento consiste nella ricerca dei valori $\textbf{w}=(w_1,..,w_n)$ \footnote{con $\textbf{w}$ intendiamo i pesi di ogni strato} che minimizzano la funzione di errore $E(\textbf{w})$ (vista precedentemente nel Capitolo~\ref{addestramento}).
+L'addestramento consiste nella ricerca dei valori $\textbf{w}=(w_1,\dots,w_n)$ \footnote{con $\textbf{w}$ intendiamo i pesi di ogni strato} che minimizzano la funzione di errore $E(\textbf{w})$ (vista precedentemente nel Capitolo~\ref{addestramento}).
 La ricerca del minimo avviene in modo iterativo partendo da un valore iniziale $\textbf{w}$, scelto in modo casuale o tramite un criterio. Alcuni algoritmi trovano il minimo locale più vicino al punto iniziale, mentre altri riescono a trovare il minimo globale.
 
 Diversi algoritmi di ricerca del punto minimo fanno uso delle derivate parziali della funzione di errore $E$, ovvero del suo vettore gradiente $\nabla E$. Questo vettore indica la direzione ed il verso di massima crescita di $E$ nel punto $\textbf{w}$.
@@ -400,14 +400,13 @@ E = \sum\limits_{q=1}^n E^{q}, \qquad
 E^q = \sum\limits_{k=1}^c [y_k (x^q;w) - t_{k}^{q}]^2.
 \label{resq}
 \end{equation}
-
-Possiamo vedere $E$ come somma di $E^q$ che corrisponde alla coppia $(x^q,t^q)$. Grazie alla linearità della derivazione possiamo calcolare la derivata di $E$ come somma delle derivate dei termini $E^q$. Nel seguito omettiamo l'indice $q$: i passaggi indicati si riferiscono ad un singolo caso $q$ ma le operazioni sono fatte per ogni valore di $q$. Consideriamo un esempio di rete neurale MLP con uno strato hidden.
+Possiamo vedere $E$ come somma di $E^q$ che corrisponde alla coppia $(x^q,t^q)$. Grazie alla linearità della derivazione possiamo calcolare la derivata di $E$ come somma delle derivate dei termini $E^q$. Nel seguito omettiamo l'indice $q$: i passaggi indicati si riferiscono a un singolo caso $q$ ma le operazioni sono fatte per ogni valore di $q$. Consideriamo un esempio di rete neurale MLP con uno strato hidden.
 \begin{equation}
 y_k=\tilde{g}(\tilde{a}_k), \qquad
  \tilde{a}_k=\sum\limits_{j=0}^m \tilde{w}_{jk}z_j.
 \label{ak}
 \end{equation}
-La derivata di $E^q$ rispetto ad un generico peso $w_{jk}$ dello strato hidden è
+La derivata di $E^q$ rispetto a un generico peso $w_{jk}$ dello strato hidden è
 \begin{equation}
 \frac{\partial E^q}{\partial \tilde{w}_{jk}}=\frac{\partial E^q}{\partial \tilde{a}_k}\frac{\partial \tilde{a}_k}{\partial w_{jk}}
 \label{chain}
@@ -490,8 +489,8 @@ che ha la stessa semplice forma di~\eqref{deltaz}.
 Elenchiamo quindi i passi da seguire per valutare la derivata della funzione $E$:
 \begin{itemize}
 \item Per ogni coppia $(x^q,t^q)$ valutare le attivazioni delle unità nascoste e di uscita usando le equazioni~\eqref{aj} e~\eqref{ak};
-\item Valutare il valore $\tilde{\delta}_k$ per $k=1,..,c$ usando equazione~\eqref{delta};
-\item Valutare il valore $\delta_j$ per $j=1,..,m$ usando equazione~\eqref{delta2};
+\item Valutare il valore $\tilde{\delta}_k$ per $k=1,\dots,c$ usando equazione~\eqref{delta};
+\item Valutare il valore $\delta_j$ per $j=1,\dots,m$ usando equazione~\eqref{delta2};
 \item Valutare il valore di $E^q$ usando le equazioni~\eqref{deltax} e~\eqref{deltaz};
 \item Ripetere i passi precedenti per ogni coppia $(x^q,t^q)$ del \textit{training set} e sommare tutte le derivate per ottenere la derivata della funzione errore $E$.
 \end{itemize}
@@ -593,11 +592,11 @@ Invece, per calcolare lo spazio occupato dalla rappresentazione matriciale CSC u
 La matrice~\ref{matr} occupa, quindi, $7 \cdot 7 \cdot 32 = 1568 \mathrm{bit}$ mentre la sua rappresentazione matriciale $(2\cdot10+7+1)\cdot32=896\mathrm{bit}$. Il tasso di compressione è $r_1=\frac{896\mathrm{bit}}{1658\mathrm{bit}}=0.54$.
 
 
-\section{Weight Sharing}
+\section{Weight sharing}
 In modo analogo a quanto visto per il pruning, la tecnica del weight sharing~\cite{han2015compression} viene utilizzata per ridurre lo spazio occupato per salvare le matrici dei pesi della rete neurale. Questa procedura consiste nel raggruppamento dei pesi simili, presi da una rete precedentemente addestrata, attraverso un algoritmo di clustering. Dopo aver suddiviso i pesi in cluster e definito un centroide per ogni cluster, tutti i pesi vengono sostituiti nella rete. Infine si riaddestrano i pesi mediante una variante dell'algoritmo di back propagation che aggiorna solo i centroidi, come descritto in dettaglio nel Paragrafo~\ref{implws}.
 
 \subsection{Strutture dati necessarie}
-Per la gestione di questa procedura viene salvato un array che contine i valori dei centroidi e una matrice per salvare la corrispondenza peso-centroide (per ogni strato).
+Per la gestione di questa procedura viene salvato un array che contiene i valori dei centroidi e una matrice per salvare la corrispondenza peso-centroide (per ogni strato).
 Denotiamo con $C$ il vettore dei centroidi e con $N$ la matrice delle corrispondenze, quindi
 \begin{equation}
 n_{ij} = \text{arg}\min\limits_{k}|c_{k}-w_{ij}|.
@@ -670,8 +669,7 @@ W'=
 
 \subsection{Tasso di compressione}
 \label{sec:tassows}
-Quantificare la compressione apportata dalla tecnica di weight sharing risulta meno immediato rispetto a quanto indicato per il pruning. Bisogna infatti prendere in considerazione il numero di cluster e il numero di bit
-gli elementi delle matrici delle connessioni e i centroidi dei cluster. Se denotiamo con $b$ il numero di bit con cui viene rappresentato un peso della rete e con $s$ il numero di connessioni nella rete, il tasso di compressione teorico $r_2 \in [0, 1]$ viene calcolato come
+Quantificare la compressione apportata dalla tecnica di weight sharing risulta meno immediato rispetto a quanto indicato per il pruning. Bisogna infatti prendere in considerazione il numero di cluster e il numero di bit con cui vengono rappresentati gli elementi delle matrici delle connessioni e i centroidi dei cluster. Se denotiamo con $b$ il numero di bit con cui viene rappresentato un peso della rete e con $s$ il numero di connessioni nella rete, il tasso di compressione teorico $r_2 \in [0, 1]$ viene calcolato come
 \begin{equation}
 r_2=\frac{s\ceil{\log_2 k}+kb}{sb}.
 \label{tassowsteo}
@@ -720,8 +718,8 @@ Il dataset contiene 60000 immagini di training e 10000 immagini di testing delle
 \subsection{Addestramento e tuning parametri}
 \label{modselmnist}
 Per trovare una buona configurazione della rete abbiamo effettuato una \textit{k-Fold Cross Validation}~\cite{Refaeilzadeh2009} con $k=3$. Abbiamo inoltre utilizzato la tecnica di dropout per mitigare gli effetti di un possibile overfitting durante il processo di apprendimento.
-\paragraph*{K-Fold Cross Validation}
-Il \textit{training set} viene diviso in \textit{k} sottoinsiemi, e a rotazione vengono usati come \textit{training set} $k-1$ sottoinsiemi, il rimanente sottoinsiemi viene usato come \textit{validation set}. Quest'ultimo serve per misurare la bontà della rete ottenuta fissando una configurazione dei parametri e addestrando sul training set. Alla fine si sceglie la rete che ha la bontà più alta e si usa il test set per valutare la capacità di generalizzazione.
+\paragraph*{k-Fold Cross Validation}
+Il \textit{training set} viene diviso in \textit{k} sottoinsiemi, e a rotazione vengono usati come \textit{training set} $k-1$ sottoinsiemi, il rimanente sottoinsieme viene usato come \textit{validation set}. Quest'ultimo serve per misurare la bontà della rete ottenuta fissando una configurazione dei parametri e addestrando sul training set. Alla fine si sceglie la rete che ha la bontà più alta e si usa il test set per valutare la capacità di generalizzazione.
 \begin{figure}
 \begin{center}
 \includegraphics[width=300pt]{K-fold_cross_validation_EN.jpg}
@@ -806,7 +804,7 @@ $50\%$ & $98.36$ &$1.0$&&&\\
 \end{center}
 \subsection{Weight sharing}
 La Tabella~\ref{tab:tabwsmnist} riporta i risultati dell'applicazione della tecnica di weight sharing alla rete ottenuta nel Paragrafo~\ref{modselmnist}. La prima colonna rappresenta il numero di centroidi utilizzati per la compressione, specificati separatamente per i due strati della rete. Nella prima riga della Tabella~\ref{tab:tabwsmnist} abbiamo riportato l'accuratezza sul \textit{test set} del modello scelto senza compressioni. Come avvenuto con il pruning, possiamo notare che l'accuratezza rimane sopra il 98\% anche considerando un numero abbastanza piccolo di centroidi.
-Nella colonna $r_2$ possiamo notare valori molto vicini al variare dei cluster, riprendendo~\eqref{tassows}: $s$ (che ricordiamo essere il prodotto delle dimensioni della matrice) è sempre maggiore di 256, quindi $f(s)=16$; semplificando la formula troviamo $$\displaystyle{\frac{1}{2}+\frac{k}{s}},$$ per questo motivo $r_2$ non può essere minore di $0.5$.
+Nella colonna $r_2$ possiamo notare valori molto vicini al variare dei cluster, riprendendo~\eqref{tassows}: $s$ (che ricordiamo essere il prodotto delle dimensioni della matrice) è sempre maggiore di 256, quindi $f(s)=16$; semplificando la formula troviamo $$\displaystyle{r_2=\frac{1}{2}+\frac{k}{s}},$$ per questo motivo $r_2$ non può essere minore di $0.5$.
 \vspace*{\fill}
 \begin{center}
 \begin{table}[]
@@ -845,7 +843,7 @@ Se per esempio consideriamo l'insieme $$\displaystyle{ X=\{2,3,4,5,12,15,18\}}$$
 
 Dato $|X|=n$, sia $F_X: U \mapsto [0, 1]$ la distribuzione cumulativa empirica degli elementi di $U$ rispetto a $X$, per ogni $x\in U$, $F_X(x) = \frac{| \{x' \in X \text{ tale che }x' \leq x\} |}{n}$. Per semplificare la notazione, denotiamo $F_{X}$ con $F$. Nell'esempio sopra indicato, si avrà dunque $F(2)=\frac{1}{7}$, $F(5)=\frac{4}{7}$, $F(6)=\frac{4}{7}$, $F(18)=1$. La conoscenza di $F$ ci dà una soluzione al nostro problema, in quanto dato un generico $x \in U$, una sola valutazione di $F$ fornisce $\mathrm{pred}(x) = \ceil{(F(z)\cdot n)}$. Il nostro obiettivo è quindi quello di trovare una rete neurale che calcoli una buona approssimazione $\tilde{F}$ di $F$.
 La risoluzione di questo problema potrebbe consentire di trovare un elemento all'interno di una lista ordinata in tempo $O(1)$ invece che $O(\log n)$ tipico degli alberi binari di ricerca.
-La rete neurale però può compiere un errore nel dare la posizione di un elemento, per questo motivo teniamo traccia dell'errore massimo, indicato con $\epsilon$, che la rete compie. Pertanto durante la ricerca, dopo che il modello ha predetto la posizione, dovremo effettuare una ricerca che coinvolgerà al più $\epsilon$ posizioni a destra e a sinistra rispetto a quanto indicato dal modello. Per questo motivo, dopo aver utilizzato delle funzioni di errore standard (come l'errore quadratico medio) che minimizzano l'errore medio, negli esperimenti abbiamo provato ad allenare la rete neurale minimizzando una funzione convessa che approssima il massimo. Tale funzione prende il nome di $\mathrm{LogSumExp}$ è descritta nel Paragrafo~\ref{seclse}.
+La rete neurale però può compiere un errore nel dare la posizione di un elemento, per questo motivo teniamo traccia dell'errore massimo, indicato con $\epsilon$, che la rete compie. Pertanto durante la ricerca, dopo che il modello ha predetto la posizione, dovremo effettuare una ricerca che coinvolgerà al più $\epsilon$ posizioni a destra e a sinistra rispetto a quanto indicato dal modello. Per questo motivo, dopo aver utilizzato delle funzioni di errore standard (come l'errore quadratico medio) che minimizzano l'errore medio, negli esperimenti abbiamo provato ad allenare la rete neurale minimizzando una funzione convessa che approssima il massimo. Tale funzione prende il nome di $\mathrm{LogSumExp}$ ed è descritta nel Paragrafo~\ref{seclse}.
 
 Per questo problema sono stati utilizzati tre dataset, rispettivamente con $512$, $8192$ e $1048576$ esempi. Questi dataset saranno successivamente indicati rispettivamente come dataset 3, dataset 7 e dataset 10.
 Diversamente da MNIST, il modello MLP cercherà di risolvere un problema di regressione: la rete neurale dovrà imparare a restituire, data una chiave, il corrispondente valore di $\tilde{F}$.
@@ -871,10 +869,10 @@ Per NN1 è stato usato un learning rate $\eta=5 \times 10^{-4}$, mentre per NN2 
 
 I risultati ottenuti sono indicati nelle Tabelle~\ref{pr13} -~\ref{ws310}, che riportano le seguenti colonne:
 \begin{itemize}
-\item Pruning \%: percentuale di connessioni eliminate (calcolate sulla base di quantili come indicato nel Paragrafo\ref{percentile}); in particolare, 0 indica la rete non compressa;
+\item Pruning \%: percentuale di connessioni eliminate (calcolate sulla base di quantili come indicato nel Paragrafo~\ref{percentile}); in particolare, 0 indica la rete non compressa;
 \item $r_2$: proporzione dello spazio originario occupato da quella compressa (1 indica la rete non compressa);
 \item Clusters: numero di cluster utilizzati per ogni matrice dei pesi;
-\item Space Overhead (KB):  spazio del modello (in KB) rispetto al dataset, calcolata come $$\displaystyle{\frac{\sum\limits_{i=1}^n \left(|\mathrm{strato}_i|\right) \cdot \mathrm{bytes} \cdot 100}{1024 \cdot \left| \mathrm{dataset} \right|}}$$ dove per $\mathrm{strato}_i$ viene preso in considerazione il prodotto delle dimensioni della matrice delle connessioni per memorizzare i pesi per l'$i$-esimo strato, bytes rappresenta il numero di bytes utilizzato per rappresentare i pesi;
+\item Space Overhead (KB):  spazio del modello (in KB) rispetto al dataset, calcolato come $$\displaystyle{\frac{\sum\limits_{i=1}^n \left(|\mathrm{strato}_i|\right) \cdot b \cdot 100}{1024 \cdot \left| \mathrm{dataset} \right|}}$$ dove per $|\mathrm{strato}_i|$ viene preso in considerazione il prodotto delle dimensioni della matrice delle connessioni per memorizzare i pesi per l'$i$-esimo strato, $b$ rappresenta il numero di bytes utilizzato per rappresentare i pesi;
 \item Training Time (s): tempo (in secondi) impiegato dalla rete per il training, compreso il tempo iniziale di applicazione della compressione (nella rete non compressa non viene indicato questo tempo, questi casi sono indicati con -);
 \item $\epsilon$: errore massimo sugli esempi di training;
 \item Error \%: errore massimo rispetto alla dimensione del dataset considerato;
@@ -947,7 +945,10 @@ Come ci si aspetta, a eccezione di alcuni casi, al crescere del numero di split 
 	
 	
 \chapter*{Conclusioni}
-In questo elaborato si sono studiati due metodi di compressione di reti neurali artificiali per valutarne l’efficacia in un problema di classificazione e in un problema di regressione. In particolare, si voleva valutare la capacità di tali tecniche di diminuire lo spazio necessario per memorizzare una rete neurale senza degradarne troppo le performance. Dai risultati ottenuti durante i numerosi esperimenti si è riscontrato che le connessioni della rete neurale sono spesso molte di più di quelle che realmente servono per ottenere i risultati attesi; per questo motivo l’elaborato conferma che gli algoritmi di compressione ricoprono un ruolo fondamentale in questo ambito. L’obiettivo di mantenere le performance ai livelli di una rete neurale senza compressione è stato raggiunto con successo, a discapito di altri fattori  quali la complessità dell’implementazione e il tempo di esecuzione dell'algoritmo di apprendimento. Siccome i parametri della rete presentata sono numerosi, abbiamo ottenuto una vasta gamma di risultati, in cui si può notare come diverse configurazioni ottengono risultati simili: un numero maggiore di neuroni risulta in un’accuratezza ottimale con un pruning alto, a discapito del tempo di esecuzione; al contrario, un numero minore di neuroni porta ad avere un tempo di esecuzione più basso, a discapito di un pruning non troppo significativo, e talvolta l’impossibilità di eseguire un clustering adeguato per mancanza di sufficienti connessioni. Come si nota negli ultimi esperimenti riguardanti il problema del predecessore (in cui vogliamo approssimare una funzione monotona non decrescente) è conveniente non sovradimensionare la rete neurale, infatti reti senza strati nascosti in molti casi hanno ottenuto performance migliori di reti neurali molto più grandi. In conclusione, si può constatare, dai dati ottenuti, che la compressione di una rete, con gli algoritmi utilizzati in questo lavoro, ha molteplici vantaggi e permette a dispositivi meno prestanti di far uso di reti neurali artificiali a uno spazio di memoria ridotto rispetto alla versione tradizionale.
+In questo elaborato si sono studiati due metodi di compressione di reti neurali artificiali per valutarne l’efficacia in un problema di classificazione e in un problema di regressione. In particolare, si voleva valutare la capacità di tali tecniche di diminuire lo spazio necessario per memorizzare una rete neurale senza degradarne troppo le performance. 
+Dai risultati ottenuti durante i numerosi esperimenti si è riscontrato che le connessioni della rete neurale sono spesso molte di più di quelle realmente necessarie; per questo motivo l’elaborato conferma che gli algoritmi di compressione ricoprono un ruolo fondamentale in questo ambito. L’obiettivo di mantenere le performance ai livelli di una rete neurale senza compressione è stato raggiunto con successo, a discapito di altri fattori  quali la complessità dell’implementazione e il tempo di esecuzione dell'algoritmo di apprendimento.
+Siccome i parametri della rete presentata sono numerosi, abbiamo ottenuto una vasta gamma di configurazioni dei parametri significative in termini di complessità spaziale, tra cui diverse configurazioni ottengono risultati simili: su reti grandi, cioè con molti neuroni e quindi molte connessioni, il pruning riesce ad incidere maggiormente, arrivando ad eliminare fino all'80\% delle connessioni preservando o migliorando l'accuratezza della rete non compressa; al contrario, un numero minore di neuroni porta ad avere un tempo di esecuzione più basso, a discapito di un pruning non troppo significativo. 
+Il weight sharing, come il pruning, nelle reti grandi con tassi di compressione al 60\% ha mantenuto, e talvolta migliorato, l'accuratezza della rete a discapito del tempo di esecuzione (il clustering prima del riaddestramento ha un grande impatto computazione); con reti più piccole è capitata l’impossibilità di eseguire un clustering adeguato per mancanza di sufficienti connessioni. Come si nota negli ultimi esperimenti riguardanti il problema del predecessore (in cui vogliamo approssimare una funzione monotona non decrescente) è conveniente non sovradimensionare la rete neurale, infatti reti senza strati nascosti in molti casi hanno ottenuto performance migliori di reti neurali molto più grandi. In conclusione, si può constatare, dai risultati ottenuti, che la compressione di una rete, con gli algoritmi utilizzati in questo lavoro, ha molteplici vantaggi e apre la strada a futuri sviluppi per migliorare sia accuratezza che capacità di compressione, utili in dipositivi con risorse limitate.
 \bibliography{mybib}{}
 \bibliographystyle{plain}
 \end{document}
