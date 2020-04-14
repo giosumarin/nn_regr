@@ -1,0 +1,25 @@
+1
+In questa tesi abbiamo implementati due algoritmi di compressione spaziale. Abbiamo applicato ques<ti algoritmi in un problema di classificazione e uno di regressione. Per quanto riguarda la classificazione abbiamo utilizzato il dataset MNIST di cifre manoscritte con l'obiettivo di riconoscere le cifre scritte a mano, per la regressione abbiamo utilizzato tre dataset di sequenze ordinate di numeri rappresentati in binario con l'obiettivo, dato un input, di indicare la posizione del predecessore nella sequenza.
+
+2
+Abbiamo utilizzato le reti neurali chiamate Multilayer perceptron, queste reti sono formate da strati multipli di nodi in un grafo diretto aciclico, come nell'esempio. Tra lo strato di input e quello di output ci possono essere uno o più strati nascosti: chiamati così perchè l'attivazione di questi neuroni non è visibile all'esterno.
+Le connessioni sono chiamati pesi della rete neurale e collegano tutti i neuroni di uno strato a tutti i neuroni dello strato successivo.
+Ogni strato di neuroni ha una funzione di attivazione non lineare a eccezione dello strato di input.
+L'apprendimento automatico avviene tramite l'algoritmo di backpropagation: quest'algoritmo calcola le differenze tra le uscite della rete e i risultati attesi e tramite derivate parziali, strato per strato, aggiusta i pesi iterazione per iterazione.
+
+3
+La prima tecnica di compressione implementata è il pruning, questa tecnica prende i pesi di una rete già addestrata e elimina alcuni pesi rendendoli uguali a zero. Successivamente avviene il riaddestramento senza le connessioni eliminate. I pesi a questo punto vengono salvati con una rappresentazione matriciale CSC.
+Il tasso di compressione di questa tecnica è calcolato come lo spazio occupato dalla rappresentazione CSC fratto lo spazio della matrice originale.
+
+4
+Il weight sharing invece prende i pesi di una rete addestrata e applica un algoritmo di clustering impostando come parametro il numero di centroidi. sostituiamo la matrice dei pesi con una matrice in cui gli elementi sono l'indice del centroide più vicino al pesi.
+Il tasso di compressione è calcolato come mostrato: 
+    m per n per b primo più b per k tutto fratto m per n per b dove m e n sono le dimensioni della matrice dei pesi, b è il numero di bit utilizzati per i pesi originali e i centroidi, b primo il numero di bit per rappresentare gli indici, valorizzato con 16 o 8 bit e k il numero di cluster
+    
+5
+Prima di questi esperimenti abbiamo effettuato una model selection per scegliere quanti strati e quanti neuroni utlizzare, da questo processo è risultata migliore la rete con uno strato hidden da 300 neuroni.
+in questi grafici possiamo vedere in rosso la variazione nell'accuratezza della rete neurale con le due tecniche di compressione, mentre in blu il tasso di compressione. minore è il tasso meno spazio occupa. 
+
+5.1
+Nel grafico del pruning possiamo notare che la rete compressa inizia ad occupare meno spazio di quella originale dopo il 50% di pruning. La rete originale aveva un'accuratezza del 98,34 , anche con % di pruning elevate l'accuratezza è quasi sempre mantenuta e in alcuni casi migliorata, migliore performance con pruning 80%.
+
