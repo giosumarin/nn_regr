@@ -24,7 +24,7 @@ y=[None,0.000786,0.001571,0.002357,0.003146,0.003929,0.004708,0.005487,0.006299,
 plt.xticks(rotation=70)
 ax2.plot(x,y, '-',label='first plot',color='blue')
 #ax2.bar(x,y,label='first plot',color='blue', width=0.4,alpha=0.5)
-ax2.set_ylabel("tasso di compressione rispetto a NN3", color='blue')
+ax2.set_ylabel(r'$r_3$', color='blue')
 #ax2.grid()
 #plt.ylim((.48,.535))
 #plt.grid()
