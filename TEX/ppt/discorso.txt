@@ -1,5 +1,7 @@
+Buongiorno, sono Giosuè Marinò e il titolo della mia tesi è COMPRESSIONE DI RETI NEURALI IN PROBLEMI DI CLASSIFICAZIONE E REGRESSIONE
+
 1
-In questa tesi abbiamo implementati due algoritmi di compressione spaziale. Abbiamo applicato ques<ti algoritmi in un problema di classificazione e uno di regressione. Per quanto riguarda la classificazione abbiamo utilizzato il dataset MNIST di cifre manoscritte con l'obiettivo di riconoscere le cifre scritte a mano, per la regressione abbiamo utilizzato tre dataset di sequenze ordinate di numeri rappresentati in binario con l'obiettivo, dato un input, di indicare la posizione del predecessore nella sequenza.
+In questa tesi abbiamo implementati due algoritmi di compressione spaziale. Abbiamo applicato questi algoritmi in un problema di classificazione e uno di regressione. Per quanto riguarda la classificazione abbiamo utilizzato il dataset MNIST di cifre manoscritte con l'obiettivo di riconoscere le cifre scritte a mano, per la regressione abbiamo utilizzato tre dataset di sequenze ordinate di numeri con l'obiettivo, dato un input, di indicare la posizione del predecessore nella sequenza.
 
 2
 Abbiamo utilizzato le reti neurali chiamate Multilayer perceptron, queste reti sono formate da strati multipli di nodi in un grafo diretto aciclico, come nell'esempio. Tra lo strato di input e quello di output ci possono essere uno o più strati nascosti: chiamati così perchè l'attivazione di questi neuroni non è visibile all'esterno.
@@ -21,5 +23,37 @@ Prima di questi esperimenti abbiamo effettuato una model selection per scegliere
 in questi grafici possiamo vedere in rosso la variazione nell'accuratezza della rete neurale con le due tecniche di compressione, mentre in blu il tasso di compressione. minore è il tasso meno spazio occupa. 
 
 5.1
-Nel grafico del pruning possiamo notare che la rete compressa inizia ad occupare meno spazio di quella originale dopo il 50% di pruning. La rete originale aveva un'accuratezza del 98,34 , anche con % di pruning elevate l'accuratezza è quasi sempre mantenuta e in alcuni casi migliorata, migliore performance con pruning 80%.
+Nel grafico del pruning l'asse x rappresenta la % di pruning, abbiamo implementato la fase di eliminazione delle connessioni con l'idea di annullare le connessioni i cui pesi sono relativamente vicino a zero nell'ipotesi che il loro contributo all'attivazione dei neuroni sia trascurabile. Eliminiamo quindi i pesi sotto una soglia che abbiamo scelto come il quantile q della distribuzione del valore assoluto dei pesi
+possiamo notare che la rete compressa inizia ad occupare meno spazio di quella originale dopo il 50% di pruning, questo perchè con la rappresentazione matriciale CSC occupa meno della rappresentazione espansa solo quando viene raggiunta una certa sparsità. La rete originale aveva un'accuratezza del 98.34 , anche con % di pruning elevate l'accuratezza è quasi sempre mantenuta e in alcuni casi migliorata, migliore performance con pruning 80%.
 
+5.2
+Nel grafico del weight sharing l'asse x rappresenta il numero di cluster delle matrici delle connessioni.
+r due non può andare al di sotto di 0.5, in questa rete entrambe le matrici delle connessioni hanno più di 255, semplificando la formula di r 2 viene un mezzo più numero cluster fratto numero delle connessioni che è di per se un numero molto piccolo se il numero di cluster non è elevato. 
+Anche in questo caso l'accuratezza è mantenuta e migliorando occupando in quasi tutti i casi circa il metà dello spazio della rete originale.
+
+
+5.3
+Trovare la posizione di un elemento in input restituendo la posizione del suo predecessore nel dataset Consentirebbe di trovare un elemento in tempo O(1) invece che O(log n) tipico degli alberi binari di ricerca perchè la predizione della rete non dipende dalla dimensione dell'input come nel caso degli alberi binari di ricerca.
+Abbiamo cercato di modellare una rete neurale che approssiva la funzione di ripartizione empirica in quanto basta moltiplicarla per il numero di elementi per avere la soluzione.
+La rete può compiere un errore nella predizione, salviamo quindi l'errore massimo epsilon, dopo la predizione bisogna effettuare una ricerca al più di epsilon posizioni a destra e a sinistra rispetto a quanto indicato dalla rete
+
+7
+In questi grafici invece dell'accuratezza della predizione mostriamo l'errore massimo di predizione su una posizione. il primo punto indica la rete mlp con due strati nascosti da 256 neuroni, il dataset è composto da 2^20 elementi.
+
+7.1
+La rete, essendo grande, lavora bene anche eliminando il 90% delle connessioni.
+
+7.2
+i numeri di cluster in questi esperimenti sono calcolati partendo da r due, come ci si aspetta l'errore diminuisce all'aumentare dei cluster.
+
+8
+A destra è mostrato il modello NN1, ovvero una rete neurale senza strati nascosti. questa rete, nel problema del predecessore si è fatta preferire considerando le performance e lo spazio occupato. Abbiamo provato a cercare una configurazione migliore e successivamente a dividere il dataset ordinato in n sottosequenze, una rete NN1 per ogni sottosequenza.
+
+9
+nel grafico abbiamo sull'asse delle 7 il numero di split del dataset, sull'asse y l'errore massimo. possiamo vedere con x = nn3 un errore massimo maggiore di 1200, con x = 1 vediamo un modello NN1 che dopo un miglior tuning ha un errore massimo di circa 700. I valori successivi, come ci si aspetta fanno diminuire l'errore massimo. In rosso è indicato l'errore massimo più grande degli N modelli mentre in arancio la media degli errori massimi delle rete.
+
+10
+L’obiettivo di mantenere le performance ai livelli di una rete neurale senza compressione è stato raggiunto con successo
+Su reti con molti neuroni Pruning fino all’80% preserva o migliora l’accuratezza della rete non compressa. weight sharing con tassi di occupazione al 60% ha mantenuto o migliorato l’accuratezza della rete a discapito del tempo di esecuzione (il clustering prima del riaddestramento ha un grande impatto computazionale)
+per quanto riguarda nello specifico il problema del predecessore È conveniente non sovradimensionare la rete neurale, infatti reti senza strati nascosti in molti casi hanno ottenuto performance migliori di reti neurali molto più grandi.
+Sviluppi futuri, per MNIST Implementare e analizzare gli algoritmi di compressione su reti neurali convoluzionali che attualmente sono le migliori quando di trattano immagini. per il problema del Predecessore Provare a ridurre l’errore utilizzando reti neurali Radial Basis Function Network con funzione radiale Manhattan perchè, idealmente, permetterebbe di approssimare bene una funzione a scalini come la funzione di ripartizione empirica
