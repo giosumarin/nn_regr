@@ -1,20 +1,26 @@
 Buongiorno, sono Giosuè Marinò e il titolo della mia tesi è COMPRESSIONE DI RETI NEURALI IN PROBLEMI DI CLASSIFICAZIONE E REGRESSIONE
 
 1
-In questa tesi abbiamo implementato due algoritmi di compressione spaziale. Abbiamo applicato questi algoritmi in un problema di classificazione e uno di regressione. Per quanto riguarda la classificazione abbiamo utilizzato il dataset MNIST di cifre manoscritte con l'obiettivo di riconoscere le cifre scritte a mano, per la regressione abbiamo utilizzato tre dataset di sequenze ordinate di numeri con l'obiettivo, dato un input, di indicare la posizione del predecessore nella sequenza.
+In questa tesi abbiamo analizzato l’impatto di due algoritmi di compressione per reti neurali con lo scopo di limitare risorse:
+Nell’era DNN le reti tendono a raggiungere dimensioni enormi e
+Ci sono dispositivi dove lo spazio è una risorsa limitata
+In questa tesi abbiamo implementato due algoritmi di compressione spaziale per reti neurali.
+Abbiamo applicato questi algoritmi in un problema di classificazione e uno di regressione. Per quanto riguarda la classificazione abbiamo utilizzato il dataset MNIST di cifre manoscritte con l'obiettivo di riconoscere le cifre, per la regressione abbiamo utilizzato tre dataset di sequenze ordinate di numeri con l'obiettivo, dato un input, di indicare la posizione del predecessore nella sequenza.
 
 2
-Abbiamo utilizzato le reti neurali chiamate Multilayer perceptron, queste reti sono formate da strati multipli di nodi in un grafo diretto aciclico, come nell'esempio. Tra lo strato di input e quello di output ci possono essere uno o più strati nascosti: chiamati così perchè l'attivazione di questi neuroni non è visibile all'esterno.
+Abbiamo utilizzato le reti neurali chiamate Multilayer perceptron, queste reti sono formate da strati multipli di nodi in un grafo diretto aciclico, come nell'esempio. 
+Tra lo strato di input e quello di output ci possono essere uno o più strati nascosti: chiamati così perchè l'attivazione di questi neuroni non è visibile all'esterno.
 Le connessioni sono chiamate pesi e collegano tutti i neuroni di uno strato a tutti i neuroni dello strato successivo.
 Ogni strato di neuroni ha una funzione di attivazione non lineare a eccezione dello strato di input.
 L'apprendimento automatico avviene tramite l'algoritmo di backpropagation: quest'algoritmo calcola le differenze tra le uscite della rete e i risultati attesi e tramite derivate parziali, strato per strato, aggiusta i pesi iterazione per iterazione.
 
 3
-La prima tecnica di compressione implementata è il pruning, questa tecnica prende i pesi di una rete già addestrata e elimina alcuni pesi rendendoli uguali a zero. Successivamente avviene il riaddestramento senza le connessioni eliminate. I pesi a questo punto vengono salvati con una rappresentazione matriciale CSC.
+La prima tecnica di compressione implementata è il pruning, questa tecnica prende i pesi di una rete già addestrata e elimina alcune connessioni. Successivamente avviene il riaddestramento senza le connessioni eliminate. I pesi a questo punto vengono salvati con una rappresentazione matriciale CSC.
 Il tasso di compressione di questa tecnica è calcolato come lo spazio occupato dalla rappresentazione CSC fratto lo spazio della matrice originale.
 
 4
-Il weight sharing invece prende i pesi di una rete addestrata e applica un algoritmo di clustering impostando come parametro il numero di cluster. sostituiamo la matrice dei pesi con una matrice in cui gli elementi sono l'indice del centroide più vicino al pesi.
+Il weight sharing invece prende i pesi di una rete addestrata e raggruppa i pesi simili attraverso un algoritmo di clustering.
+Viene definito un centroide per ogni cluster e sostituiamo la matrice dei pesi con una matrice in cui gli elementi sono l'indice del centroide più vicino a pesi.
 Il tasso di compressione è calcolato come mostrato: 
     m per n per b primo più b per k tutto fratto m per n per b dove m e n sono le dimensioni della matrice dei pesi, b è il numero di bit utilizzati per rappresentare i pesi originali e i centroidi, b primo il numero di bit per rappresentare gli indici, valorizzato con 16 o 8 bit e k il numero di cluster
     
